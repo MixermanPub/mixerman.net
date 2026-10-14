@@ -1,0 +1,109 @@
+---
+import Base from '../../layouts/Base.astro';
+import { pageTitle } from '../../data/site';
+import BookHeader from '../../components/BookHeader.astro';
+import BookSchema from '../../components/BookSchema.astro';
+import SamplerForm from '../../components/SamplerForm.astro';
+import { getEntry, getCollection, render } from 'astro:content';
+
+const entry = await getEntry('pages', 'mm-ultimate-producing');
+const { Content } = await render(entry);
+const d = entry.data;
+// the foot box shows the same buttons as the header, minus the desk copy
+const footGroups = (d.buyLinks ?? []).filter((g) => g.format !== 'Faculty');
+
+const BOOK_ORDER = [
+  'zen-the-art-of-mixing-mix-music-like-a-pro',
+  'musicians-survival-guide-to-a-killer-record',
+  'the-daily-adventures-of-mixerman-hilarious-unauthorized-diary',
+];
+const bookPages = await getCollection('pages', (p) => {
+  const path = new URL(p.data.wpUrl).pathname;
+  return path.startsWith('/books/') && path !== '/books/';
+});
+
+const otherBooks = BOOK_ORDER
+  .map(slug => bookPages.find(b => b.data.slug === slug))
+  .filter(Boolean)
+  .map(b => ({ title: b.data.title, href: new URL(b.data.wpUrl).pathname, cover: b.data.featuredImage }));
+---
+<Base title={pageTitle(d.title)} description={d.excerpt} image={d.featuredImage}>
+  <BookSchema book={d} />
+  <section class="section section--deep" style="padding:40px 0 28px">
+    <div class="wrap" style="text-align:center">
+      <div class="lineband">
+        <h1 class="plate" style="max-width:90%; font-size:clamp(1.15rem, 1.9vw, 1.5rem)">{d.title}</h1>
+      </div>
+      <img src="/brand/antidote-tape.webp" alt="The antidote to misinformation" width="400"
+        style="display:block; margin:12px auto 0; max-width:88%; height:auto; transform:rotate(-1.2deg)" />
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:24px">
+    <div class="wrap" style="max-width:920px">
+      <BookHeader cover="/uploads/2026/08/mug2prms-3d-alpha.webp" title={d.title} groups={d.buyLinks} />
+      <div class="prose prose--bare">
+        <Content />
+        {/* the header again at the foot, smaller, for the reader who has just
+            been convinced: same cover, same links, minus the desk copy */}
+        <div class="buy-foot" data-formats={footGroups.length}>
+          <BookHeader cover="/uploads/2026/08/mug2prms-3d-alpha.webp" title={d.title} groups={footGroups} />
+        </div>
+        {/* the fallback for the reader who is not ready to buy */}
+        <SamplerForm />
+        <h2>More Books by Mixerman</h2>
+        <div class="bookrow">
+          {otherBooks.map(b => (
+            <a href={b.href} title={b.title}>
+              <img src={b.cover} alt={b.title} loading="lazy" />
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+  <style is:global>
+    /* Larry's credit keeps name and masthead on one line; the records he has
+       made drop to a line of their own beneath it */
+    .clipband .who .who-credits { display: block; margin-left: 0; }
+    /* a band name never breaks in two */
+    .clipband .who .nb { white-space: nowrap; }
+    /* on a phone the records line is sized to the screen so both names
+       always share the one row */
+    @media (max-width: 700px) {
+      .clipband .who .who-credits { font-size: min(1.05rem, 3.5vw); }
+    }
+    /* the reader overflow folds away under Larry's closing card. The cards
+       inside are not direct children of the prose block, so they take the
+       cream sheet's card dress here rather than from the shared rule */
+    .readers-more { margin: 2em clamp(20px, 10%, 80px) 0; }
+    .readers-more summary {
+      font-family: var(--type);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      font-size: 1.2rem;
+      color: var(--text);
+      cursor: pointer;
+      width: fit-content;
+    }
+    .readers-more summary:hover { color: var(--red-deep); }
+    .readers-more .testimonial {
+      background: var(--page);
+      padding: 26px 30px 22px;
+      border: 1px solid #cfc8bb;
+      box-shadow: 0 5px 14px rgba(25, 20, 16, .3);
+      margin-block: 2em;
+    }
+  </style>
+  <script>
+    // external links leave the site in a new tab; internal ones stay put.
+    document.querySelectorAll('.prose a').forEach((a) => {
+      const link = a as HTMLAnchorElement;
+      if (/^https?:$/.test(link.protocol) && link.origin !== location.origin) {
+        link.target = '_blank';
+        link.rel = 'noopener';
+      }
+    });
+  </script>
+</Base>

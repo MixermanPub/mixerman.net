@@ -1,0 +1,33 @@
+---
+/* Structured data for a book page: one JSON-LD Book so search engines can
+   show the title, cover and author as a book rather than a plain web page.
+   Everything per-book comes from the page's frontmatter; only the author and
+   publisher, which are the same on every book, are written here. No ISBN or
+   offers: neither is in the frontmatter, and a stale price in schema is
+   worse than none. */
+const { book } = Astro.props;
+
+const site = Astro.site;
+const path = new URL(book.wpUrl).pathname;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Book',
+  name: book.title,
+  ...(book.excerpt && { description: book.excerpt.replace(/\s+/g, ' ').trim() }),
+  url: new URL(path, site).href,
+  ...(book.featuredImage && { image: new URL(book.featuredImage, site).href }),
+  inLanguage: book.language ?? 'en',
+  author: {
+    '@type': 'Person',
+    name: 'Eric Sarafin',
+    alternateName: 'Mixerman',
+    url: new URL('/', site).href,
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Mixerman Publishes',
+  },
+};
+---
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

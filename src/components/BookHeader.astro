@@ -1,0 +1,8 @@
+---
+import BuyLinks from './BuyLinks.astro';
+const { cover, title, groups, formats, stack } = Astro.props;
+---
+<div class="bookhead" data-formats={formats} data-buystack={stack ? '' : undefined}>
+  {cover && <img class="bookhead-cover" src={cover} alt={`${title} — cover`} width="360" />}
+  <BuyLinks groups={groups} />
+</div>

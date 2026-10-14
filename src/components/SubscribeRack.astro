@@ -1,0 +1,292 @@
+---
+/*
+  The mailing-list faceplate, sitting above the footer on every page but the
+  two that already ask the reader for something (see Base.astro).
+
+  The form is ours, not Kit's. Their embed script drew this panel until now,
+  and on every successful signup it opened a modal advertising other people's
+  newsletters — their "Creator Network", with no documented way to switch it
+  off. So nothing of Kit's loads here any more. We post to the same endpoint
+  their own form posts to, which is what makes the subscriber flow identical:
+  same list. What changes is that the panel stays ours all the way through,
+  success message included.
+
+  Eric turned Kit's double opt-in off in September 2026: a signup is on the
+  list the moment it succeeds, and no confirmation email goes out. So the
+  success message says so, and asks for nothing more.
+
+  What does go out is the Producing sampler. Kit's one automation starts from
+  this form: it adds the "Website signups" tag, then sends the "Sampler
+  Signup" sequence, the same email the sampler form sends (see SamplerForm).
+
+  Most of the styling lives in global.css under "silverface" and "the mailing
+  list form" — nothing is scoped here, because the panel has to match the
+  footer plate directly beneath it and the two are set from the same --plate-h.
+*/
+
+// The form's numeric id, off the embed's own <form action>. Not the uid in the
+// old script tag (7118d29c68) — that one names the embed, and this endpoint
+// answers "couldn't find a form" to it.
+const KIT_FORM = '2169618';
+const KIT_ENDPOINT = `https://app.kit.com/forms/${KIT_FORM}/subscriptions`;
+---
+<aside class="section section--silverface" id="subscribe" aria-label="Mailing list">
+  <img class="rackhw rackhw--tl" src="/brand/rack-screw.svg" alt="" aria-hidden="true" />
+  <img class="rackhw rackhw--tr" src="/brand/rack-screw-r.svg" alt="" aria-hidden="true" />
+  <img class="rackhw rackhw--bl" src="/brand/rack-screw.svg" alt="" aria-hidden="true" />
+  <img class="rackhw rackhw--br" src="/brand/rack-screw-r.svg" alt="" aria-hidden="true" />
+  {/* The power toggle, on the open metal at the panel's right end — the same
+      switch the footer plate wears, with the legend a silverface carries over
+      its hardware. Panel furniture like the footer's: decorative, and hidden
+      from anyone hearing the page rather than seeing it. */}
+  <span class="rackhw pwr-gear" aria-hidden="true">
+    <span class="pwr-legend">Power</span>
+    <img src="/brand/rack-switch.webp" alt="" width="300" height="327" />
+  </span>
+  <div class="wrap sub-grid">
+    <div class="list-col">
+      {/* The words are inside the photographs, so each strip carries them as
+          alt text too — read in order they say "Join my list and never miss
+          out!", which is what someone hearing the page instead of seeing it
+          should get. */}
+      <h2 class="list-head">
+        <img src="/brand/tape-join-my-list.webp" alt="Join my list" width="760" height="135" />
+        <img src="/brand/tape-never-miss-out.webp" alt="and never miss out!" width="760" height="152" />
+      </h2>
+      {/* The third strip, same hand: it says what the typeset fine print used
+          to say, so the words live in the alt and the line is said once. */}
+      <p class="unsub">
+        <img src="/brand/tape-unsubscribe-anytime.webp" alt="Unsubscribe anytime." width="760" height="93" />
+      </p>
+    </div>
+    <div class="sub-col">
+      <p class="sub-kicker">News · Posts · Updates</p>
+      <div class="sub-form">
+        {/* action and method are real, and the fields carry the names Kit's own
+            form carries — so with JavaScript off the browser posts this itself
+            and the signup still lands. The handler below cancels that and does
+            it over fetch, which is the only way to keep the reader on this page
+            and answer them in our own words. */}
+        <form class="sub-kit" action={KIT_ENDPOINT} method="post">
+          <div class="sub-fields">
+            {/* The placeholders do the talking on a panel this tight; the
+                labels are here so the fields are still named out loud. */}
+            <label class="sr-only" for="sub-first">First name</label>
+            <input class="sub-input" id="sub-first" name="fields[first_name]" type="text"
+              placeholder="First Name" autocomplete="given-name" />
+            <label class="sr-only" for="sub-email">Email address</label>
+            <input class="sub-input" id="sub-email" name="email_address" type="email"
+              placeholder="Email Address" autocomplete="email" required />
+            {/* the word SUBSCRIBE is painted into the nameplate art, so the span
+                is clipped away and left only to name the control. The <i> is
+                the lit lamp, laid over the dark one from the start (see
+                global.css) so a hover never has to fetch it. */}
+            <button class="sub-submit" type="submit"><i class="sub-lit" aria-hidden="true"></i><span>Subscribe</span></button>
+          </div>
+          <p class="sub-msg" id="sub-msg" role="status" aria-live="polite"></p>
+        </form>
+        {/* What Kit's green success box used to say, in the panel's own
+            lettering. Focus moves here on success, which both announces it and
+            puts the reader at the thing that just changed. */}
+        <div class="sub-done" id="sub-done" tabindex="-1" hidden>
+          <img class="sub-lamp" src="/brand/subscribe-green.webp" alt="" aria-hidden="true"
+            width="58" height="58" />
+          <div>
+            <p class="sub-done-head">You're on the list</p>
+            <p class="sub-done-note">A sampler of my PRODUCING book is on its way to your inbox.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* The overlay Kit used to throw, built out of our own gear: the same black
+      faceplate the header and footer are cut from, wearing the same rack
+      screws. A <dialog> opened with showModal() rather than a div — it traps
+      focus, closes on Escape and inerts the page behind it, all of which a
+      hand-rolled modal has to be talked into and usually isn't.
+
+      It sits OVER the confirmation already on the panel rather than instead of
+      it: close the card and the band still reads as signed up, and on anything
+      that cannot open a dialog the panel alone still says so. */}
+  <dialog class="sub-modal" id="sub-modal" aria-labelledby="sub-card-head">
+    <div class="rackpanel sub-card">
+      <img class="rackhw rackhw--tl" src="/brand/rack-screw.svg" alt="" aria-hidden="true" />
+      <img class="rackhw rackhw--tr" src="/brand/rack-screw-r.svg" alt="" aria-hidden="true" />
+      <img class="rackhw rackhw--bl" src="/brand/rack-screw.svg" alt="" aria-hidden="true" />
+      <img class="rackhw rackhw--br" src="/brand/rack-screw-r.svg" alt="" aria-hidden="true" />
+      <img class="sub-card-lamp" src="/brand/subscribe-green.webp" alt="" aria-hidden="true"
+        width="58" height="58" />
+      <h2 class="sub-card-head" id="sub-card-head">You're on the list</h2>
+      <p class="sub-card-note">
+        A sampler of my <em>Ultimate Guide to PRODUCING</em> is on its way to your inbox.<br />Until then, enjoy!
+      </p>
+      <button class="sub-card-close" type="button">Got it</button>
+    </div>
+  </dialog>
+</aside>
+
+<script>
+  const KIT_ENDPOINT = 'https://app.kit.com/forms/2169618/subscriptions';
+
+  const form = document.querySelector('#subscribe .sub-kit') as HTMLFormElement | null;
+  if (form) {
+    // Turned off from here rather than in the markup: with the script dead or
+    // still loading the form is a plain HTML post, and it should keep the
+    // browser's own validation. It is only switched off because we have a
+    // message of our own to show in place of the browser's bubble.
+    form.noValidate = true;
+
+    const email = document.getElementById('sub-email') as HTMLInputElement;
+    const first = document.getElementById('sub-first') as HTMLInputElement;
+    const button = form.querySelector('.sub-submit') as HTMLButtonElement;
+    const msg = form.querySelector('.sub-msg') as HTMLParagraphElement;
+    const done = document.getElementById('sub-done') as HTMLDivElement;
+    const modal = document.getElementById('sub-modal') as HTMLDialogElement | null;
+
+    function say(text: string, link?: { href: string; label: string }) {
+      msg.textContent = text;
+      if (link) {
+        // Opens in a new tab so the reader keeps their place on the page —
+        // they come back to a form that is still filled in.
+        const a = document.createElement('a');
+        a.href = link.href;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.textContent = link.label;
+        msg.append(' ', a);
+      }
+    }
+
+    if (modal) {
+      modal.querySelector('.sub-card-close')!.addEventListener('click', () => modal.close());
+      // A click on the backdrop reports the dialog itself as its target, the
+      // card being a child that would report itself. Escape is the browser's.
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.close();
+      });
+    }
+
+    let sending = false;
+
+    // typing again clears the invalid mark; the message can stay until the next try
+    email.addEventListener('input', () => {
+      email.removeAttribute('aria-invalid');
+      email.removeAttribute('aria-describedby');
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (sending) return;
+
+      msg.textContent = '';
+      email.removeAttribute('aria-invalid');
+      email.removeAttribute('aria-describedby');
+
+      // type="email" only rejects the plainly malformed, which is as far as any
+      // front end should go — the address is either deliverable or it isn't,
+      // and only the confirmation email settles that. Short enough to hold one
+      // line in the strip of metal beside the plate.
+      if (!email.value.trim() || !email.checkValidity()) {
+        say('Enter a valid address.');
+        // Tied to the field as well as announced: focus lands on the field
+        // next, and that announcement can talk over the status. Marked invalid
+        // and described by the message, the field itself says both.
+        email.setAttribute('aria-invalid', 'true');
+        email.setAttribute('aria-describedby', 'sub-msg');
+        email.focus();
+        return;
+      }
+
+      sending = true;
+      form.setAttribute('data-sending', '');
+      button.disabled = true;
+
+      try {
+        // Form-encoded rather than JSON, with the field names Kit's own form
+        // uses. It makes this byte-for-byte the request their embed sends, and
+        // it is a CORS "simple request" — no preflight, one round trip.
+        const body = new URLSearchParams({
+          email_address: email.value.trim(),
+          'fields[first_name]': first.value.trim(),
+        });
+        const res = await fetch(KIT_ENDPOINT, {
+          method: 'POST',
+          // without this the endpoint answers a form post with a redirect to
+          // Kit's own thank-you page, which is the page we are getting away from
+          headers: { Accept: 'application/json' },
+          body,
+        });
+        const data = await res.json();
+
+        if (data.status === 'success') {
+          // showModal is the feature test as well as the call.
+          if (typeof modal?.showModal === 'function') {
+            // The card is where the confirmation lives, so the panel behind it
+            // goes back to how it started — emptied, and ready for another
+            // address. Nothing is left saying "you're on the list" underneath to
+            // be revealed and then taken away again when the card closes.
+            //
+            form.reset();
+
+            // Focus is set on the button BEFORE the card opens, because that
+            // is the only lever there is: a dialog hands focus back on close to
+            // whatever held it at the moment it opened, and it does that after
+            // the close event — so a close handler cannot win, whether it sets
+            // focus straight away or on a timer. Both were tried.
+            //
+            // Usually the button holds focus anyway, having just been clicked.
+            // Not always: submitting with Return from the email field leaves it
+            // there, and a script-driven submit leaves it on <body>, which ends
+            // with focus stranded on a close button inside a shut dialog. This
+            // makes it the button every time.
+            //
+            // Enabled first, and not left to the `finally` below: that runs on
+            // the way out of this block, which is a moment too late. A disabled
+            // control cannot hold focus, so focusing it while the request's
+            // sending state is still on is a silent no-op — and then the card
+            // opens over a page whose focus is on <body>, with nothing for it
+            // to hand back to.
+            button.disabled = false;
+            button.focus();
+            modal.showModal();
+          } else {
+            // Without a dialog the panel has to carry the confirmation itself.
+            // Focus moves to it both to announce the change and to put the
+            // reader at the thing that just changed.
+            form.hidden = true;
+            done.hidden = false;
+            done.focus();
+          }
+          return;
+        }
+
+        // Kit quarantines a signup it reads as a bot and hands back a challenge
+        // to complete. Rare, and it happens whether or not their script is on
+        // the page — but dropping it silently would lose a real subscriber, so
+        // we offer the link rather than follow it. The origin is checked
+        // because this URL arrives from off-site and we are about to link to it.
+        if (data.status === 'quarantined' && typeof data.url === 'string') {
+          let ok = false;
+          try { ok = new URL(data.url).origin === 'https://app.kit.com'; } catch {}
+          if (ok) {
+            say('One more step — Kit needs to check you are a person.',
+              { href: data.url, label: 'Finish signing up' });
+            return;
+          }
+        }
+
+        // Kit's own wording when it has any: "Email address is invalid" and the
+        // like are plainer than anything we would substitute for them.
+        const detail = data?.errors?.messages?.[0];
+        say(detail || "That didn't go through. Try again in a moment?");
+      } catch {
+        say('Could not reach the list just now. Try again in a moment?');
+      } finally {
+        sending = false;
+        form.removeAttribute('data-sending');
+        button.disabled = false;
+      }
+    });
+  }
+</script>

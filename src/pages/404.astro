@@ -1,0 +1,22 @@
+---
+/* Served by Netlify for any address that has no page. Kept off the index,
+   and short: a plain word on what happened and the three places to go. */
+import Base from '../layouts/Base.astro';
+---
+<Base title="Page Not Found — Mixerman" description="There is nothing at this address." noindex={true}>
+  <section class="section section--deep" style="padding:40px 0 28px">
+    <div class="wrap" style="text-align:center">
+      <div class="lineband">
+        <h1 class="plate" style="font-size:clamp(1.4rem, 2.8vw, 2rem)">Page Not Found</h1>
+      </div>
+    </div>
+  </section>
+  <section class="section" style="padding:28px 0 56px">
+    <div class="wrap" style="max-width:720px">
+      <div class="prose">
+        <p>There's nothing at this address. The page may have moved when the site did, or the link that brought you here may be wrong.</p>
+        <p>Try the <a href="/">home page</a>, the <a href="/books/">books</a>, or the <a href="/posts/">posts</a>. If you were after something specific, <a href="/about-contact/">tell me</a> and I'll point you to it.</p>
+      </div>
+    </div>
+  </section>
+</Base>

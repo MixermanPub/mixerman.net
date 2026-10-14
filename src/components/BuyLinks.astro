@@ -1,0 +1,109 @@
+---
+const { groups } = Astro.props;
+
+// Official store badges we're permitted to display, matched by link label.
+// Anything without an official badge falls back to a typeset chip.
+// Matched on the destination URL where possible — labels vary by language.
+const BADGES = [
+  // podcast platforms first: podcasts.apple.com must beat the Apple Books rule below
+  { test: (l, u) => /podcasts\.apple\.com/i.test(u),
+    src: '/brand/stores/apple-podcasts.svg', alt: 'Listen on Apple Podcasts' },
+  // Spotify publishes no ready-made badge the way Apple does — only the logo,
+  // and "Listen on Spotify" as approved wording — so the frame around it is
+  // ours, drawn to Apple's pill. The mark inside is Spotify's own black one
+  // from the 2024 pack; the green was tried and it shouted over a column that
+  // is otherwise black, white and one gold button.
+  { test: (l, u) => /spotify\.com/i.test(u) || /spotify/i.test(l),
+    src: '/brand/stores/spotify-black.svg', alt: 'Listen on Spotify',
+    cls: 'store--framed store--spotify' },
+  // a bare wordmark, so it gets a frame matching the Apple/Google badge pill
+  { test: (l, u) => /ingramspark\.com/i.test(u),
+    src: '/brand/stores/ingramspark.png', alt: 'Buy direct from IngramSpark', cls: 'store--framed store--dark' },
+  // our own storefront — checkout runs on Gumroad, but the button wears the house
+  // plate colors; drawn at Apple's pill ratio, so it needs no frame, only corners
+  { test: (l, u) => /gumroad\.com/i.test(u),
+    src: '/brand/stores/mixerman-publishes-new-button6.png', alt: 'Mixerman Publishes', cls: 'store--mmpub' },
+  // and our own site, where a title's audio plays in full: the same house plate,
+  // which also gives it the whole row and pairs the stores up beneath it
+  { test: (l, u) => u.startsWith('/podcast/'),
+    src: '/brand/stores/mixerman-publishes-new-button6.png', alt: 'Listen at Mixerman Publishes',
+    cls: 'store--mmpub store--listen' },
+  { test: (l, u) => /apple\.com/i.test(u) || /apple/i.test(l),
+    src: '/brand/stores/apple-books.svg', alt: 'Get it on Apple Books' },
+  // Google's PNG ships with its clear space baked in as transparent padding,
+  // so it's sized taller to make the visible pill match the others.
+  { test: (l, u) => /play\.google\.com/i.test(u) || /google\s*play/i.test(l),
+    src: '/brand/stores/google-play.png', alt: 'Get it on Google Play', cls: 'store--gplay' },
+  { test: (l, u) => /amazon\.|amzn\.to|mybook\.to/i.test(u) || /amazon/i.test(l),
+    src: '/brand/stores/amazon.png', alt: 'Available at Amazon', cls: 'store--framed' },
+];
+const badgeFor = (label, url) => BADGES.find(b => b.test(label, url));
+// The store button skips Gumroad's product card and opens its checkout in a
+// new tab (?wanted=true is Gumroad's "auto-trigger the payment form"). The
+// card used to open in an overlay here, but its Add to cart replaced this tab
+// with gumroad.com; a new tab keeps the book page open behind the purchase.
+const storeHref = (u) => /gumroad\.com\/l\//i.test(u) && !/[?&]wanted=/.test(u)
+  ? u + (u.includes('?') ? '&' : '?') + 'wanted=true'
+  : u;
+---
+{groups && groups.length > 0 && (
+  <div class="buybox">
+    {groups.map(g => (
+      <div class="buycol">
+        <h2>{g.format}</h2>
+        <ul>
+          {g.links.map((l, i) => {
+            const badge = badgeFor(l.label, l.url);
+            const external = !l.url.startsWith('/');
+            // "Buy direct" names the house button only. When other stores follow
+            // it in the same format, an "Or" in the same lettering closes that
+            // note off, so the price is not read as belonging to all of them.
+            // A sticker says the price itself, pointing at the button, so it
+            // replaces both the note and the "Or".
+            const orAfter = /gumroad\.com/i.test(l.url) && l.note && !l.sticker && i < g.links.length - 1;
+            return (
+              <>
+              <li class={l.sticker ? 'has-sticker' : l.note ? 'has-note' : undefined}>
+                {l.note && !l.sticker && <span class="store-note">{l.note}</span>}
+                <a href={storeHref(l.url)}
+                  class={badge ? `store store--badge ${badge.cls ?? ''}`.trim() : 'store store--text'}
+                  title={l.note ? `${l.label} — ${l.note}` : l.label}
+                  target={external ? '_blank' : undefined}
+                  rel={external ? 'noopener' : undefined}>
+                  {/* The format rides in the alt as well, because the same badge
+                      can appear under two headings on one page — Apple Books for
+                      the eBook and again for the audiobook — and in a screen
+                      reader's list of links the heading is not there to tell
+                      them apart. */}
+                  {badge
+                    ? <img src={badge.src} alt={[badge.alt, l.note, g.format].filter(Boolean).join(' — ')} loading="lazy" />
+                    : <>
+                        {/* the chip that stays on the site carries Eric's tablet
+                            beside its word — the eBook desk copy, in the house
+                            yellow. Decorative, so the link is still just the label. */}
+                        {!external && (
+                          <img class="store-icon" src="/brand/deskcopy-ipad-dark.webp" alt="" width="81" height="96" loading="lazy" />
+                        )}
+                        <span>{l.label}</span>
+                      </>}
+                </a>
+                {/* The price is printed in the sticker, and it's in the button's
+                    alt too, so the sticker is a second way to click and
+                    hidden from screen readers to avoid a duplicate link. */}
+                {l.sticker && (
+                  <a href={storeHref(l.url)} class="store-sticker" tabindex="-1" aria-hidden="true"
+                    target={external ? '_blank' : undefined}
+                    rel={external ? 'noopener' : undefined}>
+                    <img src={l.sticker} alt="" width="509" height="216" loading="lazy" />
+                  </a>
+                )}
+              </li>
+              {orAfter && <li class="store-or"><span class="store-note">Or</span></li>}
+              </>
+            );
+          })}
+        </ul>
+      </div>
+    ))}
+  </div>
+)}

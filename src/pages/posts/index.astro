@@ -1,0 +1,49 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', (p) => !p.data.archived))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+---
+<Base title="Posts — The World According to Mixerman" description="Mixerman's posts: essays, videos, podcast episodes, and satirical comics on producing, recording, and mixing." image="/brand/share-card-posts.jpg">
+  <section class="section section--deep" style="padding:40px 0 28px">
+    <div class="wrap" style="text-align:center">
+      <div class="lineband">
+        <h1 class="plate" style="font-size:clamp(1.4rem, 2.8vw, 2rem)">Posts</h1>
+      </div>
+      <img class="blog-tape" src="/brand/twatm-tape-crop.webp" alt="The World According to Mixerman" width="400" />
+    </div>
+  </section>
+
+  <style>
+    .blog-tape {
+      display: block;
+      width: min(500px, 88%);
+      height: auto;
+      margin: 12px auto 0;
+      transform: rotate(3.2deg);
+      filter: drop-shadow(2px 4px 4px rgba(0,0,0,.35));
+    }
+  </style>
+
+  <section class="section section--paper">
+    <div class="wrap">
+      <div class="cardgrid">
+        {posts.map(post => (
+          <div class="card">
+            {(post.data.cardImage ?? post.data.featuredImage) &&
+              <img src={post.data.cardImage ?? post.data.featuredImage} alt="" loading="lazy"
+                style={post.data.cardFocus ? `object-position:${post.data.cardFocus}` : undefined} />}
+            <div class="pad">
+              <span class="kicker">
+                {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              </span>
+              <h2><a class="card-link" href={`/${post.data.slug}/`}>{post.data.title}</a></h2>
+              {post.data.excerpt && <p>{post.data.excerpt}</p>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>

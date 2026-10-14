@@ -1,0 +1,8 @@
+# Netlify response headers. Nothing here changes how a page renders; each
+# one closes a door a browser would otherwise leave ajar.
+/*
+  Strict-Transport-Security: max-age=31536000
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()

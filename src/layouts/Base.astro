@@ -1,0 +1,273 @@
+---
+import '../styles/global.css';
+import SubscribeRack from '../components/SubscribeRack.astro';
+import { gaMeasurementId } from '../data/site';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  /* set false on a page that should not carry the mailing-list rack */
+  subscribe?: boolean;
+  /* BCP 47 language of the page's content; the translated editions set it */
+  lang?: string;
+  /* keep a page out of search engines: the thank-you page and the 404 */
+  noindex?: boolean;
+}
+
+/* Pages that bring no image of their own share with the plain card — the
+   plate on the console photo. Posts and pages with a featured image, and the
+   pages that name the books card explicitly, are unaffected. */
+const { title, description = "Mixerman — gold & platinum award-winning mixer, producer, and author of instructive and satirical books on recording, mixing, and producing.", image = '/brand/share-card-plain.jpg', subscribe, lang = 'en', noindex = false } = Astro.props;
+const path = Astro.url.pathname;
+
+/* Share images must be fetchable at the address baked into the tag, and until
+   the DNS cutover mixerman.net is still the old WordPress site, which 404s
+   them. Netlify sets URL to whatever domain this deploy actually serves —
+   staging today, mixerman.net after launch — so previews work in both eras.
+   Canonical URLs stay on Astro.site: those are for search engines and the
+   future, not for the crawler fetching a thumbnail today. */
+const ogOrigin = process.env.URL || Astro.site;
+
+/* The pages ask for webp, but not every crawler that builds a share preview
+   accepts one. Where the webp was made from a jpg or png that is still in
+   public/, the share card points at that original instead. */
+import fs from 'node:fs';
+import { join } from 'node:path';
+const shareImage = (() => {
+  if (!image || !image.endsWith('.webp')) return image;
+  for (const ext of ['.jpg', '.jpeg', '.png']) {
+    const alt = image.replace(/\.webp$/, ext);
+    if (fs.existsSync(join(process.cwd(), 'public', alt))) return alt;
+  }
+  return image;
+})();
+
+/* The rack goes above the footer everywhere except the Retreat and Contact
+   pages, which are already asking the reader for something and should not
+   follow it with a second ask. Decided on the path here rather than by every
+   page passing a prop, so the list of exceptions is in one readable place; a
+   page can still override it explicitly with subscribe={false}. Trailing
+   slashes are normalised because the router serves both forms. */
+const noRack = ['/mixermans-ultimate-music-producer-retreat', '/about-contact', '/faculty-review-adoption-mug2prms'];
+const here = path.replace(/\/+$/, '');
+const showRack = subscribe ?? !noRack.includes(here);
+
+const nav = [
+  { label: 'Home', href: '/' },
+  { label: 'Books', href: '/books/' },
+  { label: 'Mixing', href: '/professional-mixing-mastering/' },
+  { label: 'Posts', href: '/posts/' },
+  { label: 'Chronicles', href: '/podcast/' },
+  /* Retreat and Faculty came out of the masthead on 2026-09-18. Neither is
+     lost: both sit in the footer, and the faculty page is linked from the book
+     it hands out desk copies of, which is where someone looking for it would
+     actually be. The retreat may go altogether — Eric is not ready to decide
+     that yet, and taking it off the masthead is not that decision. */
+  { label: 'Contact', href: '/about-contact/' },
+];
+---
+<html lang={lang}>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description.replace(/\s+/g, ' ').trim()} />
+  {noindex && <meta name="robots" content="noindex" />}
+  <link rel="canonical" href={new URL(path, Astro.site)} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description.replace(/\s+/g, ' ').trim()} />
+  {shareImage && <meta property="og:image" content={new URL(shareImage, ogOrigin)} />}
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@400;500;600;700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  {/* Body copy. macOS fattens type as it draws it and touch screens do not, so
+      touch screens get a heavier cut: 550 against the desktop's 400. They are
+      handed no regular weight at all, on purpose: the lightest cut the browser
+      has is the one all reading text comes out in, and nothing set in Oswald
+      or Courier moves. */}
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" media="not ((hover: none) and (pointer: coarse))" />
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,550;0,700;1,550;1,700&display=swap" rel="stylesheet" media="(hover: none) and (pointer: coarse)" />
+  <link rel="sitemap" href="/sitemap-index.xml" />
+  <link rel="alternate" type="application/rss+xml" title="Mixerman — Posts" href="/rss.xml" />
+  <link rel="icon" type="image/png" sizes="64x64" href="/favicon-64.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  {/* Google Analytics. Two gates, both deliberate: the measurement ID being
+      set at all, and this being a real build rather than the dev server —
+      otherwise every afternoon spent editing pages would land in the numbers
+      as traffic. Deploy previews do count; filter them by hostname in GA4 if
+      they ever get loud enough to matter.
+
+      is:inline is load-bearing. Without it Astro bundles and processes these
+      scripts, and the tag stops being the thing Google expects to find. */}
+  {gaMeasurementId && import.meta.env.PROD && (
+    <>
+      <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}></script>
+      <script is:inline define:vars={{ gaMeasurementId }}>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){ dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', gaMeasurementId);
+      </script>
+    </>
+  )}
+</head>
+<body>
+  {/* The first thing a keyboard or screen reader meets on every page: a way
+      past the masthead and its eight links, straight to the content. Hidden
+      until it takes focus. */}
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header site-header--rack rackpanel">
+    <img class="rackhw rackhw--tl" src="/brand/rack-screw.svg" alt="" aria-hidden="true" />
+    <img class="rackhw rackhw--tr" src="/brand/rack-screw-r.svg" alt="" aria-hidden="true" />
+    <img class="rackhw rackhw--bl" src="/brand/rack-screw.svg" alt="" aria-hidden="true" />
+    <img class="rackhw rackhw--br" src="/brand/rack-screw-r.svg" alt="" aria-hidden="true" />
+    <div class="wrap masthead" style="max-width:1280px">
+      <a class="brand" href="/">
+        <img class="brand-plate-wide" src="/brand/mm-publishes-plate-3.webp" alt="Mixerman Publishes" width="760" height="297" />
+      </a>
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="site-nav">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" id="site-nav" aria-label="Main">
+        {nav.map(item => (
+          <a href={item.href} aria-current={path === item.href ? 'page' : undefined}
+             target={item.href.startsWith('http') ? '_blank' : undefined}
+             rel={item.href.startsWith('http') ? 'noopener' : undefined}>{item.label}</a>
+        ))}
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <slot />
+  </main>
+
+  {/* one photographed plate, screws and all — the drawn rack screws the menu
+      bar uses are not needed here, only the lamp and toggle sit on top */}
+  {showRack && <SubscribeRack />}
+
+  <footer class="site-footer site-footer--plate">
+    <img class="rackhw rackhw--lamp" src="/brand/rack-lamp.webp" alt="" aria-hidden="true" />
+    <img class="rackhw rackhw--toggle" src="/brand/rack-switch.webp" alt="" aria-hidden="true" />
+    {/* The left end's gear, standing off the panel's edge by the same inset the
+        pair above take from the right. Decorative furniture, so no alt text and
+        hidden from anyone hearing the page rather than seeing it. The legend is
+        grouped WITH the switch so it centres over that alone, not over the
+        switch and lamp together. */}
+    <div class="footer-gear" aria-hidden="true">
+      <span class="gear-stack">
+        <img class="gear-legend" src="/brand/foot-sclink.webp" alt="" width="150" height="28" />
+        <img class="gear-switch" src="/brand/foot-switch.webp" alt="" width="78" height="89" />
+      </span>
+      <img class="gear-lamp" src="/brand/foot-lamp-off.webp" alt="" width="62" height="62" />
+    </div>
+    <div class="wrap">
+      {/* the link groups start at the left-hand end and the plate stands at the
+          right, all on the one row the panel is tall enough for */}
+      <div class="cols">
+        <div class="col-group">
+          <div>
+            <h2>Mixerman</h2>
+            <ul>
+              <li><a href="/books/">Books</a></li>
+              <li><a href="/posts/">Posts</a></li>
+              <li><a href="/podcast/">Chronicles</a></li>
+              <li><a href="/mixerman-radio-show/">Radio Show Archive</a></li>
+              <li><a href="/professional-mixing-mastering/">Mixing &amp; Mastering</a></li>
+              <li><a href="/mixermans-ultimate-music-producer-retreat/">Producer Retreat</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>Elsewhere</h2>
+            <ul class="elsewhere">
+              <li><a href="https://www.youtube.com/c/MixermanPublishes" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>YouTube</a></li>
+              <li><a href="https://www.instagram.com/_mixerman_/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg>Instagram</a></li>
+              <li><a href="https://www.facebook.com/mixerman" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/></svg>Facebook</a></li>
+              <li><a href="https://credits.muso.ai/search?keyword=Eric%20Sarafin" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm0 2.4a9.6 9.6 0 1 1 0 19.2 9.6 9.6 0 0 1 0-19.2zm0 4.8a4.8 4.8 0 1 0 0 9.6 4.8 4.8 0 0 0 0-9.6zm0 3.6a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"/></svg>Discography</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-group col-group--end">
+          <div>
+            <h2>The Fine Print</h2>
+            <ul>
+              <li><a href="/review/">Leave a Review</a></li>
+              <li><a href="/about-contact/">Contact</a></li>
+              <li><a href="/privacy-policy/">Privacy</a></li>
+              <li><a href="/faculty-review-adoption-mug2prms/">Faculty Desk Copies</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-stamp">
+          <span class="stamp-frame">
+            <img src="/brand/mm-pub-plate-rivets.webp" alt="Mixerman Publishes" width="250" height="250" loading="lazy" />
+          </span>
+        </div>
+      </div>
+      {/* Three segments spread to the ends of the row above, so the © sits
+          under MIXERMAN and "All Rights Reserved" ends where the maker's plate
+          does. They are written with NO whitespace between the spans, which is
+          deliberate and load-bearing on narrow screens: with no space there is
+          no break opportunity between segments, so each one wraps whole.
+
+          The old line promised no cookies and no tracking. That is a promise
+          about the future, and the site may not keep it. */}
+      <p class="fineprint"><span>© {new Date().getFullYear()} Mixerman Publishes</span><span>Asheville, NC</span><span>All Rights Reserved</span></p>
+    </div>
+  </footer>
+  <script is:inline>
+    const toggle = document.querySelector('.nav-toggle');
+    const nav = document.querySelector('.site-nav');
+    const setOpen = (open) => {
+      nav.classList.toggle('open', open);
+      toggle.setAttribute('aria-expanded', open);
+      toggle.classList.toggle('open', open);
+    };
+    toggle.addEventListener('click', () => setOpen(!nav.classList.contains('open')));
+    // Escape shuts the menu and hands focus back to the button that opened it
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && nav.classList.contains('open')) {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+    // The bar leaves as the page is read downward and returns on the first
+    // flick back up. The class is set on every screen; global.css only acts
+    // on it on a phone. It never leaves while the menu is open, and anything
+    // inside it taking focus brings it back, so a keyboard never lands on a
+    // link that is off the screen.
+    const header = document.querySelector('.site-header');
+    let lastY = window.scrollY;
+    window.addEventListener('scroll', () => {
+      // clamped, so the bounce at either end of the page is not read as a flick
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const y = Math.min(Math.max(window.scrollY, 0), max);
+      if (Math.abs(y - lastY) < 6) return;
+      const away = y > lastY && y > header.offsetHeight && !nav.classList.contains('open');
+      header.classList.toggle('is-away', away);
+      lastY = y;
+    }, { passive: true });
+    header.addEventListener('focusin', () => header.classList.remove('is-away'));
+  </script>
+  <script>
+    // Every link that opens a new tab says so, in text only a screen reader
+    // meets. Run once the page's own scripts have decided which links those
+    // are: they set target on off-site links as they load, and DOMContentLoaded
+    // fires after all of them.
+    const mark = () => {
+      document.querySelectorAll('a[target="_blank"]').forEach((a) => {
+        if (a.querySelector('.sr-only--newtab')) return;
+        const s = document.createElement('span');
+        s.className = 'sr-only sr-only--newtab';
+        s.textContent = ' (opens in new tab)';
+        a.append(s);
+      });
+    };
+    if (document.readyState === 'complete') mark();
+    else document.addEventListener('DOMContentLoaded', mark);
+  </script>
+</body>
+</html>

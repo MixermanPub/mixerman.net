@@ -1,0 +1,499 @@
+{
+ "note": "Titles for MMRS 4 onward as the original page had them (last archived copy, 2022-10-08). MMRS 1, II and 3 were never on that page; their titles come from the filenames in the bucket. Runtimes measured from the files. Audio streams from the mixermanmedia S3 bucket, where it has always lived.",
+ "sessions": [
+  {
+   "title": "MMRS 1",
+   "parts": [
+    {
+     "title": "Mixerman Ad",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/00_Mixerman_Ad.mp3",
+     "seconds": 171
+    },
+    {
+     "title": "Spock",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/01_MMRS_Spock.mp3",
+     "seconds": 274
+    },
+    {
+     "title": "Dnafe",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/02_MMRS_Dnafe.mp3",
+     "seconds": 950
+    },
+    {
+     "title": "Roundtable, Part 1",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/03_MMRS_Roundtable_part_I.mp3",
+     "seconds": 330
+    },
+    {
+     "title": "Roundtable, Part 2",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/03_MMRS_Roundtable_part_II.mp3",
+     "seconds": 256
+    },
+    {
+     "title": "Roundtable, Part 3",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/03_MMRS_Roundtable_part_III.mp3",
+     "seconds": 475
+    },
+    {
+     "title": "Hans Ringer Ad",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/04_HansRingerAd.mp3",
+     "seconds": 55
+    },
+    {
+     "title": "Pounce, Part 1",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/04_MMRS_Pounce_part_I.mp3",
+     "seconds": 418
+    },
+    {
+     "title": "Pounce, Part 2",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/04_MMRS_Pounce_part_II.mp3",
+     "seconds": 383
+    },
+    {
+     "title": "Pounce, Part 3",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/04_MMRS_Pounce_part_III.mp3",
+     "seconds": 376
+    },
+    {
+     "title": "Atticus Finch, Part 1",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/05_MMRS_Atticus_Finch_part_I.mp3",
+     "seconds": 477
+    },
+    {
+     "title": "Atticus Finch, Part 2",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/05_MMRS_Atticus_Finch_part_II.mp3",
+     "seconds": 338
+    },
+    {
+     "title": "Bob Chessman",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/06_MMRS_Bob_Chessman.mp3",
+     "seconds": 520
+    },
+    {
+     "title": "Crunch",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/07_MMRS_Crunch.mp3",
+     "seconds": 831
+    },
+    {
+     "title": "Podgorny Call",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/08_MMRS_Podgorny_call.mp3",
+     "seconds": 321
+    },
+    {
+     "title": "Hans Ringer",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/09_MMRS_Hans_Ringer.mp3",
+     "seconds": 328
+    }
+   ]
+  },
+  {
+   "title": "MMRS 2",
+   "parts": [
+    {
+     "title": "Calvin",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRSII-Calvin_24_final.mp3",
+     "seconds": 379
+    },
+    {
+     "title": "Chaz",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRSII-Chaz.mp3",
+     "seconds": 1791
+    },
+    {
+     "title": "Click and Skwaidu",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRSII-Click_and_Skwaidu_24_mix.mp3",
+     "seconds": 884
+    },
+    {
+     "title": "Dik",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRSII-Dik_24_mix.mp3",
+     "seconds": 1027
+    },
+    {
+     "title": "Grapestomper Write-In",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRSII-Grapestomper_write-in.mp3",
+     "seconds": 591
+    },
+    {
+     "title": "Jason Phair",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRSII-JasonPhair.mp3",
+     "seconds": 757
+    },
+    {
+     "title": "Pimp",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRSII-Pimp_24_mix.mp3",
+     "seconds": 650
+    },
+    {
+     "title": "Pounce",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRSII-Pounce.mp3",
+     "seconds": 1531
+    },
+    {
+     "title": "Rupert",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRSII-Rupert.mp3",
+     "seconds": 528
+    },
+    {
+     "title": "Spock",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRSII-Spock.mp3",
+     "seconds": 615
+    }
+   ]
+  },
+  {
+   "title": "MMRS 3",
+   "parts": [
+    {
+     "title": "Show Opening",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS3-01_Show_Opening.mp3",
+     "seconds": 1104
+    },
+    {
+     "title": "Tim Halligan Write-In",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS3-02_Tim_Halligan_write-in.mp3",
+     "seconds": 622
+    },
+    {
+     "title": "Otek Calls In",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS3-03_Otek_Calls_in.mp3",
+     "seconds": 1187
+    },
+    {
+     "title": "Eighties Otek",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS3-04_Eighties_Otek.mp3",
+     "seconds": 586
+    },
+    {
+     "title": "Goes211 and Spock",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS3-05_Goes211_and_Spock.mp3",
+     "seconds": 766
+    },
+    {
+     "title": "Fajita",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS3-06_Fajita.mp3",
+     "seconds": 814
+    },
+    {
+     "title": "Crunch Wrap",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS3-07_Crunch_Wrap.mp3",
+     "seconds": 455
+    }
+   ]
+  },
+  {
+   "title": "MMRS 4, with The Saint",
+   "parts": [
+    {
+     "title": "Part 1",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS-SaintSeg1.mp3",
+     "seconds": 2641
+    },
+    {
+     "title": "Part 2",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS4-SaintSeg2.mp3",
+     "seconds": 2450
+    },
+    {
+     "title": "Part 3",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS4-SaintSeg3.mp3",
+     "seconds": 1390
+    },
+    {
+     "title": "Part 4",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS4-SaintSeg4.mp3",
+     "seconds": 2690
+    }
+   ]
+  },
+  {
+   "title": "MMRS 5",
+   "parts": [
+    {
+     "title": "Part 1",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_09_Seg1.mp3",
+     "seconds": 2112
+    },
+    {
+     "title": "Part 2",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_09_Seg2.mp3",
+     "seconds": 2014
+    },
+    {
+     "title": "Part 3",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_09_Seg3.mp3",
+     "seconds": 3017
+    },
+    {
+     "title": "Part 4",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_09_Seg4.mp3",
+     "seconds": 3339
+    },
+    {
+     "title": "Part 5",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_09_Seg5.mp3",
+     "seconds": 1352
+    }
+   ]
+  },
+  {
+   "title": "MMRS 6",
+   "parts": [
+    {
+     "title": "Part 1",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_6_Seg_1.mp3",
+     "seconds": 884
+    },
+    {
+     "title": "Part 2",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_6_Seg_2.mp3",
+     "seconds": 1690
+    },
+    {
+     "title": "Part 3",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_6_Seg_3.mp3",
+     "seconds": 2061
+    },
+    {
+     "title": "Part 4",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_6_Seg_4.mp3",
+     "seconds": 3350
+    }
+   ]
+  },
+  {
+   "title": "MMRS 7",
+   "parts": [
+    {
+     "title": "Part 1",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS+12-09+Seg1.mp3",
+     "seconds": 4034
+    },
+    {
+     "title": "Part 2",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS+12_09+seg+2.mp3",
+     "seconds": 3484
+    },
+    {
+     "title": "Part 3",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_12_09_seg_3.mp3",
+     "seconds": 2595
+    },
+    {
+     "title": "Part 4",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_12_09_seg_4.mp3",
+     "seconds": 2170
+    }
+   ]
+  },
+  {
+   "title": "MMRS 8",
+   "parts": [
+    {
+     "title": "Part 1",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_Seg_1_22_12_10_v2.mp3",
+     "seconds": 3369
+    },
+    {
+     "title": "Part 2",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_seg_2_12_10.mp3",
+     "seconds": 2930
+    },
+    {
+     "title": "Part 3",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_seg_3_12_10_V2.mp3",
+     "seconds": 3826
+    },
+    {
+     "title": "Part 4",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_seg_4_12_10_No_Advert.mp3",
+     "seconds": 3658
+    }
+   ]
+  },
+  {
+   "title": "MMRS 9",
+   "parts": [
+    {
+     "title": "Part 1",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_10_11_Seg_1_V2.mp3",
+     "seconds": 1814
+    },
+    {
+     "title": "Part 2",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_10_11_Seg_2_V2.mp3",
+     "seconds": 2228
+    },
+    {
+     "title": "Part 3",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_10_11_Seg_3_V2.mp3",
+     "seconds": 1972
+    },
+    {
+     "title": "Part 4",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_10_11_Seg_4_V3.mp3",
+     "seconds": 2466
+    },
+    {
+     "title": "Part 5",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_10_11_Seg_5.mp3",
+     "seconds": 2757
+    },
+    {
+     "title": "Part 6",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_10_11_Seg_6.mp3",
+     "seconds": 3264
+    },
+    {
+     "title": "Part 7",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_10_11_Seg_7.mp3",
+     "seconds": 3236
+    },
+    {
+     "title": "Part 8",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_10_11_Seg_9_was_10.mp3",
+     "seconds": 3220
+    }
+   ]
+  },
+  {
+   "title": "MMRS 2011",
+   "parts": [
+    {
+     "title": "Part 1",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS2011-Segment1.mp3",
+     "seconds": 2953
+    },
+    {
+     "title": "Part 2",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS2011-Segment2.mp3",
+     "seconds": 3804
+    },
+    {
+     "title": "Part 3",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS2011-Segment3.mp3",
+     "seconds": 2142
+    }
+   ]
+  },
+  {
+   "title": "MMRS 2012",
+   "parts": [
+    {
+     "title": "Part 1",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_12-21-12_Seg_1.mp3",
+     "seconds": 4089
+    },
+    {
+     "title": "Part 2",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_12-21-12_Seg_2.mp3",
+     "seconds": 2378
+    },
+    {
+     "title": "Part 3",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_12-21-12_Seg_3.mp3",
+     "seconds": 5204
+    }
+   ]
+  },
+  {
+   "title": "MMRS Jun 2013",
+   "parts": [
+    {
+     "title": "Part 1",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_06_2013_seg_1.mp3",
+     "seconds": 3356
+    },
+    {
+     "title": "Part 2",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_06_2013_seg_2.mp3",
+     "seconds": 2936
+    },
+    {
+     "title": "Part 3",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_06_2013_seg_3.mp3",
+     "seconds": 3707
+    },
+    {
+     "title": "Part 4",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/MMRS_06_2013_seg_4.mp3",
+     "seconds": 1800
+    }
+   ]
+  },
+  {
+   "title": "MMRS Dec 2013",
+   "parts": [
+    {
+     "title": "Part 1",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/Mixerman_Radio_Show_Christmas_2013_Segment_1.mp3",
+     "seconds": 2366
+    },
+    {
+     "title": "Part 2",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/Mixerman_Radio_Show_Christmas_2013_Segment_2.mp3",
+     "seconds": 3940
+    },
+    {
+     "title": "Part 3",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/Mixerman_Radio_Show_Christmas_2013_Segment_3.mp3",
+     "seconds": 3609
+    },
+    {
+     "title": "Part 4",
+     "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/Mixerman_Radio_Show_Christmas_2013_Segment_4.mp3",
+     "seconds": 2480
+    }
+   ]
+  }
+ ],
+ "interviews": [
+  {
+   "title": "Aardy Interviews Ken Scott Part 1",
+   "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/KenScott1.mp3",
+   "seconds": 1518
+  },
+  {
+   "title": "Aardy Interviews Ken Scott Part 2",
+   "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/KenScott2.mp3",
+   "seconds": 976
+  },
+  {
+   "title": "Pounce Interviews Allen Rowand",
+   "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/allen_rowand_interview.mp3",
+   "seconds": 3416
+  },
+  {
+   "title": "Pounce Interviews Black Lion",
+   "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/BlackLionAudiomix.mp3",
+   "seconds": 5849
+  },
+  {
+   "title": "Pounce Interviews Earwig",
+   "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/earwig_interview_mix.mp3",
+   "seconds": 4513
+  },
+  {
+   "title": "Pounce Meets Richard Shack",
+   "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/shack_interview_mix.mp3",
+   "seconds": 4184
+  },
+  {
+   "title": "Jody Den Broeder",
+   "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/jodydenbroeder_mix.mp3",
+   "seconds": 4202
+  }
+ ],
+ "theme": {
+  "title": "The Mixerman Radio Show Theme",
+  "audio": "https://mixermanmedia.s3.amazonaws.com/wp-content/uploads/2014/12/31195236/00_Mixerman_Radio_Show_Theme.mp3",
+  "seconds": 223
+ },
+ "seconds": 166711,
+ "count": 85,
+ "bestof": {
+  "title": "The Best Of",
+  "audio": "https://s3.amazonaws.com/mixermanmedia/wp-content/uploads/mixermanradioshow/TheBestOf.mp3",
+  "seconds": 263
+ }
+}

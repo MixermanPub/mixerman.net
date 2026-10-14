@@ -1,0 +1,305 @@
+---
+import Base from '../layouts/Base.astro';
+import { pageTitle } from '../data/site';
+import BookHeader from '../components/BookHeader.astro';
+import BookSchema from '../components/BookSchema.astro';
+import SamplerForm from '../components/SamplerForm.astro';
+import ZenComingSoon from '../components/ZenComingSoon.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  const pages = await getCollection('pages');
+
+  // Pages that have their own dedicated route or are template shells.
+  const skip = new Set(['home', 'blogcast', 'books', 'discography', 'deskcopy', 'faculty-review-adoption-mug2prms', 'mm-ultimate-producing', 'thank-you', 'professional-mixing-mastering']);
+
+  const pagePaths = pages
+    .filter(p => !skip.has(p.id))
+    .map(p => ({
+      params: { slug: new URL(p.data.wpUrl).pathname.replace(/^\/|\/$/g, '') },
+      props: { entry: p, kind: 'page' },
+    }));
+
+  const postPaths = posts.map(p => ({
+    params: { slug: p.data.slug },
+    props: { entry: p, kind: 'post' },
+  }));
+
+  return [...pagePaths, ...postPaths];
+}
+
+const { entry, kind } = Astro.props;
+// a page can be nothing but its form — don't render an empty content section
+const hasBody = (entry.body ?? '').trim().length > 0;
+const { Content } = await render(entry);
+const d = entry.data;
+
+// A sampler post carries the form a second time at its foot, after the
+// sign-off and ahead of the standing promos. Those promos are part of the
+// post's own markdown, so the rendered post is cut where they begin.
+const OUTRO = '<aside class="post-outro"';
+const html = entry.rendered?.html ?? '';
+const cut = d.sampler ? html.indexOf(OUTRO) : -1;
+// the first form comes after the cover and the opening paragraph, which say
+// what the sampler is before the page asks for an address
+// The post marks the spot with a comment; without one, the first paragraph.
+const MARK = '<!-- sampler-form -->';
+const mark = html.indexOf(MARK);
+const open = cut < 0 ? -1 : mark > -1 ? mark : html.indexOf('</p>') + 4;
+// The second form goes where the post marks it (ahead of the sign-off,
+// say); without a mark, just ahead of the promos.
+const FOOT_MARK = '<!-- sampler-form-foot -->';
+const footMark = html.indexOf(FOOT_MARK);
+const foot = footMark > -1 ? footMark : cut;
+// Every other post carries the Zen 4E Coming Soon card between the sign-off
+// and the promos, cut in the same place. It sits outside .prose, so the
+// post's type styles never reach it. A post with no promos gets it last.
+const zenPost = kind === 'post' && !d.sampler;
+const zenAt = zenPost ? html.indexOf(OUTRO) : -1;
+const zenBook = d.slug === 'zen-the-art-of-mixing-mix-music-like-a-pro' && !d.buyLinks;
+// the cover, then the welcome beside it
+const copyAt = Math.max(0, html.indexOf('<p>'));
+
+// embosser-tape banner under the title plate, per page
+const tapes = {
+  'mixermans-ultimate-music-producer-retreat': {
+    src: '/brand/mentorship-tape.webp',
+    alt: 'Immersive Mentorship',
+    width: 380,
+  },
+  'zen-the-art-of-mixing-mix-music-like-a-pro': {
+    src: '/brand/zen-mixing-label.webp',
+    alt: 'The thinking behind great mixing',
+  },
+  'musicians-survival-guide-to-a-killer-record': {
+    src: '/brand/msg2kr-label.webp',
+    alt: 'Make a record you can be proud of',
+  },
+  'the-daily-adventures-of-mixerman-hilarious-unauthorized-diary': {
+    src: '/brand/tdaomm-label.webp',
+    alt: 'The diary that rocked the music world',
+  },
+};
+const tape = tapes[entry.id];
+
+// pages whose share card carries their own banner art over the plain card
+const shareCards = {
+  'about-contact': '/brand/share-card-contact.jpg',
+  'the-mixerman-radio-show-returns': '/uploads/2026/09/mixerman-radio-show-share.jpg',
+  'zen-the-art-of-mixing-mix-music-like-a-pro': '/uploads/2026/10/Zen_Mixing_2026_3D_M76_CC-share.jpg',
+};
+
+// pages that close with a native Netlify form
+const pageForms = {
+  'mixermans-ultimate-music-producer-retreat': {
+    name: 'retreat-interest', anchor: 'interest', tags: 'Retreat Interest',
+    src: 'retreat', button: 'Send', ink: true,
+    sticker: { src: '/brand/im-interested-sticker.webp', width: 900, height: 247, alt: "I'm interested!", small: true, postmark: true },
+  },
+  'about-contact': {
+    name: 'contact', anchor: 'contact', tags: null,
+    src: 'contact', button: 'Send', messageRequired: true, ink: true,
+    sticker: { src: '/brand/contact-mixerman-sticker.webp', width: 900, height: 249, alt: 'Contact Mixerman', postmark: true },
+  },
+};
+const pageForm = pageForms[entry.id];
+
+// pages whose content sits straight on the page, no sheet padding around it
+const bare = [
+  'mixermans-ultimate-music-producer-retreat',
+  'zen-the-art-of-mixing-mix-music-like-a-pro',
+  'musicians-survival-guide-to-a-killer-record',
+  'the-daily-adventures-of-mixerman-hilarious-unauthorized-diary',
+  'about-contact',
+].includes(entry.id);
+// on a book page, the outro lists the other titles with direct links
+const BOOK_ORDER = [
+  'mm-ultimate-producing',
+  'zen-the-art-of-mixing-mix-music-like-a-pro',
+  'musicians-survival-guide-to-a-killer-record',
+  'the-daily-adventures-of-mixerman-hilarious-unauthorized-diary',
+];
+const isBook = new URL(d.wpUrl).pathname.startsWith('/books/');
+let otherBooks = [];
+if (isBook) {
+  const bookPages = await getCollection('pages', (p) => {
+    const path = new URL(p.data.wpUrl).pathname;
+    return path.startsWith('/books/') && path !== '/books/';
+  });
+  otherBooks = BOOK_ORDER
+    .filter(slug => slug !== d.slug)
+    // The shelf holds three: each title drops itself and the other three remain.
+    .slice(0, 3)
+    .map(slug => bookPages.find(b => b.data.slug === slug))
+    .filter(Boolean)
+    .map(b => ({ title: b.data.title, href: new URL(b.data.wpUrl).pathname, cover: b.data.featuredImage }));
+}
+
+// long titles take a calmer plate size so the banner doesn't swallow the page
+const plateSize = d.title.length <= 26
+  ? 'clamp(1.4rem, 2.8vw, 2rem)'
+  : 'clamp(1.15rem, 1.9vw, 1.5rem)';
+---
+<Base title={pageTitle(d.title)} description={d.excerpt} noindex={d.archived} image={shareCards[entry.id] ?? d.featuredImage} lang={d.language}>
+  {isBook && <BookSchema book={d} />}
+  {/* on a page that is nothing but its form, the sticker is the title —
+      for the eye. A reader hearing the page still needs the heading. */}
+  {kind === 'page' && pageForm?.sticker && !hasBody && (
+    <h1 class="sr-only">{d.title}</h1>
+  )}
+  {kind === 'page' && !(pageForm?.sticker && !hasBody) && (
+    <section class="section section--deep" style="padding:40px 0 28px">
+      <div class="wrap" style="text-align:center">
+        <div class="lineband">
+          <h1 class="plate" style={`max-width:90%; font-size:${plateSize}`}>{d.title}</h1>
+        </div>
+        {tape && (
+          <img src={tape.src} alt={tape.alt} width={tape.width ?? 460}
+            style="display:block; margin:12px auto 0; max-width:88%; height:auto; transform:rotate(-1.2deg)" />
+        )}
+      </div>
+    </section>
+  )}
+
+  {(hasBody || kind === 'post' || otherBooks.length > 0) && (
+  <section class="section" style={bare ? 'padding-top:24px' : (kind === 'post' ? 'padding-top:8px' : undefined)}>
+    <div class="wrap" style={`max-width:${kind === 'post' ? '850px' : '920px'}`}>
+      {bare ? (
+        <>
+        {d.buyLinks && <BookHeader cover={d.coverImage ?? d.featuredImage} title={d.title} groups={d.buyLinks} formats={d.buyLinks.length} stack={d.buyStack} />}
+        {/* the third edition is off sale while the fourth is coming: the
+            Coming Soon card stands where its buy buttons were */}
+        {zenBook && <ZenComingSoon placing="book" />}
+        <div class:list={['prose', 'prose--bare', { justify: d.justify }]}>
+          <Content />
+          {/* the buttons again at the foot, for the reader who has just been
+              convinced: the same links, a smaller cover */}
+          {d.buyLinks && (
+            <div class={`buy-foot${d.footBand ? ` buy-foot--${d.footBand}` : ''}`} data-formats={(d.footOmit ? d.buyLinks.filter(g => !d.footOmit.includes(g.format)) : d.buyLinks).length}>
+              <BookHeader cover={d.coverImage ?? d.featuredImage} title={d.title}
+                groups={d.footOmit ? d.buyLinks.filter(g => !d.footOmit.includes(g.format)) : d.buyLinks} stack={d.buyStack} />
+            </div>
+          )}
+          {otherBooks.length > 0 && (
+            <div class:list={['more-books', { 'more-books--band': zenBook }]}>
+              <h2>More Books by Mixerman</h2>
+              <div class="bookrow">
+                {otherBooks.map(b => (
+                  <a href={b.href} title={b.title}>
+                    <img src={b.cover} alt={b.title} loading="lazy" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        </>
+      ) : (
+        <article class="sheet">
+          {kind === 'post' && (
+            <header class="post-head">
+              <h1 class={d.title.length > 44 ? 'long' : undefined}>{d.title}</h1>
+              <p class="post-date">{d.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            </header>
+          )}
+          {zenAt > -1 ? (
+            <>
+              <div class:list={['prose', { justify: d.justify }]}>
+                <Fragment set:html={html.slice(0, zenAt)} />
+              </div>
+              <ZenComingSoon placing="posts" />
+              <div class:list={['prose', { justify: d.justify }]}>
+                <Fragment set:html={html.slice(zenAt)} />
+              </div>
+            </>
+          ) : (
+          <div class:list={['prose', { justify: d.justify }]}>
+            {cut > -1 ? (
+              <>
+                <div class="sampler-open">
+                  <Fragment set:html={html.slice(0, copyAt)} />
+                  <div class="sampler-open-copy" set:html={html.slice(copyAt, open)} />
+                </div>
+                <div class="post-sampler post-sampler--open">
+                  {/* the welcome just above already makes the ask */}
+                  <SamplerForm lead="" ask="" button="Sign me up!" />
+                </div>
+                <Fragment set:html={html.slice(open, foot)} />
+                <div class="post-sampler post-sampler--foot">
+                  {/* the paragraph above it makes the ask, and says what the list is */}
+                  <SamplerForm lead="" ask="" button="Sign me up!" idSuffix="-foot" hint={false} />
+                </div>
+                <Fragment set:html={html.slice(foot)} />
+              </>
+            ) : <Content />}
+          </div>
+          )}
+          {zenPost && zenAt < 0 && <ZenComingSoon placing="posts" />}
+        </article>
+      )}
+    </div>
+  </section>
+  )}
+  {pageForm && (
+    <section class:list={['section', { 'section--ink': pageForm.ink, 'section--postmarked': pageForm.sticker?.postmark }]}
+      style={pageForm.ink ? undefined : 'padding-top:0'}>
+      {/* Eric's postage mark, struck large across the band as background
+          art — it rides UNDER the form's fields, so it belongs to the
+          section, not the sticker. Decorative at this size and mostly
+          hidden behind the form, so it is not announced. */}
+      {pageForm.sticker?.postmark && (
+        <img class="postmark" src="/brand/postmark-2026.webp"
+          alt="" aria-hidden="true" width="1000" height="503" />
+      )}
+      <div class="wrap" style="max-width:680px">
+        {pageForm.sticker && (
+          <img class:list={['form-sticker', { 'form-sticker--sm': pageForm.sticker.small }]}
+            src={pageForm.sticker.src} alt={pageForm.sticker.alt}
+            width={pageForm.sticker.width} height={pageForm.sticker.height} />
+        )}
+        <form class={pageForm.ink ? 'siteform siteform--ink' : 'siteform'} id={pageForm.anchor} name={pageForm.name} method="POST"
+          action={`/thank-you/?src=${pageForm.src}`}
+          data-netlify="true" netlify-honeypot="bot-field">
+          <input type="hidden" name="form-name" value={pageForm.name} />
+          {pageForm.tags && <input type="hidden" name="tags" value={pageForm.tags} />}
+          <p style="display:none"><label>Don't fill this out: <input name="bot-field" /></label></p>
+          <div>
+            <label class={pageForm.ink ? 'sr-only' : undefined} for={`${pageForm.name}-name`}>Your Name *</label>
+            <input type="text" id={`${pageForm.name}-name`} name="name" required autocomplete="name"
+              placeholder={pageForm.ink ? 'Your Name' : undefined} />
+          </div>
+          <div>
+            <label class={pageForm.ink ? 'sr-only' : undefined} for={`${pageForm.name}-email`}>Your Email *</label>
+            <input type="email" id={`${pageForm.name}-email`} name="email" required autocomplete="email"
+              placeholder={pageForm.ink ? 'Your Email Address' : undefined} />
+          </div>
+          <div>
+            <label class={pageForm.ink ? 'sr-only' : undefined} for={`${pageForm.name}-message`}>Your Message{pageForm.messageRequired ? ' *' : ' (optional)'}</label>
+            <textarea id={`${pageForm.name}-message`} name="message" rows="5" required={pageForm.messageRequired}
+              placeholder={pageForm.ink ? 'Your Message' : undefined}></textarea>
+          </div>
+          <label class="checkline">
+            <input type="checkbox" name="subscribe" value="yes" checked />
+            <span>Add me to the email list — news, posts, updates. Unsubscribe anytime.</span>
+          </label>
+          <button class="btn" type="submit">{pageForm.button}</button>
+        </form>
+      </div>
+    </section>
+  )}
+  <script>
+    // external links leave the site in a new tab; internal ones stay put.
+    // /TDAOMM-* are local shortlinks that redirect off-site, so they count as external.
+    document.querySelectorAll('.prose a').forEach((a) => {
+      const link = a as HTMLAnchorElement;
+      const offsite = (/^https?:$/.test(link.protocol) && link.origin !== location.origin)
+        || link.pathname.startsWith('/TDAOMM-')
+        || link.pathname.endsWith('.pdf');   // PDFs open alongside the post, not in place
+      if (offsite) {
+        link.target = '_blank';
+        link.rel = 'noopener';
+      }
+    });
+  </script>
+</Base>

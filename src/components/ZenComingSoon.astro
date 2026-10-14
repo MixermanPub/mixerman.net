@@ -1,0 +1,242 @@
+---
+/*
+  The Coming Soon ad for the fourth edition of Zen & the Art of MIXING, a navy
+  band in the new cover's own blue. It asks for one thing: an email address.
+
+  Three placings: the full-width band on the home page; a card at the foot of
+  every post, between the sign-off and "Books by Mixerman"; and the same card
+  in place of the buy buttons on the Zen book page, until the fourth edition
+  has buttons of its own. Each posts to its own Kit form ("Zen 4E Coming
+  Soon", "- Posts", "- Book page") rather than the mailing-list form the
+  footer panel uses. Same list,
+  but Kit counts each form's signups separately, so each form's Reports page
+  says exactly how many people joined from that placing. Kit's one automation
+  starts from all of them, so a signup here gets the same welcome email as a
+  signup anywhere else (tag
+  "Website signups", then the "Sampler Signup" sequence, which carries the
+  PRODUCING sampler and a Zen card of its own). The form sends no
+  confirmation email; Kit auto-confirms, as it does for the list form.
+
+  The request is the one SubscribeRack and SamplerForm send: form-encoded,
+  Accept: JSON so Kit answers instead of redirecting, and nothing of Kit's
+  loads on the page.
+*/
+interface Props {
+  /* home: the full-width band. posts, book: a card in the reading column. */
+  placing?: 'home' | 'posts' | 'book';
+}
+const { placing = 'home' } = Astro.props;
+const isPost = placing !== 'home';
+// the Kit forms by numeric id, one per placing
+const KIT_FORMS = { home: '10005218', posts: '10005455', book: '10005515' };
+const ZEN_ENDPOINT = `https://app.kit.com/forms/${KIT_FORMS[placing]}/subscriptions`;
+const Tag = isPost ? 'aside' : 'section';
+---
+<Tag class:list={['zen-soon', { 'zen-soon--post': isPost, 'zen-soon--book': placing === 'book' }]} aria-labelledby="zen-soon-head">
+  <div class:list={['zen-soon-grid', { wrap: !isPost }]}>
+    <div class="zen-soon-art">
+      <img class="zen-soon-cover" src="/uploads/2026/10/Zen_Mixing_2026_3D_M76_CC-600.webp"
+        width="600" height="987" loading="lazy"
+        alt="Zen & the Art of MIXING by Mixerman, fourth edition, navy blue book cover" />
+    </div>
+    <div class="zen-soon-copy">
+      <h2 class="zen-soon-head" id="zen-soon-head">Coming Soon!</h2>
+      <p>
+        The fourth edition of my most popular book, <em>Zen &amp; the Art of
+        MIXING</em>, is nearly here. I call it the Timeless Edition. I've stripped
+        out everything that dates it, added some new material, and shaped it into
+        the book I always intended&#8288;—a focused presentation of the thinking
+        behind great mixing. With a blue cover no&nbsp;less!
+      </p>
+      <p>Sign up for my list and you'll be the first to know when it's available for purchase.</p>
+
+      {/* action and method are real, so with JavaScript off the browser posts
+          this itself and the signup still lands */}
+      <form class="zen-soon-form" action={ZEN_ENDPOINT} method="post">
+        <div class="zen-soon-row">
+          <label class="sr-only" for="zen-soon-email">Email address</label>
+          <input id="zen-soon-email" name="email_address" type="email"
+            placeholder="Email Address" autocomplete="email" required />
+          <button type="submit">Sign me up!</button>
+        </div>
+        <p class="zen-soon-hint">Unsubscribe anytime.</p>
+        <p class="zen-soon-msg" id="zen-soon-msg" role="status" aria-live="polite"></p>
+      </form>
+      {/* focus moves here on success, which reads it out and puts the reader
+          at the thing that just changed */}
+      <div class="zen-soon-done" id="zen-soon-done" tabindex="-1" hidden>
+        <p><strong>You're on the list.</strong> You'll be the first to know.</p>
+        <p class="zen-soon-hint">A welcome email is on its way, with a free sampler of my <em>PRODUCING</em> book.</p>
+      </div>
+    </div>
+  </div>
+</Tag>
+
+<style>
+  /* the flat navy of the new cover, sampled off the artwork */
+  .zen-soon {
+    --zen-navy: #1b283f;
+    background: var(--zen-navy);
+    color: var(--cream);
+    border-bottom: 4px solid var(--ink);
+    padding: 48px 0 52px;
+    /* both ways: the light behind the book must stop at the band's edges */
+    overflow: clip;
+  }
+  .zen-soon-grid {
+    --zen-gap: 48px;
+    display: flex; align-items: center; justify-content: center; gap: var(--zen-gap);
+  }
+  /* A navy book on a navy band loses its edges, so the book stands in a pool
+     of lighter blue, the way a product shot sits under a studio light. The
+     light hangs off the book rather than the band, so it follows the cover
+     wherever the layout puts it.
+
+     Beside the copy the light would sit under the words and fight them, so on
+     that side it fades out across the gap: full at the book's edge (70% of the
+     way across this box, which reaches 75% of the book's width either side),
+     gone where the text begins. */
+  .zen-soon-art { flex: 0 0 auto; position: relative; }
+  .zen-soon-art::before {
+    content: '';
+    position: absolute; inset: -16% -75%;
+    background: radial-gradient(closest-side, rgba(112, 146, 194, .7), rgba(112, 146, 194, .24) 55%, rgba(112, 146, 194, 0));
+    -webkit-mask-image: linear-gradient(to right, #000 70%, transparent calc(70% + var(--zen-gap)));
+    mask-image: linear-gradient(to right, #000 70%, transparent calc(70% + var(--zen-gap)));
+    pointer-events: none;
+  }
+  .zen-soon-cover {
+    position: relative; display: block;
+    width: 230px; height: auto;
+    filter: drop-shadow(8px 12px 16px rgba(0, 0, 0, .5));
+  }
+  .zen-soon-copy { flex: 0 1 600px; }
+  /* the house yellow against the cover's cream and navy, not another cream */
+  .zen-soon-head {
+    font-family: var(--display); text-transform: uppercase;
+    font-weight: 400; letter-spacing: .04em; line-height: 1;
+    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    color: var(--yellow);
+    margin: 0 0 .35em;
+  }
+  .zen-soon-copy p { margin: 0 0 1em; font-size: 1.08rem; line-height: 1.7; }
+  .zen-soon-form { margin-top: 1.6em; }
+  .zen-soon-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .zen-soon-row input {
+    flex: 1 1 240px; min-width: 0;
+    font-family: var(--body); font-size: 1rem;
+    padding: .7em .85em;
+    border: 2px solid var(--ink); border-radius: 0;
+    background: var(--page); color: var(--text);
+  }
+  .zen-soon-row button {
+    flex: 0 0 auto;
+    font-family: var(--heading); text-transform: uppercase; letter-spacing: .12em;
+    font-weight: 600; font-size: 1.05rem;
+    padding: .55em 1.8em;
+    border: none; background: var(--yellow); color: var(--text);
+    cursor: pointer;
+    transition: transform .08s ease;
+  }
+  .zen-soon-row button:hover { transform: translate(-1px, -1px); background: var(--red); color: var(--cream); }
+  .zen-soon-row input:focus, .zen-soon-row button:focus-visible {
+    outline: 3px solid var(--yellow); outline-offset: 2px;
+  }
+  .zen-soon-copy .zen-soon-hint { margin: .6em 0 0; font-size: .92rem; opacity: .75; }
+  .zen-soon-copy .zen-soon-msg { margin: .6em 0 0; font-weight: 700; color: var(--yellow); }
+  .zen-soon-copy .zen-soon-msg:empty { display: none; }
+  /* the link is made by the script below, after Astro has scoped the page,
+     so it carries no scope attribute: reach it with :global */
+  .zen-soon-msg :global(a) { color: var(--yellow); }
+  .zen-soon-done { margin-top: 1.6em; }
+  .zen-soon-done:focus { outline: none; }
+  .zen-soon [hidden] { display: none; }
+
+  /* In a post: the same navy, as a card on the reading column between the
+     sign-off and the shelf of books, everything a size down to suit it. */
+  .zen-soon--post {
+    max-width: 700px; margin: 2.8em auto 0;
+    padding: 34px 36px 36px;
+    border-bottom: 0;
+  }
+  /* on the book page it stands where the buy buttons stood: up under the
+     title band, with room before the first quote's dark band */
+  .zen-soon--book { margin: 4px auto 48px; }
+  .zen-soon--post .zen-soon-grid { --zen-gap: 32px; }
+  .zen-soon--post .zen-soon-cover { width: 150px; }
+  .zen-soon--post .zen-soon-head { font-size: clamp(2rem, 4.4vw, 2.6rem); }
+  .zen-soon--post .zen-soon-copy p { font-size: 1rem; }
+  .zen-soon--post .zen-soon-copy .zen-soon-hint { font-size: .88rem; }
+
+  @media (max-width: 720px) {
+    .zen-soon { padding: 36px 0 40px; }
+    .zen-soon--post { padding: 28px 22px 30px; }
+    .zen-soon-grid { flex-direction: column; align-items: flex-start; --zen-gap: 24px; }
+    /* stacked, the copy is below the book, not beside it: the light can
+       spread both ways again */
+    .zen-soon-art::before { -webkit-mask-image: none; mask-image: none; }
+    .zen-soon-cover { width: 150px; }
+    /* stacked, the desktop flex-basis would turn into a 600px minimum height */
+    .zen-soon-copy { flex: none; }
+  }
+</style>
+
+<script>
+  const zForm = document.querySelector('.zen-soon-form') as HTMLFormElement | null;
+  if (zForm) {
+    zForm.noValidate = true;
+    const zEmail = zForm.querySelector('input[type="email"]') as HTMLInputElement;
+    const zBtn = zForm.querySelector('button') as HTMLButtonElement;
+    const zMsg = zForm.querySelector('.zen-soon-msg') as HTMLParagraphElement;
+    const zDone = document.getElementById('zen-soon-done') as HTMLDivElement;
+    let sending = false;
+    zEmail.addEventListener('input', () => zEmail.removeAttribute('aria-invalid'));
+    zForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (sending) return;
+      zMsg.textContent = '';
+      if (!zEmail.value.trim() || !zEmail.checkValidity()) {
+        zMsg.textContent = 'Enter a valid address.';
+        zEmail.setAttribute('aria-invalid', 'true');
+        zEmail.setAttribute('aria-describedby', zMsg.id);
+        zEmail.focus();
+        return;
+      }
+      sending = true;
+      zBtn.disabled = true;
+      try {
+        const res = await fetch(zForm.action, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          body: new URLSearchParams({ email_address: zEmail.value.trim() }),
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          zForm.hidden = true;
+          zDone.hidden = false;
+          zDone.focus();
+          return;
+        }
+        // Kit's bot check: offer its link rather than drop a real reader
+        if (data.status === 'quarantined' && typeof data.url === 'string') {
+          let ok = false;
+          try { ok = new URL(data.url).origin === 'https://app.kit.com'; } catch {}
+          if (ok) {
+            zMsg.textContent = 'One more step: Kit needs to check you are a person. ';
+            const a = document.createElement('a');
+            a.href = data.url; a.target = '_blank'; a.rel = 'noopener';
+            a.textContent = 'Finish here';
+            zMsg.append(a);
+            return;
+          }
+        }
+        zMsg.textContent = data?.errors?.messages?.[0] || "That didn't go through. Try again in a moment?";
+      } catch {
+        zMsg.textContent = 'Could not reach the list just now. Try again in a moment?';
+      } finally {
+        sending = false;
+        zBtn.disabled = false;
+      }
+    });
+  }
+</script>

@@ -1,0 +1,12 @@
+# Netlify build settings — the dashboard reads these from the repo,
+# so a deploy from any machine (or from GitHub) builds the same way.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+[functions]
+  directory = "netlify/functions"

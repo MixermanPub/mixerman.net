@@ -1,0 +1,82 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const books = await getCollection('pages', (p) => {
+  const path = new URL(p.data.wpUrl).pathname;
+  return path.startsWith('/books/') && path !== '/books/';
+});
+const bookOrder = [
+  'mm-ultimate-producing',
+  'zen-the-art-of-mixing-mix-music-like-a-pro',
+  'musicians-survival-guide-to-a-killer-record',
+  'the-daily-adventures-of-mixerman-hilarious-unauthorized-diary',
+];
+const orderedBooks = bookOrder.map(slug => books.find(b => b.data.slug === slug)).filter(Boolean);
+const pagePath = (p) => new URL(p.data.wpUrl).pathname;
+const bookFormats = (book) => {
+  const out = [];
+  for (const bl of book.data.buyLinks ?? []) {
+    const f = bl.format.toLowerCase();
+    if (f.includes('paperback')) out.push('Paperback');
+    if (f.includes('ebook') || f.includes('e-book')) out.push('eBook');
+    if (f.includes('audio')) out.push('Audiobook');
+  }
+  return [...new Set(out)];
+};
+// The first book leads the page across its full width, and carries a reader's
+// word for it (from its own page) to stand beside the description; the rest
+// follow three to a row.
+const [featured, ...shelf] = orderedBooks;
+const featuredQuote = {
+  text: '“My only fear is that the people who need to read this most will be the ones who skip past it, thinking they already know it all or that someone else’s experience won’t relate to their own recording paths. These people are completely wrong...”',
+  name: 'Larry Crane',
+  role: 'Tape Op Editor',
+};
+---
+<Base title="Books by Mixerman" description="Instructive and satirical books on producing, recording, and mixing by Mixerman — including the Ultimate Guide to PRODUCING Records, Music & Songs." image="/brand/share-card.jpg">
+  <section class="section section--deep" style="padding:40px 0 28px">
+    <div class="wrap" style="text-align:center">
+      <div class="lineband">
+        <h1 class="plate" style="font-size:clamp(1.4rem, 2.8vw, 2rem)">Books</h1>
+      </div>
+      <img src="/brand/books-tape-narrow.webp" alt="Paperbacks • eBooks • Audiobooks" width="460"
+        style="display:block; margin:12px auto 0; max-width:88%; height:auto; transform:rotate(2deg)" />
+    </div>
+  </section>
+
+  <section class="section section--paper">
+    <div class="wrap">
+      {featured && (
+        <div class="card card--book card--feature">
+          {(featured.data.cardImage ?? featured.data.featuredImage) && <img src={featured.data.cardImage ?? featured.data.featuredImage} alt="" />}
+          <div class="pad">
+            <h2><a class="card-link" href={pagePath(featured)}>{featured.data.cardTitle ?? featured.data.title}</a></h2>
+            {bookFormats(featured).length > 0 && <p class="card-formats">{bookFormats(featured).join(' · ')}</p>}
+            {featured.data.excerpt && featured.data.excerpt.split(/\n{2,}/).map(para => <p>{para.trim()}</p>)}
+            <figure class="card-quote">
+              <blockquote><p>{featuredQuote.text}</p></blockquote>
+              <figcaption><strong>{featuredQuote.name}</strong> <em>{featuredQuote.role}</em></figcaption>
+            </figure>
+          </div>
+        </div>
+      )}
+      <div class="cardgrid cardgrid--trio" style="margin-top:28px">
+        {shelf.map(book => (
+          <div class="card card--book">
+            {(book.data.cardImage ?? book.data.featuredImage) && <img src={book.data.cardImage ?? book.data.featuredImage} alt="" loading="lazy" />}
+            <div class="pad">
+              <h2><a class="card-link" href={pagePath(book)}>{book.data.cardTitle ?? book.data.title}</a></h2>
+              {/* a book between editions shows "4th Edition Coming Soon" in place of its formats;
+                its own page carries the Coming Soon ad and the form */}
+              {book.data.buyLinks
+                ? bookFormats(book).length > 0 && <p class="card-formats">{bookFormats(book).join(' · ')}</p>
+                : <p class="card-formats">4th Edition Coming Soon</p>}
+              {book.data.excerpt && book.data.excerpt.split(/\n{2,}/).map(para => <p>{para.trim()}</p>)}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>

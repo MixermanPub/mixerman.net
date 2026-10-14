@@ -1,0 +1,141 @@
+---
+// The sampler of the Producing book, for an email address. The form is ours
+// and posts to Kit's "Ultimate Producing Sampler" form, the same way the
+// mailing-list rack does, so nothing of Kit's loads here. The sampler itself
+// arrives by email, so it takes a working address to get it. The page only
+// says where to look. What sends it is the Kit form's own confirmation email
+// (Form Settings > Confirmation email), built to carry the welcome, the
+// sampler link and the buy card; Kit will not save it without its button,
+// so the button is there too. It goes out on every request, to an address
+// that has had the sampler before as well (tested 2026-09-20), held only to
+// once per address in twelve hours.
+//
+// The "Producing Sampler" tag is sent along with the address, as tags[], the
+// way Kit's own embeds tag people. Until 2026-09-21 an automation added it,
+// but the plan allows one automation and that one now serves the mailing-list
+// form (tag "Website signups", then the "Sampler Signup" sequence, which is the
+// same email). Two forms, two tags, one email either way.
+//
+// #sampler is what links land on. A page that carries the form twice gives
+// the second one an id suffix, so the ids stay unique.
+interface Props {
+  /* the bold opening of the line above the field */
+  lead?: string;
+  /* the rest of that line */
+  ask?: string;
+  /* the words on the button */
+  button?: string;
+  /* appended to every id, for a second form on the same page */
+  idSuffix?: string;
+  /* the mailing-list line under the field; off only where the copy right
+     above the form already says it */
+  hint?: boolean;
+}
+const { lead = 'Not ready?', ask = 'Read the sampler first. Tell me where to send it.',
+  button = 'Send the Sampler', idSuffix = '', hint = true } = Astro.props;
+const id = (name: string) => `${name}${idSuffix}`;
+
+// Kit's form by its numeric id (see SubscribeRack for why the id and not the
+// embed uid).
+const SAMPLER_ENDPOINT = 'https://app.kit.com/forms/8074404/subscriptions';
+// the "Producing Sampler" tag's id, off the tag filter's URL in Kit
+const SAMPLER_TAG = '23747738';
+---
+<div class="sampler-ask" id={id('sampler')}>
+  {(lead || ask) && <p class="sampler-lead" id={id('sampler-lead')}><strong>{lead}</strong> {ask}</p>}
+  <form class="siteform sampler-form" action={SAMPLER_ENDPOINT} method="post">
+    <input type="hidden" name="tags[]" value={SAMPLER_TAG} />
+    <div class="sampler-row">
+      <label class="sr-only" for={id('sampler-email')}>Email address</label>
+      <input id={id('sampler-email')} name="email_address" type="email" placeholder="Email Address" autocomplete="email" required />
+      <button class="btn" type="submit">{button}</button>
+    </div>
+    {hint && <p class="hint">This adds you to my mailing list. Unsubscribe anytime.</p>}
+    <p class="sampler-msg" id={id('sampler-msg')} role="status" aria-live="polite"></p>
+  </form>
+  <div class="sampler-done" id={id('sampler-done')} tabindex="-1" hidden>
+    <p><strong>Check your inbox.</strong> The sampler is on its way.</p>
+    <p class="hint">Not there in a few minutes? Look in your spam folder.</p>
+  </div>
+</div>
+<style is:global>
+  /* the sampler ask: one quiet line, one field, one button, held to the
+     text column's left edge like the copy above it */
+  .sampler-ask { margin: 2.6em 0 .4em; }
+  .prose .sampler-ask p { margin: 0 0 .7em; }
+  .sampler-ask .siteform { display: block; max-width: none; margin: 0; }
+  .sampler-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; }
+  .sampler-row input[type="email"] { flex: 1 1 260px; width: auto; }
+  .sampler-row .btn { flex: 0 0 auto; }
+  .prose .sampler-ask .hint { margin: .6em 0 0; }
+  .prose .sampler-ask .sampler-msg { margin: .5em 0 0; font-weight: 600; color: var(--red-deep); }
+  .sampler-msg:empty { display: none; }
+  /* display:block above would otherwise beat the hidden attribute */
+  .sampler-ask [hidden] { display: none; }
+  .sampler-done:focus { outline: none; }
+</style>
+<script>
+  // Same request the mailing-list rack sends (form-encoded, Accept: JSON so
+  // Kit answers instead of redirecting); on success the page points the
+  // reader at their inbox, where Kit delivers the sampler.
+  document.querySelectorAll('.sampler-ask').forEach((ask) => {
+    const sForm = ask.querySelector('.sampler-form') as HTMLFormElement;
+    sForm.noValidate = true;
+    const sEmail = sForm.querySelector('input[type="email"]') as HTMLInputElement;
+    const sBtn = sForm.querySelector('button') as HTMLButtonElement;
+    const sMsg = sForm.querySelector('.sampler-msg') as HTMLParagraphElement;
+    const sLead = ask.querySelector('.sampler-lead') as HTMLParagraphElement | null;
+    const sDone = ask.querySelector('.sampler-done') as HTMLDivElement;
+    let sending = false;
+    sEmail.addEventListener('input', () => sEmail.removeAttribute('aria-invalid'));
+    sForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (sending) return;
+      sMsg.textContent = '';
+      if (!sEmail.value.trim() || !sEmail.checkValidity()) {
+        sMsg.textContent = 'Enter a valid address.';
+        sEmail.setAttribute('aria-invalid', 'true');
+        sEmail.setAttribute('aria-describedby', sMsg.id);
+        sEmail.focus();
+        return;
+      }
+      sending = true;
+      sBtn.disabled = true;
+      try {
+        const res = await fetch(sForm.action, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          // FormData picks up the hidden tags[] field along with the address
+          body: new URLSearchParams([...new FormData(sForm)].map(([k, v]) => [k, String(v).trim()])),
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          sForm.hidden = true;
+          if (sLead) sLead.hidden = true;
+          sDone.hidden = false;
+          sDone.focus();
+          return;
+        }
+        // Kit's bot check: offer its link rather than drop a real reader
+        if (data.status === 'quarantined' && typeof data.url === 'string') {
+          let ok = false;
+          try { ok = new URL(data.url).origin === 'https://app.kit.com'; } catch {}
+          if (ok) {
+            sMsg.textContent = 'One more step: Kit needs to check you are a person. ';
+            const a = document.createElement('a');
+            a.href = data.url; a.target = '_blank'; a.rel = 'noopener';
+            a.textContent = 'Finish here';
+            sMsg.append(a);
+            return;
+          }
+        }
+        sMsg.textContent = data?.errors?.messages?.[0] || "That didn't go through. Try again in a moment?";
+      } catch {
+        sMsg.textContent = 'Could not reach the list just now. Try again in a moment?';
+      } finally {
+        sending = false;
+        sBtn.disabled = false;
+      }
+    });
+  });
+</script>

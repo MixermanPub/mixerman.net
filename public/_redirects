@@ -1,0 +1,237 @@
+# mixermanpublishes.com is the imprint, not a second site: every address on it
+# goes to the same page on mixerman.net (Netlify serves aliases as-is, so the
+# redirect has to be said here). The bang makes it win over any real file.
+# ...except Let's Encrypt's proof-of-ownership path, which must reach Netlify
+# itself or the alias never gets a certificate.
+/.well-known/acme-challenge/*  /.well-known/acme-challenge/:splat  200
+https://mixermanpublishes.com/*      https://mixerman.net/:splat  301!
+https://www.mixermanpublishes.com/*  https://mixerman.net/:splat  301!
+http://mixermanpublishes.com/*       https://mixerman.net/:splat  301!
+http://www.mixermanpublishes.com/*   https://mixerman.net/:splat  301!
+
+# podcast.mixerman.net used to be Buzzsprout's hosted page; it now lands on
+# the podcast page here (Eric, 2026-09-04). Same alias mechanism as above.
+https://podcast.mixerman.net/*  https://mixerman.net/podcast/  301!
+http://podcast.mixerman.net/*   https://mixerman.net/podcast/  301!
+
+# Legacy WordPress date-based permalinks (/YYYY/MM/DD/slug/) still live in
+# search indexes and old links around the web — send them to the plain slug.
+# Netlify redirect syntax; harmless on other hosts (served as a text file).
+/2002/:month/:day/:slug /:slug/ 301
+/2003/:month/:day/:slug /:slug/ 301
+/2004/:month/:day/:slug /:slug/ 301
+/2005/:month/:day/:slug /:slug/ 301
+/2006/:month/:day/:slug /:slug/ 301
+/2007/:month/:day/:slug /:slug/ 301
+/2008/:month/:day/:slug /:slug/ 301
+/2009/:month/:day/:slug /:slug/ 301
+/2010/:month/:day/:slug /:slug/ 301
+/2011/:month/:day/:slug /:slug/ 301
+/2012/:month/:day/:slug /:slug/ 301
+/2013/:month/:day/:slug /:slug/ 301
+/2014/:month/:day/:slug /:slug/ 301
+/2015/:month/:day/:slug /:slug/ 301
+/2016/:month/:day/:slug /:slug/ 301
+/2017/:month/:day/:slug /:slug/ 301
+/2018/:month/:day/:slug /:slug/ 301
+/2019/:month/:day/:slug /:slug/ 301
+/2020/:month/:day/:slug /:slug/ 301
+/2021/:month/:day/:slug /:slug/ 301
+/2022/:month/:day/:slug /:slug/ 301
+/2023/:month/:day/:slug /:slug/ 301
+/2024/:month/:day/:slug /:slug/ 301
+/2025/:month/:day/:slug /:slug/ 301
+/2026/:month/:day/:slug /:slug/ 301
+
+# WordPress archive listings — categories, tags, the author page, and paged
+# lists — have no equivalent here. The posts page is the one listing.
+/category/* /posts/ 301
+/tag/* /posts/ 301
+/author/* /posts/ 301
+/page/* /posts/ 301
+
+# The posts page was /blogcast/ until 2026-09-21, the WordPress name for it.
+# Eric dropped the word; the old address keeps working from here.
+/blogcast /posts/ 301
+/blogcast/ /posts/ 301
+
+# The WordPress feed lives on as the posts RSS.
+/feed/* /rss.xml 301
+
+# WordPress shortlinks (?p=ID for posts, ?page_id=ID for pages) still turn up
+# in old emails and forum threads. Generated from migration/raw at cutover.
+/wp-content/uploads/* /uploads/:splat 301
+/ p=13723 /mixing-music-podcast-visit/ 301!
+/ p=13696 /tapeop-rave-review/ 301!
+/ p=13458 /whos-really-stealing-from-you/ 301!
+/ p=13443 /mixerman-on-music-production-podcast/ 301!
+/ p=13414 /the-world-according-to-mixerman-002/ 301!
+/ p=13367 /the-world-according-to-mixerman/ 301!
+/ p=13315 /mixerman-on-working-class-audio/ 301!
+/ p=13205 /sampler-of-mixermans-ultimate-guide-to-producing/ 301!
+/ p=13083 /mixermans-ultimate-guide-to-producing-records-music-songs/ 301!
+/ p=13014 /does-ai-make-musical-decisions/ 301!
+/ p=12995 /learning-is-not-stealing-suno-udio-v-the-major-labels/ 301!
+/ p=12963 /the-records-in-the-midrange/ 301!
+/ p=12948 /what-successful-record-makers-think-about-most-3/ 301!
+/ p=12938 /lets-talk-lufs/ 301!
+/ p=12932 /what-successful-record-makers-think-of-most-2/ 301!
+/ p=12923 /what-successful-record-makers-think-about-most/ 301!
+/ p=12735 /the-daily-adventures-of-mixerman-podcast/ 301!
+/ p=12732 /mixerman-versus-mastering/ 301!
+/ p=12709 /stems-explained/ 301!
+/ p=12228 /mixing-is-an-illusion/ 301!
+/ p=11710 /msg2kr-audiobook-announce/ 301!
+/ p=11671 /zen-and-the-art-of-mixing2021/ 301!
+/ p=11586 /patterns-patters-and-more-patterns/ 301!
+/ p=11576 /referencing-sound-and-snowflakes/ 301!
+/ p=11566 /mixerman-yas-podcast/ 301!
+/ p=11538 /mixerman-rules-killer-record/ 301!
+/ p=11523 /msg2kr-tapeop-review/ 301!
+/ p=11425 /music-connection-feat-mixerman/ 301!
+/ p=11395 /recording-studio-rockstars/ 301!
+/ p=11308 /address-your-fear/ 301!
+/ p=11263 /working-class-audio-202-with-mixerman/ 301!
+/ p=11032 /frequency-primer/ 301!
+/ p=10981 /the-great-sample-rate-debate/ 301!
+/ p=10121 /now-thats-producing/ 301!
+/ p=9162 /source-source-source/ 301!
+/ p=9088 /the-requirements-of-producing-3/ 301!
+/ page_id=13612 /mixermans-ultimate-music-producer-retreat/ 301!
+/ page_id=13433 /professional-mixing-mastering/ 301!
+/ page_id=13334 /deskcopy/ 301!
+/ page_id=13271 /faculty-review-adoption-mug2prms/ 301!
+/ page_id=13039 /campaign/ 301!
+/ page_id=13040 /books/mm-ultimate-producing/ 301!
+/ page_id=12890 /thank-you/ 301!
+/ page_id=12865 /friends/ 301!
+/ page_id=165 /books/zen-the-art-of-mixing-mix-music-like-a-pro/ 301!
+/ page_id=162 /books/zen-the-art-of-mixing-mix-music-like-a-pro/ 301!
+/ page_id=25 /books/the-daily-adventures-of-mixerman-hilarious-unauthorized-diary/ 301!
+/ page_id=21 /books/musicians-survival-guide-to-a-killer-record/ 301!
+/ page_id=19 /books/zen-the-art-of-mixing-mix-music-like-a-pro/ 301!
+/ page_id=17 /about-contact/ 301!
+/ page_id=15 /discography/ 301!
+/ page_id=13 /posts/ 301!
+/ page_id=11 /books/ 301!
+/ page_id=3 /privacy-policy/ 301!
+
+# The WordPress (Yoast) sitemap addresses Google was given; the new index
+# takes their place so Search Console's registered sitemap keeps resolving.
+/sitemap.xml /sitemap-index.xml 301
+/sitemap_index.xml /sitemap-index.xml 301
+/post-sitemap.xml /sitemap-index.xml 301
+/page-sitemap.xml /sitemap-index.xml 301
+/category-sitemap.xml /sitemap-index.xml 301
+/post_tag-sitemap.xml /sitemap-index.xml 301
+/author-sitemap.xml /sitemap-index.xml 301
+
+# The redirects astro.config.mjs also declares. Astro builds each as a page
+# with a meta refresh, which flashes 'Redirecting from…' before it leaves;
+# forced here so Netlify answers with a real 301 and the stub is never seen.
+# The config copies stay so the same paths work under astro dev/preview.
+/discography/ https://credits.muso.ai/search?keyword=Eric%20Sarafin 301!
+/deskcopy/ /faculty-review-adoption-mug2prms/ 301!
+/about/ /about-contact/ 301!
+/musicians-survival-guide-to-a-killer-record/ /books/musicians-survival-guide-to-a-killer-record/ 301!
+/zen-and-the-art-of-mixing/ /books/zen-the-art-of-mixing-mix-music-like-a-pro/ 301!
+/the-daily-adventures-of-mixerman/ /books/the-daily-adventures-of-mixerman-hilarious-unauthorized-diary/ 301!
+/zen-and-the-art-of-producing-2/ /books/mm-ultimate-producing/ 301!
+/books/le-zen-lart-du-mixage/ /books/zen-the-art-of-mixing-mix-music-like-a-pro/ 301!
+/books/zen-e-a-arte-da-mixagem-aprender-a-mixar-com-confianca/ /books/zen-the-art-of-mixing-mix-music-like-a-pro/ 301!
+/TDAOMM-Apple/ https://podcasts.apple.com/us/podcast/the-daily-adventures-of-mixerman/id1638184428 301!
+/TDAOMM-spotify/ https://open.spotify.com/show/7Mt41LeLk5CCw5JLJJEkNJ 301!
+/TDAOMM-iHeart/ https://www.iheart.com/podcast/269-the-daily-adventures-of-mi-289362633 301!
+
+# Review shortlinks: one short address per book, to that book's review form on
+# Amazon. Netlify reads the reader's country and sends them to their own store,
+# which is the one their account can post on; everyone else gets amazon.com.
+# The first match wins, so each book's country lines stand above its default.
+# 302, not 301: a browser must not remember the destination, so it can change.
+# Plain /review/ is a real page (src/pages/review.astro) that offers all four.
+# Europe without a store of its own goes to amazon.de, the store most of it
+# shops on (readers in Switzerland and the Czech Republic confirmed theirs
+# 2026-09-21). For a European, amazon.com is always a dead end: Amazon only
+# takes reviews from an account that has spent money on that same store.
+# Portugal has no Amazon of its own and shops on amazon.es (a reader confirmed
+# it 2026-09-21), so it rides with Spain.
+# India has no diary line: amazon.in does not list that edition, so Indian
+# readers of it go to amazon.com with everyone else.
+# PRODUCING
+/review/producing/  https://www.amazon.co.uk/review/create-review?asin=1955652031  302  Country=gb,ie
+/review/producing/  https://www.amazon.ca/review/create-review?asin=1955652031  302  Country=ca
+/review/producing/  https://www.amazon.com.au/review/create-review?asin=1955652031  302  Country=au,nz
+/review/producing/  https://www.amazon.de/review/create-review?asin=1955652031  302  Country=de,at,ch,li,lu,cz,sk,hu,si,hr,ro,bg,gr,dk,no,fi,is,ee,lv,lt
+/review/producing/  https://www.amazon.fr/review/create-review?asin=1955652031  302  Country=fr
+/review/producing/  https://www.amazon.it/review/create-review?asin=1955652031  302  Country=it
+/review/producing/  https://www.amazon.es/review/create-review?asin=1955652031  302  Country=es,pt
+/review/producing/  https://www.amazon.nl/review/create-review?asin=1955652031  302  Country=nl
+/review/producing/  https://www.amazon.com.be/review/create-review?asin=1955652031  302  Country=be
+/review/producing/  https://www.amazon.se/review/create-review?asin=1955652031  302  Country=se
+/review/producing/  https://www.amazon.pl/review/create-review?asin=1955652031  302  Country=pl
+/review/producing/  https://www.amazon.co.jp/review/create-review?asin=1955652031  302  Country=jp
+/review/producing/  https://www.amazon.com.mx/review/create-review?asin=1955652031  302  Country=mx
+/review/producing/  https://www.amazon.com.br/review/create-review?asin=1955652031  302  Country=br
+/review/producing/  https://www.amazon.sg/review/create-review?asin=1955652031  302  Country=sg
+/review/producing/  https://www.amazon.in/review/create-review?asin=1955652031  302  Country=in
+/review/producing/  https://www.amazon.com/review/create-review?asin=1955652031  302
+# Zen & the Art of MIXING
+/review/mixing/  https://www.amazon.co.uk/review/create-review?asin=096004051X  302  Country=gb,ie
+/review/mixing/  https://www.amazon.ca/review/create-review?asin=096004051X  302  Country=ca
+/review/mixing/  https://www.amazon.com.au/review/create-review?asin=096004051X  302  Country=au,nz
+/review/mixing/  https://www.amazon.de/review/create-review?asin=096004051X  302  Country=de,at,ch,li,lu,cz,sk,hu,si,hr,ro,bg,gr,dk,no,fi,is,ee,lv,lt
+/review/mixing/  https://www.amazon.fr/review/create-review?asin=096004051X  302  Country=fr
+/review/mixing/  https://www.amazon.it/review/create-review?asin=096004051X  302  Country=it
+/review/mixing/  https://www.amazon.es/review/create-review?asin=096004051X  302  Country=es,pt
+/review/mixing/  https://www.amazon.nl/review/create-review?asin=096004051X  302  Country=nl
+/review/mixing/  https://www.amazon.com.be/review/create-review?asin=096004051X  302  Country=be
+/review/mixing/  https://www.amazon.se/review/create-review?asin=096004051X  302  Country=se
+/review/mixing/  https://www.amazon.pl/review/create-review?asin=096004051X  302  Country=pl
+/review/mixing/  https://www.amazon.co.jp/review/create-review?asin=096004051X  302  Country=jp
+/review/mixing/  https://www.amazon.com.mx/review/create-review?asin=096004051X  302  Country=mx
+/review/mixing/  https://www.amazon.com.br/review/create-review?asin=096004051X  302  Country=br
+/review/mixing/  https://www.amazon.sg/review/create-review?asin=096004051X  302  Country=sg
+/review/mixing/  https://www.amazon.in/review/create-review?asin=096004051X  302  Country=in
+/review/mixing/  https://www.amazon.com/review/create-review?asin=096004051X  302
+# Musician's Survival Guide
+/review/musicians/  https://www.amazon.co.uk/review/create-review?asin=0692194398  302  Country=gb,ie
+/review/musicians/  https://www.amazon.ca/review/create-review?asin=0692194398  302  Country=ca
+/review/musicians/  https://www.amazon.com.au/review/create-review?asin=0692194398  302  Country=au,nz
+/review/musicians/  https://www.amazon.de/review/create-review?asin=0692194398  302  Country=de,at,ch,li,lu,cz,sk,hu,si,hr,ro,bg,gr,dk,no,fi,is,ee,lv,lt
+/review/musicians/  https://www.amazon.fr/review/create-review?asin=0692194398  302  Country=fr
+/review/musicians/  https://www.amazon.it/review/create-review?asin=0692194398  302  Country=it
+/review/musicians/  https://www.amazon.es/review/create-review?asin=0692194398  302  Country=es,pt
+/review/musicians/  https://www.amazon.nl/review/create-review?asin=0692194398  302  Country=nl
+/review/musicians/  https://www.amazon.com.be/review/create-review?asin=0692194398  302  Country=be
+/review/musicians/  https://www.amazon.se/review/create-review?asin=0692194398  302  Country=se
+/review/musicians/  https://www.amazon.pl/review/create-review?asin=0692194398  302  Country=pl
+/review/musicians/  https://www.amazon.co.jp/review/create-review?asin=0692194398  302  Country=jp
+/review/musicians/  https://www.amazon.com.mx/review/create-review?asin=0692194398  302  Country=mx
+/review/musicians/  https://www.amazon.com.br/review/create-review?asin=0692194398  302  Country=br
+/review/musicians/  https://www.amazon.sg/review/create-review?asin=0692194398  302  Country=sg
+/review/musicians/  https://www.amazon.in/review/create-review?asin=0692194398  302  Country=in
+/review/musicians/  https://www.amazon.com/review/create-review?asin=0692194398  302
+# The Daily Adventures of Mixerman
+/review/diary/  https://www.amazon.co.uk/review/create-review?asin=1955652023  302  Country=gb,ie
+/review/diary/  https://www.amazon.ca/review/create-review?asin=1955652023  302  Country=ca
+/review/diary/  https://www.amazon.com.au/review/create-review?asin=1955652023  302  Country=au,nz
+/review/diary/  https://www.amazon.de/review/create-review?asin=1955652023  302  Country=de,at,ch,li,lu,cz,sk,hu,si,hr,ro,bg,gr,dk,no,fi,is,ee,lv,lt
+/review/diary/  https://www.amazon.fr/review/create-review?asin=1955652023  302  Country=fr
+/review/diary/  https://www.amazon.it/review/create-review?asin=1955652023  302  Country=it
+/review/diary/  https://www.amazon.es/review/create-review?asin=1955652023  302  Country=es,pt
+/review/diary/  https://www.amazon.nl/review/create-review?asin=1955652023  302  Country=nl
+/review/diary/  https://www.amazon.com.be/review/create-review?asin=1955652023  302  Country=be
+/review/diary/  https://www.amazon.se/review/create-review?asin=1955652023  302  Country=se
+/review/diary/  https://www.amazon.pl/review/create-review?asin=1955652023  302  Country=pl
+/review/diary/  https://www.amazon.co.jp/review/create-review?asin=1955652023  302  Country=jp
+/review/diary/  https://www.amazon.com.mx/review/create-review?asin=1955652023  302  Country=mx
+/review/diary/  https://www.amazon.com.br/review/create-review?asin=1955652023  302  Country=br
+/review/diary/  https://www.amazon.sg/review/create-review?asin=1955652023  302  Country=sg
+/review/diary/  https://www.amazon.com/review/create-review?asin=1955652023  302
+
+# Search Console still has three addresses from the WordPress years that now
+# 404. /mixerman-radio-show/ is not among them any more — that page is back at
+# its own address. These two have nowhere of their own to be: index.php was
+# WordPress's front door, and /facebook was a shortlink to the page it names.
+/index.php  /  301
+/facebook   https://www.facebook.com/mixerman  301

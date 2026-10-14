@@ -1,0 +1,3 @@
+User-agent: *
+Disallow:
+Sitemap: https://mixerman.net/sitemap-index.xml

@@ -1,0 +1,233 @@
+---
+import Base from '../layouts/Base.astro';
+import { pageTitle } from '../data/site';
+
+// The one review address short enough to say aloud or print, so it has to
+// serve a reader of any book: they pick the one they read. Each cover goes to
+// that book's shortlink (public/_redirects), which sends them on to the review
+// form on their own country's Amazon. Reached by its link, never by search:
+// noindex here, and left out of the sitemap in astro.config.mjs. When the link
+// is shared, the card shows the plate over the four covers (share-card-review-covers-shadowed.jpg).
+// Facebook's composer preview trims the sides, but the published post shows the
+// whole card, so the full-size covers are right; a smaller-covers version and a
+// labelled one sit beside it, unused rather than
+// the site's console photo.
+const books = [
+  { slug: 'producing', short: 'PRODUCING',
+    title: 'MIXERMAN’S Ultimate Guide to PRODUCING Records, Music & Songs',
+    cover: '/uploads/2026/08/mug2prms-3d-noshadow-480.webp' },
+  { slug: 'mixing', short: 'MIXING',
+    title: 'Zen & the Art of MIXING',
+    cover: '/uploads/2026/08/zen-mixing-3d-alpha.webp' },
+  { slug: 'musicians', short: 'Survival Guide',
+    title: 'Musician’s Survival Guide to a Killer Record',
+    cover: '/uploads/2026/08/msg2kr-3d-alpha.webp' },
+  { slug: 'diary', short: 'The Daily Adventures',
+    title: 'The Daily Adventures of MIXERMAN',
+    cover: '/uploads/2026/08/tdaomm-3d-alpha-2.webp' },
+];
+// the audiobooks' own square artwork, which is what a listener saw in the store
+const ZEN_AUDIO = '/uploads/2022/09/zen-mixing-audiobook-400.webp';
+const MSG_AUDIO = '/uploads/2022/09/msg2kr-audiobook-400.webp';
+const stores = [
+  { key: 'goodreads', name: 'Goodreads', note: 'Amazon won’t take your review? Goodreads will.',
+    books: [
+      { slug: 'producing', href: 'https://www.goodreads.com/review/edit/234455120' },
+      { slug: 'mixing', href: 'https://www.goodreads.com/review/edit/55935590' },
+      { slug: 'musicians', href: 'https://www.goodreads.com/review/edit/42045669' },
+      { slug: 'diary', href: 'https://www.goodreads.com/review/edit/75604277' },
+    ] },
+  { key: 'apple', name: 'Apple Books', note: 'Bought it on Apple Books? Rate it there.',
+    books: [
+      { slug: 'producing', href: 'https://books.apple.com/us/book/mixermans-ultimate-guide-to-producing-records-music-songs/id6745711332' },
+      { slug: 'mixing', href: 'https://books.apple.com/us/book/zen-the-art-of-mixing/id1566143312' },
+      { slug: 'musicians', href: 'https://books.apple.com/us/book/musicians-survival-guide-to-a-killer-record/id1563806086' },
+    ] },
+  { key: 'google', name: 'Google Play', note: 'Bought it on Google Play? Rate it there.',
+    books: [
+      { slug: 'producing', href: 'https://play.google.com/store/books/details/Mixerman_MIXERMAN_S_Ultimate_Guide_to_PRODUCING_Re?id=DXBcEQAAQBAJ' },
+      { slug: 'mixing', href: 'https://play.google.com/store/books/details/Mixerman_Zen_the_Art_of_MIXING_2021?id=9L0sEAAAQBAJ' },
+      { slug: 'musicians', href: 'https://play.google.com/store/books/details/Mixerman_Musician_s_Survival_Guide_to_a_Killer_Rec?id=QcgqEAAAQBAJ' },
+    ] },
+  // no audiobook of PRODUCING or the diary, and nothing on Audible
+  { key: 'apple-audio', name: 'Apple Books', note: 'Listened on Apple Books? Rate it there.',
+    books: [
+      { slug: 'mixing', cover: ZEN_AUDIO, href: 'https://books.apple.com/us/audiobook/zen-the-art-of-mixing/id1632007707' },
+      { slug: 'musicians', cover: MSG_AUDIO, href: 'https://books.apple.com/us/audiobook/musicians-survival-guide-to-a-killer-record-studio/id1632009037' },
+    ] },
+  { key: 'google-audio', name: 'Google Play', note: 'Listened on Google Play? Rate it there.',
+    books: [
+      { slug: 'mixing', cover: ZEN_AUDIO, href: 'https://play.google.com/store/audiobooks/details/Mixerman_Zen_the_Art_of_MIXING?id=AQAAAEACnWTddM' },
+      { slug: 'musicians', cover: MSG_AUDIO, href: 'https://play.google.com/store/audiobooks/details/Mixerman_Musician_s_Survival_Guide_to_a_Killer_Rec?id=AQAAAEACdSs1OM' },
+    ] },
+];
+---
+<Base title={pageTitle('Leave a Review')} description="Read one of my books? Pick it, and Amazon will take you to its review form." image="/brand/share-card-review-covers-shadowed.jpg" noindex={true}>
+  <section class="section section--deep" style="padding:40px 0 28px">
+    <div class="wrap" style="text-align:center">
+      <div class="lineband">
+        <h1 class="plate" style="font-size:clamp(1.4rem, 2.8vw, 2rem)">Leave a Review</h1>
+      </div>
+      <img class="care-label" src="/brand/because-you-care-label.webp" alt="Because you care" width="800" height="122" />
+    </div>
+  </section>
+
+  <section class="section" style="padding:60px 0 60px">
+    <div class="wrap" style="max-width:920px">
+      <div class="prose review-ask">
+        <p>Reviews on Amazon are what allow others to find my books. The more reviews there are, the more visibility my books get. As you can imagine, it’s kind of important.</p>
+        <p>If you’ve read any of my books, then do me a personal favor: click the one you read and <strong>leave a review—or just a rating</strong> if you’re pressed for time. A single click takes you to Amazon, and once you’re signed in, straight to the review form. Easy.</p>
+      </div>
+      <ul class="review-shelf">
+        {books.map(b => (
+          <li>
+            <a href={`/review/${b.slug}/`} target="_blank" rel="noopener"
+               aria-label={`Review ${b.title} on Amazon (opens in a new tab)`}>
+              <img src={b.cover} alt="" width="200" loading="lazy" />
+              <span class="review-title">{b.short}</span>
+              <span class="review-go">Review on Amazon</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      {/* Amazon only takes a review from an account that has spent money on that
+          same store, so readers it turns away get Goodreads, which asks nothing
+          but a free account; its links open straight to the book's review form
+          for a signed-in reader. Apple and Google take ratings only from buyers,
+          and The Daily Adventures has no ebook on either. */}
+      <h2 class="alt-head">Alternatives</h2>
+      <div class="alt-cards">
+        {stores.map(st => (<>
+          {st.key === 'apple' && <h3 class="alt-sub">eBooks</h3>}
+          {st.key === 'apple-audio' && <h3 class="alt-sub">Audiobooks</h3>}
+          <section class={`alt-card alt-card--${st.key}`} aria-labelledby={`alt-${st.key}`}>
+            <h2 class="alt-label" id={`alt-${st.key}`}>{st.name}</h2>
+            <p class="alt-note">{st.note}</p>
+            <ul class="alt-shelf">
+              {st.books.map(b => {
+                const book = books.find(x => x.slug === b.slug);
+                return (
+                  <li>
+                    <a href={b.href} target="_blank" rel="noopener"
+                       aria-label={`Rate ${book.title}${st.key.endsWith('-audio') ? ' audiobook' : ''} on ${st.name} (opens in a new tab)`}>
+                      <img src={b.cover ?? book.cover} alt="" width="90" loading="lazy" class={b.cover ? 'alt-square' : undefined} />
+                      <span class="alt-title">{book.short}</span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        </>))}
+      </div>
+      <div class="prose review-close">
+        <p>Thank you for your participation and support.</p>
+        <p>Enjoy,<br />Mixerman</p>
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  /* label tape stuck across the band's lower edge, half on the cream and half
+     on the white, as in the review email's card */
+  .care-label {
+    display: block; position: relative; z-index: 2;
+    width: min(400px, 90%); height: auto;
+    margin: 14px auto -60px;
+    /* slapped on by hand: off square and off centre */
+    transform: translateX(-6px) rotate(-3.5deg);
+  }
+  @media (max-width: 640px) { .care-label { transform: translateX(-4px) rotate(-3.5deg); } }
+  .review-ask { margin-bottom: 2em; }
+  .review-ask p:last-child { margin-bottom: 0; }
+  /* the other places a reader can rate: smaller covers than Amazon's shelf,
+     one card per store; Goodreads takes the full row, Apple and Google split
+     the next one and stack on a phone */
+  .alt-head {
+    max-width: 700px; margin: 2.4em auto 14px;
+    font-family: var(--heading); font-weight: 600; text-transform: uppercase;
+    letter-spacing: .06em; font-size: 1.35rem; line-height: 1.2; color: var(--ink);
+  }
+  .alt-cards {
+    max-width: 700px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  }
+  .alt-card {
+    border: 1px solid #e3d7ba; border-radius: 12px; background: var(--cream);
+    padding: 18px 20px 20px;
+  }
+  .alt-card--goodreads { grid-column: 1 / -1; }
+  .alt-sub {
+    grid-column: 1 / -1; margin: 10px 0 -6px;
+    font-family: var(--heading); font-weight: 600; text-transform: uppercase;
+    letter-spacing: .06em; font-size: 1.05rem; line-height: 1.2; color: var(--ink);
+  }
+  .alt-label {
+    font-family: var(--heading); font-weight: 600; text-transform: uppercase;
+    letter-spacing: .08em; font-size: .95rem; line-height: 1.2; color: var(--ink);
+    margin: 0; padding-bottom: 7px; border-bottom: 2px solid var(--ink);
+  }
+  .alt-note { font-size: .92rem; line-height: 1.5; margin: 10px 0 16px; }
+  .alt-shelf {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(var(--n, 3), 1fr); gap: 14px;
+  }
+  .alt-card--goodreads .alt-shelf { --n: 4; max-width: 460px; margin-inline: auto; }
+  /* two books, spaced as the three-book cards space theirs */
+  .alt-card--apple-audio .alt-shelf, .alt-card--google-audio .alt-shelf { --n: 2; max-width: 80%; margin-inline: auto; gap: 24px; }
+  .alt-shelf a {
+    display: flex; flex-direction: column; align-items: center;
+    text-decoration: none; text-align: center; color: inherit;
+    transition: transform .1s ease;
+  }
+  .alt-shelf a:hover { transform: translateY(-3px); }
+  .alt-shelf img {
+    height: 110px; width: auto; max-width: 100%; object-fit: contain; margin: 0 0 8px;
+    filter: drop-shadow(3px 4px 2px rgba(25, 20, 16, .24)); will-change: filter;
+  }
+  .alt-title {
+    font-family: var(--heading); text-transform: uppercase; letter-spacing: .04em;
+    font-size: .78rem; line-height: 1.2; color: var(--red-deep);
+  }
+  /* flat square art, a touch smaller than a standing book so it reads the same size */
+  .alt-shelf img.alt-square { height: 100px; width: 100px; }
+  @media (max-width: 640px) {
+    .alt-cards { grid-template-columns: 1fr; }
+    .alt-shelf img { height: 96px; }
+  }
+  .review-close { margin-top: 2.4em; }
+  .review-close p:last-child { margin-bottom: 0; }
+  /* four across, two by two on a phone; the covers share a height and hang
+     from one top line, so a title that runs to two lines moves nothing */
+  .review-shelf { max-width: 700px; margin-inline: auto; }
+  .review-shelf {
+    list-style: none; margin-block: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px 24px;
+  }
+  .review-shelf li { display: flex; }
+  .review-shelf a {
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    width: 100%; text-decoration: none; text-align: center; color: inherit;
+    transition: transform .1s ease;
+  }
+  .review-shelf a:hover { transform: translateY(-4px); }
+  /* one height, so the four read as the same size of book; the files differ
+     in how much shadow they carry, so width is left to fall where it does */
+  .review-shelf img { height: 225px; width: auto; max-width: 100%; object-fit: contain; margin: 0 0 14px; }
+  /* the shadow the books page gives its cards' covers, scaled from their 344px
+     to these 225; will-change for the same reason given there */
+  .review-shelf img { filter: drop-shadow(5px 7px 3px rgba(25, 20, 16, .24)); will-change: filter; }
+  .review-title {
+    font-family: var(--heading); text-transform: uppercase; letter-spacing: .05em;
+    font-size: 1rem; line-height: 1.25; color: var(--red-deep);
+  }
+  .review-go {
+    font-family: var(--type); font-size: .8rem; letter-spacing: .08em;
+    text-transform: uppercase; margin-top: .45em; color: #7a7062;
+  }
+  .review-shelf a:hover .review-go, .review-shelf a:focus-visible .review-go { color: var(--red-deep); }
+  @media (max-width: 640px) {
+    .review-shelf { grid-template-columns: repeat(2, 1fr); }
+    .review-shelf img { height: 200px; }
+  }
+</style>

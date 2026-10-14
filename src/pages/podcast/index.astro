@@ -1,0 +1,632 @@
+---
+import Base from '../../layouts/Base.astro';
+import feed from '../../data/tdaomm-podcast.json';
+
+/* The whole series, free, in order. Linked from the masthead, the footer, the
+   book page for the same story and the 2022 announcement post; indexed, and in
+   the sitemap.
+
+   The episodes come from a committed snapshot of the Buzzsprout feed, not from
+   a fetch at build time — see scripts/fetch-podcast-feed.mjs for why. The
+   series finished in November 2022, so the snapshot only changes when Eric
+   edits the feed itself. */
+const episodes = feed.episodes;
+
+/* m:ss, which every episode here fits — the longest is under 32 minutes. */
+const runtime = (seconds) => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+/* the same length in words, for the reader who hears "8:10" as nothing in particular */
+const spoken = (seconds) => {
+  const m = Math.floor(seconds / 60), s = seconds % 60;
+  return [m && `${m} minute${m === 1 ? '' : 's'}`, s && `${s} second${s === 1 ? '' : 's'}`].filter(Boolean).join(' ');
+};
+
+/* The titles number themselves — "Day 11 Win One for the Gipper" — so the day
+   is split off to be set in red and the rest left alone. It matches only at
+   the front of the title, which keeps "Day 32 Day of Reckoning" from losing
+   its second Day; it takes the doubled days ("Days 14 & 15") whole; and it
+   carries the part along with the day, in either numbering the feed uses
+   ("Day 38 - Part II", "Day 38 - Part 4"), so the three parts of Day 38 read
+   as one day split three ways. The dash that follows is dropped, leaving the
+   day set off from the title by colour alone, as in every other row. */
+const splitDay = (title) => {
+  const m = title.match(/^(Days?\s+\d+(?:\s*&\s*\d+)?(?:\s*[-\u2013]\s*Part\s+[IVX\d]+)?)\s*[-\u2013]?\s*(.*)$/);
+  if (m) return { day: m[1], rest: m[2] };
+  /* The opener carries no day in the feed — it happens before the session
+     starts — and it reads as Day 0. Done here rather than in the snapshot,
+     which fetch-podcast-feed.mjs overwrites from Buzzsprout on its next run.
+     To have it everywhere, including Apple and Spotify, the episode title
+     itself would have to change in Buzzsprout. */
+  return { day: 'Day 0', rest: title };
+};
+
+const hours = Math.floor(feed.seconds / 3600);
+const minutes = Math.round((feed.seconds % 3600) / 60);
+
+const APPLE = 'https://podcasts.apple.com/us/podcast/the-daily-adventures-of-mixerman/id1638184428';
+const SPOTIFY = 'https://open.spotify.com/show/7Mt41LeLk5CCw5JLJJEkNJ';
+
+/* So the series is legible to search engines and podcast directories as one
+   work rather than as a page with audio on it. */
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'PodcastSeries',
+  name: feed.title,
+  description: feed.description,
+  url: 'https://mixerman.net/podcast/',
+  webFeed: feed.feed,
+  image: 'https://mixerman.net/uploads/2022/09/tdaomm-podcast-logo-w-banner-280072-1024x1024-1.jpeg',
+  numberOfEpisodes: episodes.length,
+  inLanguage: 'en-US',
+  author: { '@type': 'Person', name: 'Mixerman', alternateName: 'Eric Sarafin', url: 'https://mixerman.net/' },
+  publisher: { '@type': 'Organization', name: 'Mixerman Publishes' },
+  genre: ['Comedy', 'Music History'],
+};
+---
+<Base title="The Daily Adventures of Mixerman — The Podcast"
+  description="The studio diary that rocked the music world, performed by the industry itself: all 54 episodes of the full audio dramatization, free, in order, with original music, foley, and a cast of famous record makers."
+  image="/uploads/2026/08/tdaomm-podcast-card.webp">
+
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+
+  <!-- TITLE BAND -->
+  <section class="section section--deep" style="padding:40px 0 28px">
+    <div class="wrap" style="text-align:center">
+      <div class="lineband">
+        <h1 class="plate" style="font-size:clamp(1.15rem, 2.4vw, 1.85rem)">The Mixerman Chronicles</h1>
+      </div>
+      {/* The same strip of tape the Books page wears under its plate, relettered.
+          The banner names the page; this says what kind of thing it is. */}
+      <img src="/brand/limited-series-tape.webp" alt="A limited series podcast" width="440" height="67"
+        style="display:block; margin:12px auto 0; max-width:88%; height:auto; transform:rotate(-3.2deg)" />
+      {/* The artwork carries the series title and its tagline as lettering, so
+          both are written out here as well — in the alt text for anyone hearing
+          the page, and again as the opening line of the copy below. */}
+      <img class="pod-hero" src="/uploads/2026/08/tdaomm-podcast-card.webp"
+        alt="The Daily Adventures of Mixerman — Podcast! The explosively hilarious, unauthorized studio diary that rocked the music world."
+        width="1600" height="1000" />
+      <p class="pod-meta">
+        {episodes.length} episodes &middot; {hours} hours {minutes} minutes &middot; complete &middot; free
+      </p>
+    </div>
+  </section>
+
+  <!-- WHAT IT IS -->
+  <section class="section section--ink" style="padding:40px 0 44px">
+    <div class="wrap">
+      {/* The book's own title lettering, so no font has to imitate it. The
+          words live in the alt text, which is the only place a reader who
+          cannot see the image will find them.
+
+          The png is transparent, and has to be: every attempt to flatten it
+          onto this band's #191410 came out of the design tool a shade darker
+          — #040404, then #0f0c0a — and any near miss shows as a box. The
+          transparency was derived from the flattened export instead, taking
+          each pixel's brightness above that flat ground as its opacity, which
+          leaves nothing behind the lettering to match. Source exports are in
+          .design/source/, out of git. */}
+      <h2 class="pod-name">
+        <img src="/uploads/2026/08/tdaomm-title.png"
+          alt="The Daily Adventures of Mixerman"
+          width="1400" height="654" />
+      </h2>
+      <div class="prose">
+        <p>The explosively hilarious, unauthorized studio diary that rocked the music world — performed by the music world.</p>
+        {/* This sets the date the paragraph below counts its two ten-year steps from, and
+            the session the cast list is playing in. What it no longer does is
+            retell how big the diary got: the Foreword hits those same beats
+            harder, and from someone other than its author. */}
+        <p>In the summer of 2002, a Los Angeles recording engineer known only as Mixerman began chronicling a major label session with a bidding-war band, an infamous producer, and a seemingly limitless budget — posting each night after the session ended.</p>
+        <p>Ten years later, with 1930s radio and the Firesign Theatre in mind, Producer Aardvark and Mixerman turned the diary into a full unabridged dramatization: original music, character leitmotifs in the manner of <em>Peter and the Wolf</em>, foley, sound effects, and character performances by some of the best known record makers in the business. Ten years after that, in 2022, Mixerman revisited the audiobook, added more music, and revised the whole production for release as a limited series podcast.</p>
+        <p class="pod-cast">Ken Scott (The Beatles) &middot; Dave Pensado (Christina Aguilera) &middot; Ron Saint Germain (U2, 311) &middot; Ed Cherney (Bette Midler) &middot; Joe McGrath (Blink&#8209;182, AFI) &middot; William Wittman (Cyndi Lauper, The Fixx) &middot; Tim Gilles (Taking Back Sunday) &middot; Dylan Dresdow (Black Eyed Peas) &middot; Jeff Lorber &middot; JP Plunier (Ben Harper) &middot; Julian Bunetta (One Direction) &middot; Kenny Gioia (Hall &amp; Oates) &middot; Bob Ohlsson (Jackson 5)</p>
+        <p>In other words, this is not your father’s limited series podcast. It’s your great grandfather’s — with a modern spin, of course. Narrated by Mixerman, produced by Aardvark and Mixerman.</p>
+        {/* The cover goes to the same place the link in the sentence does, so
+            it is kept out of the tab order and hidden from screen readers
+            rather than read out as a second identical link. */}
+        <div class="pod-aside">
+          <a class="pod-aside-cover" href="/books/the-daily-adventures-of-mixerman-hilarious-unauthorized-diary/" tabindex="-1" aria-hidden="true">
+            <img src="/uploads/2026/08/tdaomm-3d-alpha.png" alt="" width="764" height="964" loading="lazy" />
+          </a>
+          <p>Rather read it? Or want it for your collection? <a href="/books/the-daily-adventures-of-mixerman-hilarious-unauthorized-diary/">The Daily Adventures of Mixerman</a> is in print as a paperback.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOREWORD -->
+  {/* Philip Stevenson's Foreword to the book, set before the episodes because
+      it is what a reader would meet before the story starts, and introduced by
+      Mixerman in his own voice above it. Reproduced as written — the soft
+      hyphens the book's typesetting left behind are gone, and the titles it
+      italicised are italic again, but not a word is changed. */}
+  <section class="section section--paper" style="padding:44px 0 48px">
+    <div class="wrap">
+      <div class="lineband lineband--thin" style="text-align:center">
+        <h2 class="plate" style="font-size:clamp(1.15rem, 1.9vw, 1.5rem)">Before We Begin</h2>
+      </div>
+      {/* Mixerman's own line first, then the Foreword's own heading, so that
+          one sits directly over the words it names rather than over the
+          handover. It is an h3: this whole section is Before We Begin, and
+          the Foreword is the part of it Stevenson wrote. */}
+      <div class="prose">
+        <p class="foreword-intro">The following is the Foreword from the book, written by the brilliant Philip Stevenson, and it’s worth a read because it sets the scene for what was happening as I wrote and posted it, live, one episode a day.</p>
+      </div>
+      <h3 class="foreword-head">Foreword</h3>
+      <div class="prose foreword">
+          <p>“All literature is gossip,” offered Truman Capote, in the sly, able way that only someone who has mastered his own art form is allowed to get away with. While a flip remark initially, the quote itself has become more insistently true with the passage of time. Whether it’s the <em>New York Times</em>, Hunter Thompson, or Boswell’s <em>Life of Johnson</em>, we’re never quite sure who said what, who did what, or what really happened. Through all the complexities of reporting human existence, one thing is certain: All stories are true.</p>
+          <p>When news and entertainment decided to fully consummate their marriage sometime in the 1980s, we were faced with inconsiderable checks and balances. Like every other industry, the music business was left with few people to call it on its own excesses. Sure, entertainment had always been news—but news hadn’t always been entertainment. And, while the Beatles may have been as popular for their hair as for their music in the mid-’60s, it could be asserted that, in the mid-’80s, Madonna, while popular as a singer, was idolized for, well, being popular. Tenacity, not talent, had become the <em>sine qua non</em> of the modern entertainer.</p>
+          <p>By the time the Internet exploded into everybody’s living room, we had a bloom of self-appointed critics and experts, most of them dilettantes. No longer did you have to get published. You pushed a button and you were. Rants, blogs, and critiques were everywhere—right alongside porn, hobbyist newsgroups, and institutional forums for academic exchange. With the personal computer, the instant Norman Mailer was born.</p>
+          <p>Unfortunately, as is often the case of those who wallow in the blush of new technology, this new frontier of self-expression fostered mostly a dull, solipsistic bunch of drivel. People initially enchanted by the Web were rapidly disillusioned at how boring all that browsing could actually be. Every once in a while though, you get lucky. Enter Mixerman.</p>
+          <p>On July 27, 2002, the mysterious music insider, who had already gained a reputation for dispensing sound technical advice via Usenet, started chronicling the day-to-day goings-on of a recording he was making for a large record company. It was a little slice of the rock and roll dream—a young band promised stardom, a big budget, and a name producer. However, instead of the story we’d all heard about getting to the top, riding in limos, and being chased by throngs of screaming fans, this was something different. It had all gone terribly wrong. Not only had the wheels fallen off, but, as one delved further, one started to see the truth illuminated: This immethodical circus was not the exception. Perhaps it was the rule. Perhaps it always had been.</p>
+          <p>Industry professionals immediately identified with the empirical details, and the uninitiated were equally drawn in by this rubbernecking view of making records. There was clattering speculation as to the who, when, and where of it, but everyone knew Mixerman was not a poseur. To those who knew him personally, he was an established, respected professional. To those who didn’t, it was clear he was no Trojan horse.</p>
+          <p>By its fourth week, the diary was getting 25,000 hits a day and drawing attention from every stripe of the music business, as well as other bloggers, Internet junkies, and insiders. It was a phenomenon.</p>
+          <p>Being suspicious by nature, I got there a little late. Why the hell should I read what I already knew? When I did, I realized it wasn’t the usual safe Dennis Miller shill in the guise of rebellion. It was actually great. Dryly funny and, while the style was cocky, it completely lacked the shrill egoism to be some kind of boorish self-advertisement. Rather, one pictures, like any good diarist, Mixerman—a person thrust into an aesthetic situation that seemed too hard not to document. Is it satire? Perhaps. But Daumier and Lewis Carroll were satirists too—arming their point of view with the truth rather than spastically mocking their audience with rude invention.</p>
+          <p>The diary went on in fits and spurts, winding its way into subplots and then returning to form again. Abruptly, it ended on December 10, 2002, the final chapter never published.</p>
+          <p>In this book, for the first time, we now have the completed diary as God and Mixerman himself intended. The final chapter is here, too, for new readers, as well as the more than 140,000 Web readers who may have lost a night’s sleep here or there, wondering what became of their all-too-human, less-than-gifted cast of characters.</p>
+          <p>All stories are true. This one is no exception. Only the names have been changed to protect the guilty. Of course, it doesn’t really matter. The old saw is that truth is stranger than fiction, but the best fiction distills the truth down to its most fiercely compelling attributes.</p>
+          <p>This is a book of both humor and truth, something rare, and independent of fact or fiction. Music of conviction and personality will always go on, but in this artistic end of days, where Jimi Hendrix is sold as nostalgia rather than art, and rock and roll, once rebellious, is so establishment that there’s a Les Paul in every doctor’s and lawyer’s closet; the music that a lot of us grew up on has been so mollified we can barely recognize it.</p>
+          <p>Rock and roll is dead. Consider this its autopsy.</p>
+        <p class="foreword-by">&mdash; Philip Stevenson</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE EPISODES -->
+  <section class="section section--ink" style="padding:44px 0 56px">
+    <div class="wrap">
+      <div class="lineband lineband--thin" style="text-align:center">
+        <h2 class="plate" style="font-size:clamp(1.15rem, 1.9vw, 1.5rem)">The Whole Shebang</h2>
+      </div>
+      {/* Fifty-four episodes is sixteen screens of scrolling, and someone who
+          wants Day 37 should not have to travel there. Shut by default, so it
+          costs nothing to a reader who only means to start at the top. */}
+      <details class="ep-index">
+        <summary>Jump to an episode</summary>
+        <ol class="ep-index-list">
+          {episodes.map((ep) => (
+            <li>
+              <a href={`#ep-${ep.number}`}>
+                {splitDay(ep.title).day && <><span class="ep-day">{splitDay(ep.title).day}</span>{' '}</>}
+                {splitDay(ep.title).rest}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </details>
+
+      {/* Filled in and revealed by the script below when this reader has a
+          part-heard episode saved. It is written out here rather than made in
+          the script because Astro scopes these styles to the elements it can
+          see at build time, and an element made later carries none of them. */}
+      <p class="ep-resume" hidden><button type="button"></button></p>
+
+      <ol class="eplist">
+        {episodes.map((ep) => (
+          <li class="ep" id={`ep-${ep.number}`} data-ep={ep.guid}>
+            <div class="ep-head">
+              <h3 class="ep-title">
+                <span class="sr-only">Episode {ep.number}: </span>
+                {splitDay(ep.title).day && <><span class="ep-day">{splitDay(ep.title).day}</span>{' '}</>}
+                {splitDay(ep.title).rest}
+              </h3>
+              <span class="ep-time">
+                <span aria-hidden="true">{runtime(ep.seconds)}</span>
+                <span class="sr-only">Runtime {spoken(ep.seconds)}</span>
+              </span>
+              {/* where this reader stopped, filled in by the script; empty, it
+                  takes no room and is announced to nobody */}
+              <span class="ep-heard"></span>
+            </div>
+            <audio class="ep-audio" controls preload="none" src={ep.audio}
+              data-title={ep.title}
+              aria-label={`Episode ${ep.number}, ${ep.title}`}></audio>
+            {ep.notes && (
+              <details class="ep-more">
+                <summary>Episode notes</summary>
+                <div class="ep-notes" set:html={ep.notes} />
+              </details>
+            )}
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- TAKE IT WITH YOU -->
+  {/* Below the list rather than above it. Up top these sent people off to an
+      app before they had heard a second of it; here they meet someone who has
+      decided they want the eleven and a half hours, which is the moment a
+      podcast app starts making sense. */}
+  <section class="section section--ink" style="padding:8px 0 56px">
+    <div class="wrap">
+      <div class="prose">
+        <p class="pod-take">Rather take it with you? It is on both of these, free, the same fifty-four episodes.</p>
+        {/* Apple's badge is its dark version — white type in a grey frame — so
+            it belongs on this ground. Spotify's mark carries no fill and falls
+            back to black, which on black is nothing at all: the white mark
+            Spotify publishes for dark grounds is the one that goes here. */}
+        <div class="podcast-links">
+          <a href={APPLE} title="Listen on Apple Podcasts"><img src="/brand/stores/apple-podcasts.svg" alt="Listen on Apple Podcasts" loading="lazy" /></a>
+          <a class="framed" href={SPOTIFY} title="Listen on Spotify"><img src="/brand/stores/spotify-white.svg" alt="Listen on Spotify" loading="lazy" /></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    /* The artwork is the title treatment here, so it stands the width of a
+       cover rather than the width of the band. */
+    .pod-hero {
+      width: min(620px, 92%);
+      height: auto;
+      /* the plate above sits proud of its rule with a drop shadow, so it needs
+         more clearance than the 16px it had before the artwork */
+      margin: 30px auto 0;
+    }
+    .pod-meta {
+      font-family: var(--type);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      font-size: .9rem;
+      margin-top: 14px;
+      color: var(--charcoal);
+    }
+
+    .prose .pod-cast {
+      font-family: var(--heading);
+      font-size: 1.02rem;
+      line-height: 1.5;
+      letter-spacing: .02em;
+      border-left: 4px solid var(--red);
+      padding-left: 18px;
+    }
+    .prose .pod-aside {
+      display: flex;
+      gap: 22px;
+      align-items: center;
+      margin-top: 2em;
+    }
+    .prose .pod-aside p { font-size: 1.02rem; color: rgba(248, 241, 226, .75); margin: 0; }
+    /* margin: 0 beats the prose rule that centres a linked image on its own line */
+    .prose .pod-aside-cover { flex: 0 0 auto; margin: 0; }
+    .prose .pod-aside-cover img {
+      display: block;
+      width: 116px;
+      height: auto;
+      margin: 0;
+    }
+    @media (max-width: 480px) {
+      .prose .pod-aside { gap: 16px; }
+      .prose .pod-aside-cover img { width: 88px; }
+    }
+
+    /* Mixerman introducing Stevenson. Italic and a rule beneath it, so the
+       page shows the handover rather than running the two together. */
+    .foreword-intro {
+      font-style: italic;
+      color: var(--charcoal);
+      margin: 30px 0 0;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(25, 20, 16, .18);
+    }
+
+    /* set like a chapter head over the page it opens. Held to the same 700px
+       column as the prose below it, so left means the left edge of the text
+       and not the left edge of the band. */
+    .foreword-head {
+      font-family: var(--heading);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: clamp(1.5rem, 3.2vw, 2.1rem);
+      line-height: 1.15;
+      color: var(--text);
+      max-width: 700px;
+      margin: 40px auto 0;
+    }
+
+    /* the foreword is read, not skimmed: a slightly airier column than the
+       pitch above it, with the paragraphs indented the way the book sets them
+       rather than spaced apart */
+    .foreword { margin-top: 34px; }
+    .foreword p { margin-bottom: 0; text-indent: 1.6em; line-height: 1.75; }
+    .foreword > p:first-of-type { text-indent: 0; }
+    .foreword-by {
+      text-indent: 0 !important;
+      margin-top: 1.4em !important;
+      text-align: right;
+      font-style: italic;
+      color: var(--charcoal);
+    }
+
+    .pod-name { margin: 0 0 34px; }
+    .pod-name img {
+      display: block;
+      width: min(560px, 88%);
+      height: auto;
+      margin: 0 auto;
+    }
+
+    /* the copy sits on black here, so the site's brick-red links would be
+       unreadable and the muted greys invisible */
+    /* underlined as the thank-you page's yellow link is: on the black band the
+       yellow reads fine, but it is too close in brightness to the cream words
+       around it to mark a link by colour alone */
+    .section--ink .prose a { color: var(--yellow); text-decoration: underline; text-underline-offset: 3px; }
+    .section--ink .prose a:hover { color: var(--cream); }
+
+    /* ---------- the episode list ----------
+       Rows divided by a rule rather than boxed: fifty-four framed cards in a
+       column is a wall, and the numbers already say where each one starts. */
+    .eplist {
+      list-style: none;
+      max-width: 760px;
+      margin: 30px auto 0;
+      padding: 0;
+      border-top: 2px solid rgba(248, 241, 226, .35);
+    }
+    .ep {
+      padding: 18px 0 20px;
+      border-bottom: 1px solid rgba(248, 241, 226, .16);
+    }
+    .ep-head {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+    }
+    /* The brand red reads at 3.4:1 on this black — fine for the big numerals
+       it used to draw, short of the 4.5:1 that title-sized text needs. Lifted
+       just far enough to clear it, and no further. */
+    .ep-day { color: #de5747; }
+    .ep-title {
+      font-family: var(--heading);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+      font-size: 1.14rem;
+      line-height: 1.25;
+      flex: 1 1 auto;
+      margin: 0;
+    }
+    .ep-time {
+      font-family: var(--type);
+      font-size: .92rem;
+      color: rgba(248, 241, 226, .6);
+      flex: 0 0 auto;
+      font-variant-numeric: tabular-nums;
+    }
+    /* the same cream the list's own rules are drawn in, at the same strength,
+       so the banner line belongs to the section rather than shouting over it */
+    .section--ink .lineband::before { background: rgba(248, 241, 226, .35); }
+
+    .ep-index { margin: 34px 0 0; }
+    .ep-index summary {
+      font-family: var(--type);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      font-size: .82rem;
+      color: rgba(248, 241, 226, .62);
+      cursor: pointer;
+    }
+    .ep-index summary:hover { color: var(--yellow); }
+    .ep-index-list {
+      list-style: none;
+      margin: 16px 0 0;
+      padding: 16px 0 0;
+      border-top: 1px solid rgba(248, 241, 226, .16);
+      /* columns rather than a grid: a grid lines the rows up, so one title
+         that wraps leaves a gap in every other column beside it. These pack
+         tight, and read down one column and on to the next, which is the way
+         a numbered list wants to be read. */
+      columns: 3 260px;
+      column-gap: 30px;
+    }
+    .ep-index-list li { break-inside: avoid; }
+    .ep-index-list a {
+      display: block;
+      padding: 3px 0;
+      font-family: var(--heading);
+      font-weight: 400;
+      font-size: .94rem;
+      line-height: 1.3;
+      color: var(--cream);
+      text-decoration: none;
+    }
+    .ep-index-list a:hover,
+    .ep-index-list a:hover .ep-day { color: var(--yellow); }
+
+    /* so a jumped-to episode lands clear of the top of the window */
+    .ep { scroll-margin-top: 24px; }
+
+    .ep-audio {
+      /* native controls, told to dress for a black room. color-scheme is the
+         standards-based way to do it: each browser draws its own dark player,
+         where inverting the colours would turn Firefox's dark one light. */
+      color-scheme: dark;
+      display: block;
+      width: 100%;
+      margin: 12px 0 0;
+      height: 40px;
+    }
+    .ep-more {
+      margin: 10px 0 0;
+      font-size: 1rem;
+    }
+    .ep-more summary {
+      font-family: var(--heading);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: .82rem;
+      color: rgba(248, 241, 226, .62);
+      cursor: pointer;
+      width: fit-content;
+    }
+    .ep-more summary:hover { color: var(--yellow); }
+    /* where this listener stopped, sat beside the runtime */
+    .ep-heard {
+      font-family: var(--type);
+      font-size: .82rem;
+      color: var(--yellow);
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+    .ep-heard:empty { display: none; }
+    /* an episode already heard steps back so the unheard ones read first */
+    .ep--played .ep-no,
+    .ep--played .ep-title { opacity: .55; }
+    .ep--played .ep-heard { color: rgba(248, 241, 226, .45); }
+
+    .ep-resume { margin: 26px 0 0; text-align: center; }
+    .ep-resume button {
+      font-family: var(--heading);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: .92rem;
+      color: var(--text);
+      background: var(--yellow);
+      border: none;
+      padding: .7em 1.4em .6em;
+      cursor: pointer;
+      transition: transform .08s ease;
+    }
+    .ep-resume button b { font-weight: 600; }
+    .ep-resume button:hover { transform: translate(-1px, -1px); background: var(--red); color: var(--cream); }
+    /* which one is playing, said quietly — the list plays through on its own */
+    .ep--playing .ep-title { color: var(--yellow); }
+    .ep-notes { padding-top: 10px; line-height: 1.6; }
+    /* site links are brick red, which has no business on black */
+    .ep-notes a { color: var(--yellow); }
+    .ep-notes p { margin: 0; }
+    .ep-notes ul, .ep-notes ol { margin: .6em 0; padding-left: 1.4em; }
+
+    @media (max-width: 560px) {
+      .ep-title { font-size: 1.05rem; }
+      /* one title per column beats two cramped ones */
+      .ep-index-list { columns: 1; }
+    }
+
+    /* ---------- take it with you ---------- */
+    .pod-take { color: rgba(248, 241, 226, .75); margin-bottom: .4em; }
+  </style>
+
+  <script>
+    // external links leave the site in a new tab; internal ones stay put.
+    // The episode notes come from the feed and are full of offsite links.
+    document.querySelectorAll('.prose a, .ep-notes a, .podcast-links a').forEach((a) => {
+      const link = a;
+      if (/^https?:$/.test(link.protocol) && link.origin !== location.origin) {
+        link.target = '_blank';
+        link.rel = 'noopener';
+      }
+    });
+
+    // It is a story, not a feed of separate shows, so the list plays through:
+    // when an episode ends the next one starts, and starting one stops
+    // whatever else was playing. The row being played is marked, but the page
+    // is never scrolled — a reader who has moved on keeps their place.
+    const players = Array.from(document.querySelectorAll('.ep-audio'));
+
+    // Eleven and a half hours is not one sitting. Where each listener stopped
+    // is kept in their own browser — nothing leaves the machine, and there is
+    // nothing to sign into — so closing the tab in the middle of Day 26 does
+    // not cost them their place. A browser that refuses localStorage (private
+    // windows, blocked site data) just gets the page as it was before.
+    const STORE = 'tdaomm-progress';
+    const load = () => { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch { return {}; } };
+    const save = (state) => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch { /* nothing to be done */ } };
+    let state = load();
+    state.at = state.at || {};      // episode id -> seconds in
+    state.done = state.done || [];  // episode ids heard to the end
+
+    const clock = (seconds) => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
+
+    // Enough of a margin at each end that a stray click near the start, or the
+    // last few seconds of an episode, does not become a saved position.
+    const EDGE = 15;
+    const remember = (audio) => {
+      const id = audio.closest('.ep').dataset.ep;
+      const t = audio.currentTime;
+      if (t > EDGE && audio.duration && t < audio.duration - EDGE) state.at[id] = Math.floor(t);
+      else delete state.at[id];
+      state.last = id;
+      save(state);
+      mark(audio.closest('.ep'));
+    };
+
+    // The saved position is shown as text rather than by moving the scrubber:
+    // with preload="none" nothing is loaded yet, and reading it off 54 players
+    // would mean fetching 54 files to draw a page nobody has pressed play on.
+    const mark = (row) => {
+      const id = row.dataset.ep;
+      const heard = row.querySelector('.ep-heard');
+      if (state.at[id]) heard.textContent = `${clock(state.at[id])} in`;
+      else if (state.done.includes(id)) heard.textContent = 'played';
+      else heard.textContent = '';
+      row.classList.toggle('ep--played', state.done.includes(id) && !state.at[id]);
+    };
+
+    players.forEach((audio, i) => {
+      const row = audio.closest('.ep');
+      mark(row);
+
+      // currentTime cannot be set until the file has metadata, and with
+      // preload="none" that only happens once the reader asks for it.
+      audio.addEventListener('loadedmetadata', () => {
+        const t = state.at[row.dataset.ep];
+        if (t && t < audio.duration - EDGE) audio.currentTime = t;
+      }, { once: true });
+
+      audio.addEventListener('play', () => {
+        players.forEach((other) => { if (other !== audio) other.pause(); });
+        document.querySelectorAll('.ep--playing').forEach((r) => r.classList.remove('ep--playing'));
+        row.classList.add('ep--playing');
+        state.last = row.dataset.ep;
+        save(state);
+      });
+
+      audio.addEventListener('timeupdate', () => {
+        // once every five seconds is often enough to be worth remembering
+        if (Math.floor(audio.currentTime) % 5 === 0) remember(audio);
+      });
+      audio.addEventListener('pause', () => remember(audio));
+
+      audio.addEventListener('ended', () => {
+        row.classList.remove('ep--playing');
+        const id = row.dataset.ep;
+        delete state.at[id];
+        if (!state.done.includes(id)) state.done.push(id);
+        state.last = id;
+        save(state);
+        mark(row);
+        // A browser that declines to start the next one leaves the reader
+        // where they would have been anyway: stopped, with a play button.
+        if (players[i + 1]) players[i + 1].play().catch(() => {});
+      });
+    });
+
+    // Leaving the page is the commonest way to stop, and pause does not fire
+    // for it, so the position is written on the way out too.
+    addEventListener('pagehide', () => {
+      const playing = players.find((a) => !a.paused);
+      if (playing) remember(playing);
+    });
+
+    // And the way back in: one line above the list, naming the episode and
+    // where it stopped, rather than making them hunt down the column for it.
+    const resume = document.querySelector('.ep-resume');
+    const waiting = state.last && state.at[state.last];
+    if (waiting) {
+      const row = document.querySelector(`.ep[data-ep="${state.last}"]`);
+      const audio = row.querySelector('.ep-audio');
+      const button = resume.querySelector('button');
+      button.append('Pick up where you left off — ');
+      button.append(Object.assign(document.createElement('b'), { textContent: audio.dataset.title }));
+      button.append(`, ${clock(waiting)} in`);
+      button.addEventListener('click', () => {
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        audio.play().catch(() => {});
+        resume.hidden = true;
+      });
+      resume.hidden = false;
+    }
+  </script>
+</Base>

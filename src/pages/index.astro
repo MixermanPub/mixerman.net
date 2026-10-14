@@ -1,0 +1,291 @@
+---
+import Base from '../layouts/Base.astro';
+import ZenComingSoon from '../components/ZenComingSoon.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog', (p) => !p.data.archived))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+const books = await getCollection('pages', (p) => {
+  const path = new URL(p.data.wpUrl).pathname;
+  return path.startsWith('/books/') && path !== '/books/';
+});
+const bookOrder = [
+  'mm-ultimate-producing',
+  'zen-the-art-of-mixing-mix-music-like-a-pro',
+  'musicians-survival-guide-to-a-killer-record',
+  'the-daily-adventures-of-mixerman-hilarious-unauthorized-diary',
+];
+const orderedBooks = bookOrder.map(slug => books.find(b => b.data.slug === slug)).filter(Boolean);
+// each book's card names it short, then says a line about it in Eric's words,
+// above its formats
+const bookNames = {
+  'mm-ultimate-producing': 'Ultimate Producing',
+  'zen-the-art-of-mixing-mix-music-like-a-pro': 'Zen Mixing',
+  'musicians-survival-guide-to-a-killer-record': 'Survival Guide',
+  'the-daily-adventures-of-mixerman-hilarious-unauthorized-diary': 'Explosively Hilarious',
+};
+const bookLines = {
+  'mm-ultimate-producing': 'My most comprehensive.',
+  'zen-the-art-of-mixing-mix-music-like-a-pro': 'My most popular.',
+  'musicians-survival-guide-to-a-killer-record': 'People love this book.',
+  'the-daily-adventures-of-mixerman-hilarious-unauthorized-diary': 'My most well known.',
+};
+const pagePath = (p) => new URL(p.data.wpUrl).pathname;
+const bookFormats = (book) => {
+  const out = [];
+  for (const bl of book.data.buyLinks ?? []) {
+    const f = bl.format.toLowerCase();
+    if (f.includes('paperback')) out.push('Paperback');
+    if (f.includes('ebook') || f.includes('e-book')) out.push('eBook');
+    if (f.includes('audio')) out.push('Audiobook');
+  }
+  return [...new Set(out)];
+};
+---
+<Base title="Mixerman — Books on Producing, Recording & Mixing" image="/brand/share-card.jpg">
+
+  <!-- HERO -->
+  <section class="section hero">
+    <h1 class="sr-only">Mixerman — Books on Producing, Recording &amp; Mixing</h1>
+    <div class="wrap hero-grid">
+      <div class="hero-book">
+        <img src="/uploads/2026/08/mug2prms-3d-alpha.webp" alt="Mixerman's Ultimate Guide to PRODUCING Records, Music & Songs — book cover" width="800" height="1299" style="filter: drop-shadow(6px 10px 14px rgba(25,20,16,.35))" />
+        <img class="hero-tec" src="/brand/tec26-finalist.png" alt="41st NAMM TEC Awards — 2026 Finalist" width="130" height="129" />
+      </div>
+      <div class="hero-copy">
+        <a href="https://tapeop.com/reviews/gear/169/mixerman-s-ultimate-guide-to-producing-records-music-songs-book" target="_blank" rel="noopener">
+          <img class="hero-quote-img" src="/brand/tapeop-quote.webp" width="792" height="287"
+            alt="&ldquo;This book is dead on the best practical, hardcore advice about real-life record-making that I&rsquo;ve ever read.&rdquo;" />
+          <img class="hero-attrib" src="/brand/tapeop-attribution.webp" width="516" height="75" alt="&ndash;Larry Crane, Tape Op Magazine" />
+        </a>
+        <img class="hero-subtitle-sticker" src="/brand/subtitle-sticker.webp" width="480" height="162"
+          alt="Everything you need to know about producing, recording, mixing & mastering music at home or in the studio" />
+        <img class="hero-antidote" src="/brand/antidote-tape.webp" alt="The antidote to misinformation" width="380" />
+        <div class="hero-award">
+          <a class="hero-btn-link" href="/books/mm-ultimate-producing/" title="Tell Me More!">
+            <img src="/brand/tellmemore-button.webp" alt="Tell Me More!" width="150" height="137" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AT THE CONSOLE: the working mixer & producer -->
+  <section class="mixerband">
+    <img src="/uploads/2022/10/header2.webp" alt="Mixerman at the mixing console" />
+    <div class="mixerband-overlay">
+      <div class="band-inner">
+        <h2 class="display band-title">Producer. Mixer. Author.</h2>
+        <p class="band-sub">Gold and multi-platinum producer, mixer, and recordist.<br />Author of the most popular books on record-making.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMING SOON: Zen & the Art of MIXING, fourth edition -->
+  <ZenComingSoon />
+
+  <!-- WELCOME -->
+  <section class="section" style="padding:32px 0 12px">
+    <div class="wrap">
+      <div class="lineband lineband--thin" style="text-align:center">
+        <h2 class="plate" style="margin-bottom:0">Intro</h2>
+      </div>
+    </div>
+    <div class="wrap" style="max-width:980px; padding-top:20px">
+      <div class="prose about-prose">
+      <img class="welcome-photo" src="/uploads/2025/08/Tada-4.webp" alt="Mixerman holding a copy of his book, Mixerman's Ultimate Guide to Producing Records, Music &amp; Songs" width="1160" height="678" />
+      <p style="margin-top:1.1em; font-size:1.5rem; font-weight:700; line-height:1.2">Welcome! Mixerman here!</p>
+      <p>
+        That's my pen name, of course. In the studio I'm Eric Sarafin, and I've spent several
+        decades making records, including a number of gold and platinum ones, with over
+        a billion streams to my name.
+      </p>
+      <p style="clear:left">
+        I currently produce, mix, and master records out of my room in Asheville, NC. Visit
+        my <a href="/professional-mixing-mastering/">Mixing page</a> if you'd like to know more,
+        or drop me a message through the <a href="/about-contact/">contact portal</a> to
+        ask about rates and availability.
+      </p>
+      <p>
+        My work as a mixer and producer notwithstanding, I'm best known for my
+        books. <em>The Daily Adventures of Mixerman</em> went viral before viral was even a
+        thing. My best selling book, <em>Zen and the Art of MIXING</em>, is considered the bible
+        for high-level mixing. And my newest and most comprehensive
+        work, <em>Mixerman's Ultimate Guide to PRODUCING Records, Music &amp; Songs</em>, was a
+        2026 TEC Awards finalist and received enormous praise in Tape Op Magazine.
+      </p>
+      <p>So, go ahead. Poke around. You'll find everything you need right here.</p>
+      <p>Enjoy,<br />Mixerman</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- BOOKS -->
+  <section class="section section--deep" style="padding:40px 0 48px">
+    <div class="wrap">
+      <div class="lineband lineband--thin" style="text-align:center">
+        <h2 class="plate"><a href="/books/">Books</a></h2>
+      </div>
+      <div class="cardgrid cardgrid--shelf" style="margin-top:36px">
+        {/* the heading names the book, so the cover's alt is empty rather than
+            the title said twice */}
+        {orderedBooks.map(book => (
+          <div class="card card--book">
+            {(book.data.cardImage ?? book.data.featuredImage) && <img src={book.data.cardImage ?? book.data.featuredImage} alt="" loading="lazy" />}
+            <div class="pad">
+              <h3><a class="card-link" href={pagePath(book)}>{bookNames[book.data.slug] ?? book.data.title}</a></h3>
+              {bookLines[book.data.slug] && <p class="card-line">{bookLines[book.data.slug]}</p>}
+              {/* a book between editions shows "4th Edition Coming Soon" in place of
+                its formats, in two parts so the shelf can stack it as it stacks them */}
+              {book.data.buyLinks
+                ? bookFormats(book).length > 0 && <p class="card-formats">{bookFormats(book).map((f, i) => <>{i > 0 && <span class="sep"> · </span>}<span>{f}</span></>)}</p>
+                : <p class="card-formats"><span>4th Edition</span><span class="sep"> </span><span>Coming Soon</span></p>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- POSTS -->
+  <section class="section" style="padding:40px 0 48px">
+    <div class="wrap">
+      <div class="lineband lineband--thin" style="text-align:center">
+        <h2 class="plate"><a href="/posts/">Posts</a></h2>
+      </div>
+      <div class="cardgrid" style="margin-top:36px">
+        {posts.map(post => (
+          <div class="card">
+            {(post.data.cardImage ?? post.data.featuredImage) &&
+              <img src={post.data.cardImage ?? post.data.featuredImage} alt="" loading="lazy"
+                style={post.data.cardFocus ? `object-position:${post.data.cardFocus}` : undefined} />}
+            <div class="pad">
+              <span class="kicker">{post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+              <h3><a class="card-link" href={`/${post.data.slug}/`}>{post.data.title}</a></h3>
+              {post.data.excerpt && <p>{post.data.excerpt}</p>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  .hero {
+    /* the tabletop of studio photos, veiled toward white so the collage keeps its contrast */
+    background-color: var(--page);
+    background-image:
+      linear-gradient(rgba(255,255,255,.89), rgba(255,255,255,.89)),
+      url('/brand/tabletop-photos.webp');
+    background-size: auto, cover;
+    background-position: center;
+    border-bottom: 4px solid var(--ink);
+    padding: 20px 0 24px;
+  }
+  .hero-grid { display: flex; align-items: stretch; gap: 36px; flex-wrap: wrap; justify-content: center; }
+  .hero-copy { flex: 1 1 420px; max-width: 560px; display: flex; flex-direction: column; justify-content: space-between; }
+  .hero-copy > a:first-child { display: block; max-width: 500px; margin: 0; position: relative; z-index: 2; transform: translate(16px, 18px); }
+  /* the credit is its own slip of paper, torn off the quote: pushed right past the
+     quote's edge and tilted so the right end climbs; same pixel scale as the quote */
+  .hero-attrib {
+    display: block; position: relative; width: 65%; height: auto;
+    margin: -38px -20% 0 auto;
+    transform: rotate(-2.5deg);
+    filter: drop-shadow(4px 6px 8px rgba(25,20,16,.3));
+  }
+  .hero-book { flex: 0 1 285px; position: relative; margin-left: 44px; display: flex; flex-direction: column; justify-content: flex-end; }
+  .hero-book img { width: 100%; height: auto; }
+  .hero-quote-img {
+    display: block; width: 100%; max-width: 500px; height: auto;
+    filter: drop-shadow(5px 8px 10px rgba(25,20,16,.3));
+  }
+  .hero-antidote {
+    display: block; margin: -16px 2px 0 auto;
+    position: relative; z-index: 2;
+    width: min(410px, 94%); height: auto;
+    transform: translate(16px, 74px) rotate(-1.2deg);
+    filter: drop-shadow(2px 4px 4px rgba(25,20,16,.35));
+  }
+  .hero-subtitle-sticker {
+    display: block; margin: -37px 0 0 6px;
+    position: relative; z-index: 1;
+    width: min(520px, 100%); height: auto;
+    transform: translate(16px, 46px) rotate(-2.5deg);
+    filter: drop-shadow(3px 5px 6px rgba(25,20,16,.3));
+  }
+  .hero-book .hero-tec {
+    position: absolute; left: -64px; bottom: -8px;
+    width: 130px; height: auto;
+    filter: drop-shadow(2px 4px 6px rgba(0,0,0,.35));
+  }
+  .hero-ticker { display: inline-block; margin-top: 22px; font-size: 1.15rem; letter-spacing: .18em; padding: .6em 1.1em .5em; white-space: nowrap; }
+  @media (max-width: 560px) { .hero-ticker { white-space: normal; font-size: 1rem; } }
+  .hero-sub { margin: 22px 0 30px; font-size: 1.12rem; max-width: 46ch; }
+  /* straddles the bottom rule: roughly 66% on the white, the rest over the band below */
+  /* negative margin pulls the copy column's flow height down to the book's,
+     so no slack opens above the bottom-aligned book */
+  .hero-award { display: flex; justify-content: flex-start; margin-bottom: -55px; transform: translateY(14px); position: relative; z-index: 3; }
+  .hero-btn-link img {
+    display: block; width: 140px; height: auto;
+    filter: drop-shadow(3px 6px 8px rgba(25,20,16,.35));
+    transition: transform .1s ease, filter .1s ease;
+  }
+  .hero-btn-link:hover img {
+    transform: scale(.96);
+    filter: drop-shadow(2px 3px 4px rgba(25,20,16,.4));
+  }
+  .hero-award .btn, .band-inner .btn {
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding: .8em 2em .7em;
+    border-radius: 999px;
+    box-shadow: 0 5px 14px rgba(25, 20, 16, .3);
+  }
+  .hero-award .btn:hover, .band-inner .btn:hover { box-shadow: 0 7px 18px rgba(25, 20, 16, .35); }
+  .hero-tec { width: 145px; height: auto; }
+  .hero-btn-outline { border-color: var(--cream); }
+  .about-prose { max-width: 740px; text-align: justify; }
+  .welcome-photo {
+    float: left;
+    width: min(350px, 44%);
+    margin: 1.4em 30px 10px 0;
+  }
+  .mixerband { position: relative; background: var(--ink); border-bottom: 4px solid var(--ink); }
+  .mixerband > img { display: block; width: 100%; max-width: 1032px; margin: 0 auto; height: auto; }
+  .mixerband-overlay {
+    position: absolute; top: 0; bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100%; max-width: 1032px;
+    display: flex; align-items: center;
+    background: linear-gradient(90deg, rgba(12,9,7,.85) 0%, rgba(12,9,7,.45) 55%, rgba(12,9,7,0) 80%);
+  }
+  .band-inner { padding: 0 48px; max-width: 760px; color: var(--cream); }
+  .band-title { font-size: clamp(1.5rem, 3.4vw, 2.9rem); color: #fff; white-space: nowrap; }
+  .band-sub { margin: 14px 0 26px; font-size: 1.15rem; max-width: 60ch; }
+  @media (max-width: 720px) {
+    .mixerband > img { max-height: 260px; }
+    .mixerband-overlay { position: static; transform: none; background: var(--ink); }
+    .band-inner { padding: 28px 24px 36px; text-align: center; margin: 0 auto; }
+    .band-sub { margin-inline: auto; }
+  }
+  @media (max-width: 560px) {
+    .welcome-photo { float: none; display: block; width: 100%; max-width: 350px; margin: 1.2em auto; }
+  }
+  @media (max-width: 720px) {
+    .hero-title { align-items: center; }
+    .hero-copy { text-align: center; }
+    /* the collage's translate offsets are desktop geometry; here each piece
+       stacks centered with real margins, keeping only its tilt */
+    .hero-copy > a:first-child { transform: none; }
+    .hero-attrib { margin: -12px 0 0 auto; }
+    .hero-subtitle-sticker { transform: rotate(-2.5deg); margin: 16px auto 0; }
+    .hero-antidote { transform: rotate(-1.2deg); margin: 12px auto 0; }
+    .hero-award { width: 100%; justify-content: center; margin: 24px 0 0; transform: none; }
+    .hero-sub { margin-inline: auto; }
+  }
+</style>

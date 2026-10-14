@@ -1,0 +1,2631 @@
+/* ============================================================
+   Mixerman.net — design language drawn from the cover of
+   "Mixerman's Ultimate Guide to PRODUCING Records, Music & Songs":
+   brick red, golden yellow, ink black, cream paper; condensed
+   display type in double-ruled boxes; typewriter accents on
+   black bars; vintage-ad energy.
+   ============================================================ */
+
+:root {
+  --paper: #f6eedd;
+  --paper-deep: #eddcbc; /* beige, a touch browner than --paper */
+  --red: #c13a2b;
+  --red-deep: #9e2c1f;
+  --yellow: #f5bd1c; /* midpoint between the original amber and the cover's gold.
+                        Auditioned and passed over: #eda944, #f5c73e, #fcc823 */
+  --yellow-deep: #dba611;
+  --ink: #191410; /* chocolate black: bands, rules, shadows */
+  --text: #000; /* the words themselves are full black */
+  --charcoal: #34312c; /* warm charcoal, keyed to --ink rather than a neutral grey */
+  --cream: #f8f1e2;
+  --page: #ffffff; /* text sits on white: maximum contrast for reading */
+
+  /* The two faceplates stand the same height. Both are content-sized and they
+     landed 25px apart — 337 against 311 — which reads as a mistake rather than
+     as two panels in a rack. A shared floor holds them level; it is a
+     min-height rather than a height so that stacked, where both grow well past
+     it, neither is clipped.
+
+     It must clear BOTH panels' natural heights or the taller one ignores the
+     floor and they drift apart again.
+
+     291 is set by the fold, not by either panel's contents: the two racks have
+     to be on screen together on a laptop. At 372 each they came to 744, and
+     with the sticky header above them that is more than a 13-inch window has —
+     the silver one was cut in half with the footer showing. Everything in the
+     footer is sized against that: the logo plate can only be as tall as what
+     is left after the lists, the copyright line and the rails. */
+  /* Continuous, not stepped. The pair has to sit in the window together with
+     the sticky header over them, which is exactly
+
+         plate-h = (window height - 134px) / 2
+
+     The header is 125 of that 134. The other 9 is slack, and it is there
+     because the exact figure landed 3px over every time — sub-pixel rounding
+     in the panels, and the header measuring a pixel more than it declares.
+     Arithmetic that is right to the pixel is still wrong if the pixel goes
+     the wrong way, and the cost of being 3px out is the thing this was
+     supposed to prevent.
+
+     so the panels are told that rather than being handed a number picked for
+     an imagined screen. Stepped media queries were the first attempt and they
+     were too coarse to be honest: a window a few pixels under a breakpoint
+     dropped to the size below and sat there looking shrunken with 60px of
+     room going spare. This takes whatever is actually there.
+
+     The floor is the band's own content plus its padding — below that it
+     cannot shrink anyway. The ceiling is taste: past 420 the panels stop
+     reading as rack units and start reading as walls.
+
+     --stamp is what the footer has left once the lists, the copyright line
+     and the rails are paid for. That is 118px, and it is subtracted as 120 so
+     the footer's natural height lands just UNDER the shared floor rather than
+     a pixel over it — over it, the footer ignores the floor and stands a pixel
+     taller than the band beside it. One variable drives
+     the plate AND the row the lamp and toggle ride on, so they cannot come
+     apart the way they did once before. */
+  --plate-h: clamp(278px, calc((100vh - 134px) / 2), 420px);
+  --stamp: clamp(152px, calc(var(--plate-h) - 120px), 300px);
+
+  --display: 'Anton', 'Arial Narrow', sans-serif;
+  --heading: 'Oswald', 'Arial Narrow', sans-serif;
+  --type: 'Courier Prime', 'Courier New', monospace;
+  --body: 'Merriweather', Georgia, serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+/* A tablet shows the desktop layout on a smaller sheet of glass, so every word
+   is set 15% larger there. All type is in rem, so this one number carries it;
+   pictures and widths stay put. Phones keep 100%: at phone width a bigger size
+   leaves too few words on a line. */
+@media (hover: none) and (pointer: coarse) and (min-width: 700px) {
+  html { font-size: 115%; }
+}
+
+body {
+  font-family: var(--body);
+  font-size: 1.16rem;
+  line-height: 1.7;
+  color: var(--text);
+  background: var(--page);
+}
+
+img { max-width: 100%; height: auto; display: block; }
+
+/* text links sit a shade darker than the brand red so they read with the ink */
+/* The brighter house red rather than the deep one: in running text a link
+   has to stand 3:1 from the words around it without an underline, and the
+   deep red only manages 2.5:1 against the ink. This one is 3.4:1 against the
+   ink and 5.4:1 against the white page. */
+a { color: var(--red); text-decoration: none; }
+a:hover { color: #7a2117; text-decoration: underline; }
+
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+/* ---------- ornaments ---------- */
+
+/* ruled box, off the book cover */
+.rulebox {
+  border: 3px solid currentColor;
+  padding: .35em .8em;
+  display: inline-block;
+}
+
+/* black bar with typewriter text */
+.tickerbar {
+  font-family: var(--type);
+  letter-spacing: .35em;
+  text-transform: uppercase;
+  background: var(--ink);
+  color: var(--cream);
+  padding: .5em 1em .4em;
+  font-size: .8rem;
+  text-align: center;
+}
+
+.display {
+  font-family: var(--display);
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  line-height: 1.05;
+}
+
+/* section heading: yellow plate, ruled, ink type */
+.plate {
+  font-family: var(--heading);
+  font-weight: 500;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  background: var(--yellow);
+  color: var(--text);
+  /* sitting slightly proud of the band rather than outlined on it */
+  box-shadow: 0 4px 10px rgba(25, 20, 16, .34);
+  display: inline-block;
+  padding: .25em .8em .2em;
+  font-size: clamp(1.25rem, 2.6vw, 1.7rem);
+}
+.plate a { color: inherit; text-decoration: none; }
+.plate a:hover { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 3px; }
+
+/* full-width rule running behind a title plate, from the old site */
+.lineband { position: relative; }
+.lineband::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 50%;
+  transform: translateY(-50%);
+  height: 7px;
+  background: var(--ink);
+}
+.lineband > * { position: relative; z-index: 1; }
+.lineband--thin::before { height: 3px; }
+
+/* Tape corners, postmarks and other scenery hang past the things they are
+   stuck to, and on a phone that hang reaches past the screen and leaves the
+   page draggable sideways into a blank strip. A section is already the full
+   width of the window, so clipping it cuts nothing a reader can see — it only
+   stops the scenery widening the page. clip, not hidden: hidden would make
+   every section a scroll container and break sticky positioning inside it.
+   (This is the same trick .section--postmarked has always used.) */
+.section { padding: 72px 0; overflow-x: clip; }
+.section--red { background: var(--red); color: var(--cream); }
+.section--red a { color: var(--yellow); }
+.section--yellow { background: var(--yellow); }
+.section--deep { background: var(--paper-deep); }
+.section--paper { background: var(--paper); } /* a shade lighter, so it reads apart from --deep */
+/* content following a title-bar hero sits closer to it */
+.section--deep + .section,
+.section--silverface + .section,
+.section--ink + .section { padding-top: 32px; }
+.section--ink { background: var(--ink); color: var(--cream); }
+
+/* ---------- silverface ----------
+   A brushed-aluminium faceplate, the way a 1176 wears it: black lettering on
+   bare metal rather than the charcoal band this used to be.
+
+   The grain is brushed-plate.webp and carries no lighting at all — it is flat
+   metal, tiled at a fixed size so the striation arrives the same whatever height
+   the band ends up.
+
+   That size is 1:1 with the file, and it is the whole difference between metal
+   and paint. Drawn at half — which is the obvious call, since it buys 2x for
+   retina — every streak is half as long and half as wide on screen, the grain
+   drops under the eye's notice, and what is left reads as a flat grey surface
+   with a sheen on it. The amplitude barely moves between the two (6.3 against
+   7.0); it is the feature size that goes. Retina therefore draws this one at
+   1x, on purpose. A texture with no edges in it has nothing for the extra
+   density to sharpen, and softness costs nothing here where coarseness is the
+   entire point.
+
+   1:1 also settles the repeat, which is the other thing to get wrong: at
+   2560x640 the tile outruns the band in both directions, so nothing recurs
+   inside it. An earlier 320px-tall draw put the band's bottom 54px back as a
+   copy of its top, and horizontal striation is distinctive enough to read as
+   one. The tile has always joined up invisibly; what gives a tile away is
+   meeting it twice.
+
+   Everything that makes it look lit is here in CSS, layered over the top:
+
+     sheen    the room light along the panel, brightest just above the middle
+              where the eye expects the reflection, closing down to a shadow at
+              the very top edge — the one a rack unit takes from the one above it.
+     temper   a wide, faint warm-to-cool wash across the width, so the panel is
+              not the same silver end to end. Without it a full-bleed band reads
+              as a swatch.
+
+   The order matters: the gradients are listed before the tile so they sit on
+   top of it. */
+.section--silverface {
+  /* Rack ears, on the same hardware the menu bar and the footer wear — one
+     physical size of screw at a fixed distance from the edges, not a fraction
+     of the panel. A 2U ear's holes sit where the rack's holes are, so they do
+     not travel when the panel gets taller, and that is what lets the same
+     corner read across a 125px bar and this band.
+
+     The screw sits at the OUTER end of its slot with the slack left inboard,
+     which is where a hung unit's weight puts it. That is drawn into the art:
+     rack-screw.svg seats the screw left, rack-screw-r.svg seats it right, so
+     the left-hand corners take the first and the right-hand corners the
+     second. They are not the same file flipped — a scaleX(-1) would carry the
+     lighting over with the geometry and light one pair from the wrong side.
+
+     Sized and placed off the footer plate below, measured in a screenshot
+     rather than taken from its variables: that plate's screws are photographed
+     into bottom-plate.webp and come out a 23.5px head centred 22.5px in. These
+     match it, so the two panels' corners hold one vertical line down the page
+     instead of nearly holding it. The menu bar's 32/15/13 was the wrong thing
+     to copy — it is a 125px bar, and its hardware is small because the bar is.
+
+     --screw-w sizes the whole SVG, so the slot grows with the head rather than
+     the head growing inside a fixed hole — which is what was wanted, both
+     reading a touch small. The head is 176 of the 300 unit box, so 46px of
+     image gives a 27px head against the footer plate's 23.5. Measure that head off a
+     screenshot and the slot defeats you — it is dark too, and any threshold
+     wide enough to catch the head catches the slot with it. Take it from the
+     art instead. The head also sits at 42.7% across the box rather than
+     centred, which is why --screw-x is 26 to land the head's centre back on
+     22.5 and keep the vertical line with the plate below; the 3.4px is the
+     art's own offset, not a nudge. The right-hand variant leans the
+     other way by the same amount, so one number serves both sides. */
+  --screw-w: 46px;
+  --screw-x: 26px;
+  --screw-y: 22px;
+  position: relative;
+  isolation: isolate;
+
+  color: var(--text);
+  background-color: #b9b7b3;   /* the tile's own tone, for the moment before it loads */
+  background-image:
+    linear-gradient(90deg,
+      rgba(120,112,96,.10) 0%, rgba(255,255,255,0) 26%,
+      rgba(255,255,255,0) 74%, rgba(96,104,120,.10) 100%),        /* temper */
+    linear-gradient(180deg,
+      rgba(20,16,12,.30) 0px, rgba(20,16,12,.06) 10px,
+      rgba(255,255,255,.16) 34%, rgba(255,255,255,.05) 58%,
+      rgba(20,16,12,.10) 86%, rgba(20,16,12,.26) 100%),           /* sheen */
+    url('/brand/brushed-plate.webp');
+  background-size: 100% 100%, 100% 100%, 2560px 640px;
+  background-repeat: no-repeat, no-repeat, repeat;
+  /* the chamfer top and bottom: a machined edge catches the light on its upper
+     face and loses it on its lower one, which is what separates a plate from a
+     rectangle of grey */
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.45),
+    inset 0 -1px 0 rgba(255,255,255,.16),
+    inset 0 2px 5px rgba(20,16,12,.16);
+  border-top: 1px solid rgba(20,16,12,.42);
+  border-bottom: 1px solid rgba(20,16,12,.42);
+}
+/* the band's own content clears the hardware, as it does on the menu bar */
+.section--silverface > *:not(.rackhw) { position: relative; z-index: 2; }
+/* Lettering is silkscreened onto metal, not printed on paper: black ink with a
+   single light pixel under it, which is the panel showing at the edge of the
+   screen. The same 1px of relief the footer's type carries, inverted for a
+   light ground. */
+.section--silverface .relief,
+.section--silverface .sub-kicker,
+.section--silverface .unsub { text-shadow: 0 1px 0 rgba(255,255,255,.55); }
+
+/* The power toggle at the panel's right end. Not the 1176's arrangement —
+   that unit keeps its power switch on the rear — but this panel is not an
+   1176, and front-panel power is how plenty of rack gear wears it. It is the
+   footer's own switch, at the footer's own inset, so the two hold one
+   vertical line down the page the way the screws already do. The numbers ARE
+   the footer's — its --gear-x, and --gear-w * 1.18 for the width — restated
+   because those variables are declared on the footer plate and do not reach
+   up here. */
+.section--silverface .pwr-gear {
+  right: 84px;
+  top: 50%;
+  transform: translate(50%, -50%);
+  width: auto;              /* .rackhw sizes its hardware at --screw-w; this stack sizes its own */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+.section--silverface .pwr-gear img {
+  width: 35px;
+  height: auto;
+  /* seated on the metal, not floating over it: the tight-and-soft pair the
+     panel's other hardware casts, leaning right with the sheen's light */
+  filter: drop-shadow(0 1px 1px rgba(20,16,12,.5)) drop-shadow(1px 3px 3px rgba(20,16,12,.35));
+}
+.pwr-legend {
+  font-family: var(--type);
+  font-weight: 700;
+  font-size: .58rem;
+  letter-spacing: .22em;
+  /* the tracking hangs its .22em past the R; the same again on the left seats
+     the word centred over the switch */
+  padding-left: .22em;
+  text-transform: uppercase;
+  color: var(--text);
+  text-shadow: 0 1px 0 rgba(255,255,255,.55); /* the panel's silkscreen relief */
+}
+/* Below this the centred columns reach the metal the toggle stands on, and
+   hardware over the message strip is worse than no hardware: it goes away
+   rather than moving, the way the footer's edge gear only works where its
+   margin is guaranteed. */
+@media (max-width: 1130px) {
+  .section--silverface .pwr-gear { display: none; }
+}
+
+/* ---------- buttons ---------- */
+
+a.btn {
+  font-family: var(--heading);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-weight: 600;
+  font-size: .95rem;
+  display: inline-block;
+  padding: .7em 1.5em .6em;
+  border: none;
+  background: var(--yellow);
+  color: var(--text);
+  text-decoration: none;
+  transition: transform .08s ease;
+}
+a.btn:hover { transform: translate(-1px, -1px); color: var(--cream); background: var(--red); }
+a.btn--red { background: var(--red); color: var(--cream); }
+a.btn--red:hover { background: var(--red-deep); color: var(--cream); }
+
+/* ---------- native forms (Netlify) ---------- */
+
+.siteform { display: grid; gap: 20px; max-width: 560px; margin: 0 auto; text-align: left; }
+.siteform label {
+  display: block;
+  font-family: var(--heading); font-weight: 600; text-transform: uppercase;
+  letter-spacing: .08em; font-size: 1rem; margin-bottom: 6px;
+}
+.siteform input[type="text"], .siteform input[type="email"], .siteform select, .siteform textarea {
+  width: 100%;
+  font-family: var(--body); font-size: 1rem;
+  padding: .65em .8em;
+  border: 2px solid var(--ink);
+  background: var(--page); color: var(--text);
+  border-radius: 0;
+}
+.siteform input:focus, .siteform select:focus, .siteform textarea:focus {
+  outline: 3px solid var(--yellow);
+  outline-offset: 1px;
+}
+.siteform .hint { font-size: .95rem; margin-top: 6px; color: #4a4038; }
+
+/* labels kept for screen readers while the placeholder does the talking */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+/* Off the page until it takes focus, then a plate at the top-left corner
+   above the sticky masthead, in the house yellow so it can't be missed. */
+.skip-link {
+  position: absolute; left: 12px; top: -100px; z-index: 1000; /* above the sticky masthead's 100 */
+  padding: 10px 16px; background: var(--yellow); color: var(--text);
+  font-family: var(--heading); font-weight: 600; text-transform: uppercase;
+  letter-spacing: .08em; text-decoration: none; border-radius: 4px;
+}
+.skip-link:focus { top: 12px; outline: 3px solid var(--ink); outline-offset: 2px; }
+main:focus { outline: none; }
+/* the ink-band form, styled to read like the mailing-list block */
+.siteform--ink { max-width: 680px; }
+/* The button used to stretch the full width of the band here and read as a
+   banner. It now sits at its own size like every other button on the site,
+   which leaves .siteform's own justify-self: start to place it. */
+/* the sticker heading a form's section */
+.form-sticker { display: block; width: min(460px, 100%); height: auto; margin: 0 auto 30px; }
+/* The band with Eric's postage mark struck across it as background art. The
+   section clips it, so the bars can bleed off the right edge the way a strike
+   runs off an envelope, and nothing it does can widen the page. isolation
+   keeps the layering local: the mark above the band's own dark, the content
+   above the mark. */
+.section--postmarked {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.section--postmarked > .wrap { position: relative; z-index: 1; }
+.postmark {
+  position: absolute;
+  z-index: 0;
+  /* On the left, big enough that the dated circle stands clear in the open
+     dark while the bars run UNDER the field boxes — it is scenery, not a
+     figure, which is also why it stands at partial opacity: full-strength
+     ink under the fields read as clutter, not texture */
+  left: -10px;
+  top: 50%;
+  width: min(800px, 115vw);
+  height: auto;
+  opacity: .32;
+  transform: translateY(-50%) rotate(-6deg);
+  pointer-events: none;
+}
+/* a sticker heading a form that isn't the whole page keeps its voice down,
+   and hangs off the form's left edge — the shift eases in as the screen narrows */
+.form-sticker--sm { width: min(360px, 100%); margin-left: clamp(-56px, -4vw, -14px); }
+/* when the form opens the page, its sticker tucks up under the menu bar */
+main > .section:first-child:has(.form-sticker) { padding-top: 30px; }
+/* opt-in, ticked by default — sits above the button so it's read before sending */
+.siteform .checkline {
+  display: flex; align-items: flex-start; gap: 11px;
+  font-family: var(--body); font-size: .95rem; line-height: 1.45;
+  text-transform: none; letter-spacing: 0; font-weight: 400;
+  cursor: pointer; margin: 0;
+}
+.siteform .checkline input {
+  width: 20px; height: 20px; flex: none; margin-top: 2px;
+  accent-color: var(--yellow); cursor: pointer;
+}
+.siteform--ink .checkline { color: var(--cream); }
+.siteform fieldset.shipping[hidden] { display: none; }
+.siteform fieldset.shipping {
+  display: grid; gap: 20px;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+.siteform fieldset.shipping legend {
+  font-family: var(--heading); font-weight: 600; text-transform: uppercase;
+  letter-spacing: .08em; font-size: 1rem;
+  padding: 0 .5em;
+}
+.siteform .check label {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-family: var(--body); font-weight: 400; text-transform: none;
+  letter-spacing: 0; font-size: 1rem; margin-bottom: 0;
+  cursor: pointer;
+}
+.siteform .check input[type="checkbox"] {
+  width: 1.2em; height: 1.2em; margin-top: .15em;
+  accent-color: var(--red);
+  flex-shrink: 0;
+}
+.siteform button.btn {
+  font-family: var(--heading); text-transform: uppercase; letter-spacing: .12em;
+  font-weight: 600; font-size: 1.05rem;
+  /* wider than tall, the way a nameplate is — it was reading as a square-ish
+     block at .8em/1.6em, and 2.4em of side padding was still not plate enough */
+  padding: .55em 4em;
+  border: none;
+  background: var(--yellow); color: var(--text);
+  cursor: pointer;
+  justify-self: start;
+  transition: transform .08s ease;
+}
+.siteform button.btn:hover { transform: translate(-1px, -1px); background: var(--red); color: var(--cream); }
+
+/* ---------- the mailing-list form, dressed like the site ----------
+   Our markup now, not Kit's embed — see SubscribeRack.astro for why. That
+   is what these rules stopped needing !important on every line of: there
+   is no inline style left to outrank. */
+
+/* Two columns, centred as a pair: the square sticker on the left, and on the
+   right the kicker over the form — fields, then the button with the fine
+   print out at the far end of its row. */
+.sub-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* the pair is centred, so the gap moves both at once: up from 40, sending
+     the tape 12px further left and the form 12px further right — air between
+     them without either column leaving its side of the plate */
+  gap: 64px;
+  flex-wrap: wrap;
+}
+/* the band carries one sticker and one short form, so it does not need a full
+   section's height around it */
+/* Centred in the panel rather than sitting at the top of it. The band's
+   content is shorter than the height it has to stand at — that height is set
+   by the footer plate below, which has a 210px maker's plate in it — and left
+   at the top it stranded 100px of bare silver under the button. The rack
+   hardware is absolutely positioned, so it stays out of the flex flow. */
+#subscribe.section {
+  padding: 22px 0;
+  min-height: var(--plate-h);
+  display: flex;
+  align-items: center;
+}
+#subscribe.section > .wrap { width: 100%; }
+/* Board tape, the way it goes on a console: two strips torn off and pressed
+   down by hand, not a decal placed square. So the two carry different angles
+   and neither is level — the pair reading as one gesture is what the red
+   sticker's single tidy rotation could not do.
+
+   They overlap slightly, because tape applied in a hurry does. The shadow is
+   tight and short: this is stuck flat to the panel, not floating over it, and
+   the sticker's old 5px-down shadow would lift it off the metal. */
+/* the tape column: the strips, and the fine print sitting under them */
+.list-col {
+  /* wider than the sticker's 190 was: these are 5:1 strips, and at 250 the
+     handwriting on them came out too small to read as handwriting */
+  flex: 0 0 380px; width: 380px; max-width: 100%;
+  /* pulled left of where the flex row would centre it — the strips are ragged
+     on their left ends and sat too close to the fields squared up */
+  margin-left: -34px;
+  /* and a further step left, as a transform so the flex row does not re-centre
+     around it — a wider negative margin here drags the form column along */
+  transform: translateX(-12px);
+}
+#subscribe .list-head {
+  margin: 0;
+  display: flex; flex-direction: column; gap: 4px;
+}
+#subscribe .list-head img {
+  display: block; width: 100%; height: auto;
+  filter: drop-shadow(1px 2px 2px rgba(0,0,0,.5));
+}
+/* Angled like they were torn off and pressed down without looking. They lean
+   against each other rather than the same way — two strips at the same angle
+   read as a rotated block, which is the one thing hand-applied tape never
+   looks like. The lower one shifts right as well, so the pair steps across
+   the panel instead of stacking square. */
+#subscribe .list-head img:first-child  { transform: rotate(-3.4deg); }
+#subscribe .list-head img:last-child   { transform: rotate(2.2deg) translateX(16px); }
+/* the form's own column, no wider than the fields it holds */
+.sub-col { flex: 0 1 460px; min-width: 0; }
+#subscribe .sub-kicker {
+  /* close over the fields rather than floating above them — at 16px the line
+     read as its own item on the panel instead of as their caption */
+  margin: 0 0 8px;
+  font-family: var(--type);
+  font-weight: 700;
+  /* it sat at .85rem beside 56px fields and a lit pushbutton and read as a
+     caption for them rather than as the line above them */
+  font-size: 1.05rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--text);
+}
+/* the fine print rides at the right end of the button's row */
+.sub-form { position: relative; }
+/* The third strip of board tape, where the typeset fine print used to sit.
+   It closes the tape column the same way, but in the same hand as the two
+   above it. Its own angle, leaning against the second strip's 2.2 the way
+   the second leans against the first — three strips at three angles is what
+   keeps the stack reading as hand-applied. A long thin strip, so it carries
+   the smallest lean; at -3 it read thrown rather than pressed on. */
+#subscribe .unsub {
+  position: static;
+  display: block;
+  margin: 10px 0 0;
+}
+#subscribe .unsub img {
+  display: block;
+  /* fine print, not a third headline: at the strips' full width it weighed the
+     same as the two above it. Two-thirds, inset the 46px the typeset line used
+     to keep clear of their ragged left ends, puts it back to closing the
+     column quietly. */
+  width: 56%;
+  margin-left: 46px;
+  height: auto;
+  transform: rotate(-1.7deg) translateX(8px);
+  filter: drop-shadow(1px 2px 2px rgba(0,0,0,.5));
+}
+/* The fields and the button bank stand side by side, the way the VU meter and
+   the RATIO caps flank each other on the unit. A grid rather than the embed's
+   flex column: the two fields hold column one, and the bank spans both their
+   rows in column two, so it is the fields' own height that sets how tall the
+   stack of caps has to be. */
+/* The bank stands between the console tape and the fields — the caps first,
+   then what they are for. Column one is the bank and takes its width from the
+   label; column two is the fields.
+
+   row-gap rather than a margin on the fields: a bottom margin on the last
+   field would hang 14px below it and take the container's bottom edge with
+   it, and the bank is bottom-aligned to exactly that edge. The gap keeps the
+   two flush, which is what lets the last cap sit level with the last field. */
+#subscribe .sub-fields {
+  position: relative;
+  /* One column. The hardware used to sit in a gutter to the left of the fields
+     so the NAMEPLATE could share their edge; it is the BUTTON that lines up
+     with them now, and the button is the first thing in its row, so there is
+     nothing to hold a gutter open for. The plate follows it to the right. */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 14px;
+  align-items: start;
+  width: 100%;
+}
+/* The black plastic moulding round a silverface 1176's VU meter, shrunk to fit
+   a form field. On the real unit the frame runs about 11% of the meter's
+   height; at that ratio a 46px field wants 5px, and 5px is what this is —
+   proportionally right, and far smaller than the panel's own, which is the
+   point. It is meant to recall the bezel, not reproduce it; at this size there
+   is no room for the moulding's actual profile.
+
+   What does the recalling is the light, not the shape. The frame is not one
+   flat black: its top face turns up toward the room and reads a lit grey, its
+   underside runs to black, the two sides between them. Then a hard inner lip
+   where the plastic is cut away, and a shadow dropped onto the plate, so the
+   frame sits proud of the metal instead of being drawn on it. */
+#subscribe .sub-input {
+  border-radius: 6px;
+  /* THE OUTER BEVEL — 3px of the frame's 5, drawn as a border because a border
+     mitres its corners, and the seams running out of each corner at 45 degrees
+     are what a photograph of the moulding actually shows.
+
+     This is the third pass at the lighting, and the lesson of the first two is
+     SPREAD. Four faces within thirty levels of each other read as black paint;
+     a gradient across the whole frame read no better, because every tone in it
+     was still too dark to register against the bright plate — at five pixels
+     wide, the eye sums anything short of real contrast into a flat dark
+     outline. So the top face is plainly a lit grey and the underside plainly
+     black, with the sides between. Matte survives this because the lit face is
+     broad and dull — plastic catching the room — where gloss is a thin white
+     line, and there are none of those here. Light sits above and a little
+     left: top lightest, left second, right darker, underside darkest. Warm
+     charcoal to grey, never blue — a cool tone sits wrong on a page keyed to
+     chocolate black. */
+  border-width: 3px;
+  border-style: solid;
+  border-color: #7d766a #38352e #131110 #5c574c;
+
+  /* THE INNER LIP — the remaining 2px, where the plastic slopes back down into
+     the opening, lit the opposite way round: that slope faces DOWN along the
+     top edge and UP along the bottom, so the top runs black and the bottom
+     takes the light, and the same reversal swaps the sides. Drawn as opaque
+     inset rings rather than inset shading, because an inset shadow paints over
+     the white field — these 2px ARE the frame's inner edge, and hard rings are
+     the only marks that show there. They butt rather than mitre at the
+     corners; at 2px nobody can tell. A soft shade under the top lip then sets
+     the white face back behind the plastic, the way the meter card sits behind
+     the real bezel.
+
+     Three casts onto the plate, because one shadow cannot be both tight and
+     soft: a contact line where the plastic meets the metal, the frame's own
+     shadow under it, and a falloff past that. All lean slightly right. */
+  box-shadow:
+    inset 0  2px 0 0 #0f0e0c,              /* the lip, top: cut edge in shadow */
+    inset 0 -2px 0 0 #6b655a,              /* the lip, bottom: catching the room */
+    inset  2px 0 0 0 #1b1915,              /* left, shaded */
+    inset -2px 0 0 0 #454138,              /* right, half in the light */
+    inset 0  4px 5px -2px rgba(20,16,12,.35), /* the face set back behind the lip */
+    0 1px 1px rgba(20,16,12,.55),          /* contact */
+    1px 4px 7px rgba(20,16,12,.40),        /* the cast */
+    2px 9px 18px rgba(20,16,12,.20);       /* and its falloff across the metal */
+
+  /* White, and it stayed white after a real attempt at VU-face ivory: three
+     passes of meter-card cream (#f2e8d0 down to the site's own --cream) all
+     read as murk against the silver rather than as a lit meter — the field
+     needs to be plainly brighter than the plate it sits in, and only white is. */
+  background: var(--page);
+
+  color: var(--text);
+  font-family: var(--body); /* the reading face, not the typewriter */
+  /* held at 1rem: anything smaller and iOS zooms the page on focus. The field
+     shrinks by closing the body's 1.7 leading round a single line instead */
+  font-size: 1rem;
+  line-height: 1.3;
+  /* the lip's rings eat 2px of the box, so the text is set off them, not off
+     the border; the extra vertical pixel keeps the field's height where the
+     grid's maths expects it */
+  padding: 11px 14px 11px 16px;
+}
+#subscribe .sub-input:focus { outline: 3px solid var(--yellow); outline-offset: 1px; }
+/* a pill, flush with the left edge of the fields above it */
+/* The submit carries both pieces of hardware as backgrounds: the illuminated
+   pushbutton at its left edge, and the SUBSCRIBE nameplate one button-and-gap
+   further in. The button starts where the submit starts, and the submit starts
+   at the grid's left edge — so the button lines up with the fields above it
+   without anything having to be positioned against them.
+
+   The gap between the two comes off Eric's mockup. The plate's own size does
+   not: the mockup has the button at 1.82x its height, which put the nameplate
+   at 32px and reading small, so it is 40 here against the button's 58. Width
+   tracks height at the art's own 4.53:1 — set them independently and the
+   lettering stretches.
+
+   The element's own text stays in the DOM and is only clipped away. The word
+   the user reads is painted into the nameplate, and a background image has no
+   text for a screen reader to announce; take the span out and the control
+   loses its accessible name entirely. */
+#subscribe .sub-submit {
+  --sub-btn: 58px;      /* the pushbutton */
+  --sub-gap: 17px;      /* the gap the mockup leaves between the two */
+  --sub-plate-w: 181px; /* the nameplate; its art is 4.53:1, so the height follows */
+  --sub-plate-h: 40px;
+
+  justify-self: start;
+  position: relative;
+  width: calc(var(--sub-btn) + var(--sub-gap) + var(--sub-plate-w));
+  height: var(--sub-btn);
+  /* a bare <button> is a beige box with a bevel and an arrow cursor until it is
+     told otherwise; the embed's stylesheet did this much and went with it */
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  background:
+    url('/brand/subscribe-plate.webp')
+      left calc(var(--sub-btn) + var(--sub-gap)) center / var(--sub-plate-w) var(--sub-plate-h) no-repeat,
+    url('/brand/subscribe-green-off.webp') left center / var(--sub-btn) var(--sub-btn) no-repeat;
+  background-color: transparent;
+}
+
+/* The shadows that fix these two to the panel, drawn as two empty shapes that
+   carry nothing but a box-shadow — a circle under the button, a rounded oblong
+   under the nameplate. Each is transparent inside, and a box-shadow paints
+   only OUTSIDE its box, so the artwork shows through untouched and only the
+   panel around it is darkened.
+
+   This was a filter: drop-shadow() first, which is the obvious tool — it
+   follows the artwork's alpha, so one declaration shadowed both shapes
+   correctly. It also promotes the element to its own compositing layer, and in
+   Safari that left a visible rectangle of re-rasterized panel around the
+   button: the brushed grain inside the element's box came out softer than the
+   grain beside it, with a hard edge between. It did not reproduce in Chrome
+   and it was not in the artwork. Two pseudo-elements cost a few more lines and
+   ask nothing of the compositor.
+
+   Two shadows each, for the reason the field bezels take three: one shadow
+   cannot be both tight enough to read as contact and soft enough to read as
+   distance. Both lean right, the panel's sheen having put the light above and
+   a little to the left. */
+#subscribe .sub-submit::before,
+#subscribe .sub-submit::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  box-shadow:
+    0 1px 1px rgba(20,16,12,.6),
+    1px 3px 4px rgba(20,16,12,.45);
+}
+#subscribe .sub-submit::before {          /* under the pushbutton */
+  left: 0;
+  width: var(--sub-btn);
+  height: var(--sub-btn);
+  border-radius: 50%;
+}
+#subscribe .sub-submit::after {           /* under the nameplate */
+  left: calc(var(--sub-btn) + var(--sub-gap));
+  width: var(--sub-plate-w);
+  height: var(--sub-plate-h);
+  border-radius: 5px;
+}
+/* the word is in the art; the text stays only to name the control */
+#subscribe .sub-submit span {
+  position: absolute; width: 1px; height: 1px; padding: 0;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap;
+}
+/* The lamp is dark at rest and lights when the pointer reaches it — the button
+   alone, which is why this lights the lamp's own artwork rather than putting a
+   brightness() over the element. A filter would take the nameplate up with it,
+   and a nameplate does not light.
+
+   The lit lamp is its own element, laid exactly over the dark one and shown on
+   hover. It used to be a swap of the button's background-image, and the first
+   hover after every load blinked the whole button, nameplate and all: the lit
+   artwork had never been fetched, and Safari repainted the button while it
+   came in. As a layer it is fetched with the page, and the dark lamp stays
+   painted underneath whatever happens. :focus-visible lights it too, so that
+   reaching the button by keyboard shows the same thing reaching it by pointer
+   does. */
+#subscribe .sub-submit .sub-lit {
+  position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  width: var(--sub-btn); height: var(--sub-btn);
+  background: url('/brand/subscribe-green.webp') center / var(--sub-btn) var(--sub-btn) no-repeat;
+  opacity: 0;
+  pointer-events: none;
+}
+#subscribe .sub-submit:hover .sub-lit,
+#subscribe .sub-submit:focus-visible .sub-lit { opacity: 1; }
+/* pressed: the button settles onto the panel, its shadow closing up under it */
+#subscribe .sub-submit:active::before,
+#subscribe .sub-submit:active::after {
+  box-shadow: 0 1px 1px rgba(20,16,12,.55);
+}
+#subscribe .sub-submit:focus-visible { outline: 3px solid var(--yellow); outline-offset: 4px; }
+/* while the request is out. No spinner: the embed had one, and a 58px lamp
+   with a bouncing dot over it is a worse read than a button that has plainly
+   stopped taking presses. */
+#subscribe .sub-kit[data-sending] .sub-submit { cursor: progress; opacity: .55; }
+
+/* WHAT THE PANEL SAYS BACK
+
+   Kit's embed answered in a mint-green box set in its own face — the one thing
+   on the band that never belonged to the site. Both replies below are the
+   panel's own lettering instead.
+
+   The message is a live region, so it stays in the DOM at all times and only
+   its text changes: hide it between errors and a screen reader has nothing to
+   watch. It answers from BESIDE the button, in the open metal to the right of
+   the SUBSCRIBE plate — absolute, so it takes no part in the column's height,
+   which is what lets flex hold the column centred on the plate whether the
+   panel is speaking or not. */
+#subscribe .sub-msg {
+  position: absolute;
+  /* one button-and-gap past the nameplate: the submit's 58px button, its 17px
+     gap, the 181px plate, then the same gap again before the words start */
+  left: calc(58px + 17px + 181px + 17px);
+  right: 0;
+  /* hung on the button's centreline — 29px is half its 58 — and translated
+     half its own height, so however many lines it runs it stays centred on
+     the button rather than growing downward off the plate */
+  bottom: 29px;
+  transform: translateY(50%);
+  margin: 0;
+  font-family: var(--body);
+  font-size: .95rem;
+  line-height: 1.45;
+  /* The site red is #c13a2b, which measures 2.68:1 on bare metal — nowhere
+     near the 4.5 this size needs. Same hue taken down until it clears: 5.16:1,
+     and still plainly red rather than another shade of the ink. */
+  color: #7a1f13;
+}
+#subscribe .sub-msg a { color: inherit; }
+
+/* Signed up. The lamp that lights under the pointer is lit for good here, at
+   the size and with the shadow it has on the button, because a console says a
+   thing has taken by lighting up. */
+#subscribe .sub-done {
+  display: flex;
+  align-items: center;
+  /* the 17px the button leaves between its lamp and its nameplate — the same
+     two things, in the same order, so they hold the same interval. It is not
+     var(--sub-gap): that is declared on the button, which is not an ancestor
+     of this, so the name would resolve to nothing but its own fallback. */
+  gap: 17px;
+}
+#subscribe .sub-done[hidden] { display: none; }
+/* focus is moved here to announce the change; it is not in the tab order, so
+   there is nothing for a ring to tell anyone */
+#subscribe .sub-done:focus { outline: none; }
+#subscribe .sub-lamp {
+  flex: none;
+  width: 58px; height: 58px;
+  border-radius: 50%;
+  box-shadow:
+    0 1px 1px rgba(20,16,12,.6),
+    1px 3px 4px rgba(20,16,12,.45);
+}
+#subscribe .sub-done-head {
+  font-family: var(--type);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--text);
+  text-shadow: 0 1px 0 rgba(255,255,255,.55);
+}
+#subscribe .sub-done-note {
+  margin-top: 6px;
+  font-family: var(--body);
+  font-size: .95rem;
+  color: #443f37; /* the fine print's colour, measured against the panel there */
+}
+
+/* THE CONFIRMATION CARD
+
+   Kit threw an overlay on every signup, advertising other people's
+   newsletters. This is that same moment in our own hardware — the black
+   faceplate of .rackpanel, the screws it always wears, the lamp off the
+   subscribe button, lit.
+
+   The <dialog> is the frame and nothing else: no background, no border, no
+   padding of its own. Everything visible is the panel inside it, so there is
+   one machined edge round the card rather than a dialog box with a panel
+   sitting in it. */
+#subscribe .sub-modal {
+  /* A browser centres a modal itself, with position:fixed, inset:0 and
+     margin:auto. Two things here undo that: the band is a positioned flex
+     container, so an absolutely-placed child measures from the SECTION rather
+     than the screen, and the page's `* { margin: 0 }` reset takes the auto
+     margins that do the centring. Left alone the card opens pinned to the
+     top-left corner of the panel. All three are restated — and scoped to
+     #subscribe, because that same `> *` rule outranks a lone .sub-modal and
+     would put position back to relative. */
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(430px, calc(100vw - 32px));
+  /* without this the top and bottom insets stretch it the height of the
+     screen; with it the card is as tall as what is in it, and only scrolls
+     when that will not fit */
+  height: fit-content;
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--cream);
+}
+.sub-modal::backdrop {
+  /* the page dimmed rather than greyed: the same chocolate black the panels
+     are, so the card reads as lit from the same room */
+  background: rgba(12, 9, 7, .74);
+}
+#subscribe .sub-card {
+  padding: 38px 32px 32px;
+  text-align: center;
+}
+/* Lit, and staying lit — the button's lamp says a press landed, and this is
+   the same lamp saying the same thing at the end of it. Shadowed as it is on
+   the panel, so it sits on this faceplate the way it sits on that one. */
+#subscribe .sub-card-lamp {
+  width: 58px; height: 58px;
+  /* images are display:block site-wide, so the card's text-align cannot reach
+     this one — it centres on its own margins or not at all */
+  margin-inline: auto;
+  border-radius: 50%;
+  box-shadow:
+    0 1px 1px rgba(20,16,12,.6),
+    1px 3px 4px rgba(20,16,12,.45);
+}
+/* silkscreened on black: the yellow the footer's own headings are set in */
+#subscribe .sub-card-head {
+  margin-top: 20px;
+  font-family: var(--type);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--yellow);
+}
+#subscribe .sub-card-note {
+  margin-top: 14px;
+  font-family: var(--body);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(248, 241, 226, .82); /* cream, stood down from the heading */
+}
+/* The site's button. Its declarations are set on a.btn, which this is not, and
+   widening that selector to reach one control on one panel would be reaching
+   across the whole site to do it — so it is built here from the same tokens
+   and moves when they move. */
+#subscribe .sub-card-close {
+  margin-top: 26px;
+  font-family: var(--heading);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-weight: 600;
+  font-size: .95rem;
+  padding: .7em 1.5em .6em;
+  appearance: none;
+  border: 0;
+  background: var(--yellow);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform .08s ease;
+}
+#subscribe .sub-card-close:hover { transform: translate(-1px, -1px); background: var(--red); color: var(--cream); }
+#subscribe .sub-card-close:focus-visible { outline: 3px solid var(--yellow); outline-offset: 4px; }
+/* it arrives, rather than appearing — a short rise, the distance a panel would
+   travel being set down */
+@keyframes sub-card-in {
+  from { opacity: 0; transform: translateY(10px) scale(.985); }
+  to   { opacity: 1; transform: none; }
+}
+#subscribe .sub-modal[open] { animation: sub-card-in .22s ease-out; }
+/* Anyone who has asked their system for less motion gets none of it: every
+   hover nudge and the card's entrance collapse to nothing. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+/* stacked: the sticker sits over a centred form, and the fine print falls
+   back under the button rather than hanging off its right */
+@media (max-width: 720px) {
+  .sub-grid { gap: 26px; }
+  .sub-col { flex: 1 1 100%; display: flex; flex-direction: column; align-items: center; }
+  .sub-form { width: min(400px, 100%); }
+  /* Stacked, the tape can no longer hold a fixed 380 and must not keep the
+     34px it is pulled left by: a flex basis wider than the phone plus a
+     negative margin is exactly how a page ends up scrolling sideways, and the
+     footer's copyright was running off the panel because of it — the overflow
+     was up here, not down there. */
+  .list-col { flex: 0 1 auto; width: min(380px, 100%); margin-left: 0; transform: none; }
+  /* Stacked, there is no open metal beside the button for the message to
+     answer from, so it goes back under the button and into the flow — and
+     because the plate's height is set by its content here, not --plate-h,
+     its space is reserved at the two lines the longest message wraps to. */
+  #subscribe .sub-msg {
+    position: static;
+    transform: none;
+    margin: 14px 0 0;
+    text-align: center;
+    min-height: 2.9em;
+  }
+}
+
+/* ---------- header ---------- */
+
+.site-header {
+  background: var(--ink); /* the same warm near-black as the footer */
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  isolation: isolate;
+  box-shadow: 0 3px 0 rgba(0,0,0,.25);
+}
+.topbar {
+  font-family: var(--heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  background: var(--page);
+  color: var(--text);
+  text-align: center;
+  padding: .6em 1em .5em;
+  border-bottom: 3px solid var(--ink);
+}
+.masthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 15px 24px;
+  /* the bar's depth is its own, not whatever the brand happens to be —
+     so the plate can be resized without the header following it */
+  min-height: 118px;
+}
+.brand { text-decoration: none; }
+
+/* round white stamp holding the mark as printed, beside cover-style plates */
+.brand { display: flex; align-items: center; gap: 18px; }
+/* the enamel plate carries the mark and the wordmark together */
+.brand-plate-wide {
+  height: clamp(64px, 7.4vw, 96px);
+  width: auto;
+  display: block;
+  filter: drop-shadow(2px 3px 4px rgba(0,0,0,.45));
+}
+.brand-plate {
+  height: clamp(64px, 7.4vw, 94px);
+  width: auto;
+  display: block;
+}
+
+.brand-bubble {
+  width: 88px; height: 88px; display: block; flex: none;
+  /* fade the photo's square corners into the bar */
+  mask-image: radial-gradient(circle at center, #000 62%, transparent 98%);
+  -webkit-mask-image: radial-gradient(circle at center, #000 62%, transparent 98%);
+}
+.brand-sticker {
+  display: block;
+  height: 54px;
+  width: auto;
+  /* slapped on at a slight angle, like a real label */
+  transform: rotate(-2.5deg);
+  filter: drop-shadow(2px 3px 3px rgba(0,0,0,.5));
+}
+.brand .rulebox {
+  color: var(--text);
+  background: var(--yellow);
+  font-family: var(--display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 1;
+  padding: .28em .6em .2em;
+}
+.brand small {
+  display: block;
+  font-family: var(--type);
+  font-size: .62rem;
+  letter-spacing: .32em;
+  color: var(--cream);
+  margin-top: 8px;
+  text-transform: uppercase;
+  text-align: center;
+}
+/* hamburger: hidden on desktop, shown on phones */
+.nav-toggle {
+  display: none;
+  background: none; border: none; cursor: pointer;
+  padding: 10px; flex: none;
+}
+.nav-toggle span {
+  display: block; width: 30px; height: 4px;
+  background: var(--cream); margin: 6px 0;
+  transition: transform .15s ease, opacity .15s ease;
+}
+.nav-toggle.open span:nth-child(1) { transform: translateY(10px) rotate(45deg); }
+.nav-toggle.open span:nth-child(2) { opacity: 0; }
+.nav-toggle.open span:nth-child(3) { transform: translateY(-10px) rotate(-45deg); }
+
+.site-nav { display: flex; flex-wrap: wrap; gap: 4px 15px; }
+.site-nav a {
+  font-family: var(--heading);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-size: 1.05rem;
+  color: var(--cream);
+  text-decoration: none;
+  padding: 6px 2px;
+  border-bottom: 3px solid transparent;
+}
+.site-nav a:hover, .site-nav a[aria-current="page"] {
+  color: var(--yellow);
+  border-bottom-color: var(--yellow);
+}
+
+/* ---------- footer ---------- */
+
+/* The vertical is set from the plate's own rail, not from arbitrary padding:
+   --pad-top clears the 46px rail and then leaves the same air above the maker's
+   plate that the hairline leaves below it, so the plate sits on the panel's
+   centre line rather than riding up against the top edge. */
+.site-footer {
+  background: var(--ink); color: var(--cream);
+  min-height: var(--plate-h);
+  --pad-top: 48px;   /* the rail is 46, so this is the floor */
+  --row-h: var(--stamp);   /* the maker's plate is the tallest thing in the row */
+  padding: var(--pad-top) 0 24px;
+}
+/* the stamp sits on the panel now — nothing overhangs the seam, so the page
+   above it ends where every other section ends */
+.footer-stamp {
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 5;
+}
+/* block, not inline-block: as an inline box it sat on a text baseline and
+   carried 9.5px of descender space under the plate that nothing could see and
+   every panel had to be tall enough to hold */
+.footer-stamp .stamp-frame { display: block; }
+/* The plate no longer sets the footer's depth — it had grown to 220px and the
+   whole row was being built to match it, which is what left the panel mostly
+   empty. It reads as a maker's plate at 150 just as well; a maker's plate is
+   a small thing on real gear. --row-h follows it, because the lamp and toggle
+   ride its centre line. */
+.footer-stamp img { display: block; width: var(--stamp); height: var(--stamp); }
+/* Set in from the panel's edge, but not opened out to it. At 1400px wide with
+   96px of padding the row had more width than it had content, and everything
+   in it was being stretched to cover the difference. */
+/* The row runs between the panel's two gear clusters rather than being centred
+   in a column of its own. The paddings are what each end's hardware needs to be
+   clear of — 200 on the left for the switch, its lamp and a margin, 165 on the
+   right for the stacked pair and the maker's plate. The right end needs less than the left, the pair there being one
+   stacked column; 130 ran the maker's plate out too close to the toggle and
+   200 pulled it in further than it wanted to come — so MIXERMAN starts as near the left switch as it
+   can without crowding it, which is a good deal further left than it sat while
+   it was queueing behind the gear inside the row. */
+.site-footer .wrap {
+  max-width: 1560px;
+  padding-left: 200px;
+  padding-right: 165px;
+}
+/* The three lists stand together as a group and the plate is pushed out to the
+   right end on its own. It was `space-between` over all four, which spread the
+   lists the full width of the panel and set the gap between two related menus
+   by how much room was left over rather than by what the type wanted. Columns
+   of links belong near each other; the plate is the odd one out and is the
+   thing that should carry the gap. */
+/* MIXERMAN lands on the © and the maker's plate ends where the last segment of
+   the copyright does — but by giving both rows the same box, not by measuring
+   one and hard-coding it into the other. That was tried: the copyright's width
+   was measured at 988px and the row set to match. It was wrong twice over. The
+   measurement had been taken off a line that was already wrapping, so it was a
+   line fragment's width, and the wording then changed and took the number with
+   it. Two rows in the same container already share their edges; the only thing
+   needed is for the shorter row to reach them. */
+/* Held in from the panel's ends. At the wrap's full width MIXERMAN sat out
+   past the copyright's left and the plate ran out past its right, so the row
+   read as wider than the block of small print under it. */
+.site-footer .cols {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+/* Each column takes its own content's width and the leftover is dealt out
+   between them, rather than the three being forced to equal widths. Equal
+   widths were tried and they break on a tall display: the maker's plate grows
+   with the panel, the share left for each list shrinks with it, and
+   "MIXING & MASTERING" wraps. Content-sized, the row simply closes its gaps
+   instead. */
+.col-group > div { flex: 0 1 auto; }
+/* No margin-left: auto. An auto margin takes all the free space before
+   justify-content is offered any, so under space-between the two fight and the
+   margin wins — the plate goes hard right and the lists bunch at their minimum
+   gap. space-between does the spacing here. */
+.footer-stamp { flex: 0 0 auto; }
+.col-group { display: contents; }
+/* each list reads from its own left edge, heading included */
+.col-group > div { text-align: left; }
+.site-footer h2 {
+  font-family: var(--heading); text-transform: uppercase; letter-spacing: .15em;
+  color: var(--yellow); font-size: .95rem; margin-bottom: 10px;
+}
+.site-footer a { color: var(--cream); text-decoration: none; }
+.site-footer a:hover { color: var(--yellow); }
+.site-footer ul { list-style: none; }
+/* Set to what the list wants. The 18px it carried was reverse-engineered from
+   the plate — enough gap that four items ran the full height of a 220px square
+   standing beside them — and a menu spaced to match a picture is the thing
+   that reads as unnatural. The plate came down instead. */
+.site-footer li { margin-bottom: 7px; line-height: 1.35; font-family: var(--heading); font-size: 1.08rem; letter-spacing: .05em; text-transform: uppercase; }
+.site-footer li:last-child { margin-bottom: 0; }
+/* Elsewhere: each network's single-color mark sits before its name, sized to the type */
+.site-footer .elsewhere a { display: inline-flex; align-items: center; gap: .5em; }
+.site-footer .elsewhere svg { width: 1em; height: 1em; flex: none; fill: currentColor; filter: drop-shadow(0 1px 1px rgba(0,0,0,.55)); }
+/* The rule over the copyright line is scribed into the panel, not drawn round
+   a box: a light hairline that fades out well before either end. A solid rule
+   corner to corner gives the line of type an edge above it, and an edge above
+   type on a photograph is the thing that makes it look pasted on. */
+.site-footer .fineprint {
+  font-family: var(--type); font-size: .9rem; letter-spacing: .12em;
+  margin-top: 12px; padding-top: 12px;
+  background-image: linear-gradient(90deg,
+    transparent, rgba(255,255,255,.14) 18%, rgba(255,255,255,.14) 82%, transparent);
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+  text-align: center; color: #b8ad9b;
+}
+/* Centred as one run. Spread to the row's ends was tried and it read as three
+   separate captions rather than one line of small print. It is shorter now, so
+   it simply sits in the middle — and the hairline above it keeps the full width
+   it always had, since that rule is a background on this block and the block
+   still spans the whole row. The line is the thing that marks the width; the
+   type does not have to.
+
+   The dot is drawn rather than typed, so it belongs to the gap. It must NOT
+   come with white-space: nowrap on the spans — that was tried, and it welded a
+   whole sentence into one 900px word that pushed the page to a 921px scroll on
+   a 390px phone. The segments wrap internally; only the joins between them are
+   closed, by the markup carrying no whitespace there. */
+.site-footer .fineprint span + span::before {
+  content: '·';
+  padding: 0 .85em 0 .7em;
+  color: #7d7365;
+}
+
+/* ---------- rack panel ---------- */
+
+/* The studio-gear faceplate off the UA 175B, used at two very different
+   heights: the menu bar and the footer.
+
+   The panel art carries a top-lit falloff, so it is stretched to whatever
+   height the element needs and the lighting comes out right at any size.
+   The HARDWARE does not scale with it — rack screws are one physical size
+   and sit a fixed distance from the panel's edges whether the panel is 1U
+   or 8U. That is the whole reason the same treatment survives a 120px bar
+   and a 430px one. */
+.rackpanel {
+  --plate-top: .09;    /* the lit top edge */
+  --plate-bot: .49;    /* and the falloff to the bottom of the panel */
+  --wear-h: 150px;     /* the wear's own scale, held constant across panels */
+  --grain: 240px;      /* and the metal grain's, likewise */
+  --screw-w: 32px;     /* one size of screw, on every panel */
+  --screw-x: 16px;     /* centre inset from the side edge — no less than half
+                          the screw, or the head pokes 1px past the viewport
+                          and the page can wiggle sideways by exactly that */
+  --screw-y: 13px;     /* centre inset from the top or bottom edge */
+
+  position: relative;
+  isolation: isolate;
+  color: var(--cream);
+  background-color: #2d2d2d;   /* shows only before the art loads */
+  /* The faceplate art was doing two jobs at once, and they need opposite
+     treatment. The top-lit FALLOFF has to stretch, so that a 125px bar and a
+     300px footer are each lit correctly end to end — that is a gradient now.
+     The GRAIN must not stretch: anodizing is the same size on every panel.
+     Stretching the photo did both at once, which is why the tall footer came
+     out splotchy — the plate's blotching arrived four times larger there than
+     on the menu bar, off the same file. Grain and wear are pinned and tiled;
+     only the gradient scales. */
+  background-image:
+    url('/brand/panel-wear.svg'),
+    linear-gradient(rgba(0,0,0,var(--plate-top)), rgba(0,0,0,var(--plate-bot))),
+    url('/brand/plate-tile.webp');
+  background-size: auto var(--wear-h), auto, var(--grain) var(--grain);
+  background-repeat: repeat, no-repeat, repeat;
+  background-position: left top, left center, left top;
+}
+/* the machined edge where the faceplate is cut */
+.rackpanel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  box-shadow:
+    inset 0  1px 0 rgba(255,255,255,.09),
+    inset 0 -1px 0 rgba(0,0,0,.55);
+}
+/* content clears the hardware */
+.rackpanel > *:not(.rackhw) { position: relative; z-index: 2; }
+
+/* Rack-ear cutouts: an obround slot punched through the faceplate with a screw
+   seated in it, drawn rather than cut from the photo so there is nothing to
+   tone-match and nothing to halo. Left and right variants mirror the geometry
+   but NOT the lighting — a scaleX(-1) would light them from the wrong side. */
+.rackhw {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  height: auto;
+  width: var(--screw-w);
+}
+.rackhw--tl { left:  var(--screw-x); top:    var(--screw-y); transform: translate(-50%, -50%); }
+.rackhw--tr { right: var(--screw-x); top:    var(--screw-y); transform: translate( 50%, -50%); }
+.rackhw--bl { left:  var(--screw-x); bottom: var(--screw-y); transform: translate(-50%,  50%); }
+.rackhw--br { right: var(--screw-x); bottom: var(--screw-y); transform: translate( 50%,  50%); }
+
+/* ---------- the menu bar as a panel ---------- */
+
+/* .rackpanel's `position: relative` would otherwise beat .site-header's
+   `sticky` on order alone, and the bar would stop following the scroll */
+.site-header--rack { position: sticky; top: 0; }
+/* On a phone the bar gets out of the way: it is half the screen in landscape,
+   so it slides off as the page is read downward and back in on the first
+   flick the other way. Base.astro sets .is-away on every screen; only here
+   does it mean anything. A phone is a touch screen that is narrow upright or
+   short on its side, which leaves a tablet's bar where it was. */
+@media (hover: none) and (pointer: coarse) and (max-width: 699px),
+       (hover: none) and (pointer: coarse) and (max-height: 500px) {
+  .site-header--rack { transition: transform .25s ease; }
+  /* the extra 4px takes the bar's drop shadow off the screen with it */
+  .site-header--rack.is-away { transform: translateY(calc(-100% - 4px)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-header--rack { transition: none; }
+}
+/* A phone on its side: Safari's own two bars come back on the same flick and
+   take a third of the screen between them, so ours returns at half its depth.
+   The open menu runs as a row for the same reason: a column of six links is
+   taller than the screen, and a pinned bar cannot be scrolled to its foot. */
+@media (hover: none) and (pointer: coarse) and (max-height: 500px) {
+  .site-header--rack .masthead { min-height: 0; padding-top: 6px; padding-bottom: 6px; }
+  .site-header--rack .brand-plate-wide { height: 44px; }
+  .site-header--rack .nav-toggle { padding: 4px 10px; }
+  .site-header--rack .site-nav.open { flex-direction: row; flex-wrap: wrap; justify-content: center; padding: 2px 0 8px; }
+  .site-header--rack .site-nav a { padding: 8px 14px; font-size: 1.1rem; }
+}
+/* the brand plate and the nav are bolted to the faceplate, so they hold in
+   from the rack ears rather than running to the edge of the bar */
+.site-header--rack .masthead { padding-left: 58px; padding-right: 58px; }
+/* nav lettering silkscreened on the panel: it sits ON the metal, so it wants
+   the faint relief of ink rather than the flat cream it had on a plain bar */
+.site-header--rack .site-nav a { text-shadow: 0 1px 1px rgba(0,0,0,.6); }
+
+/* ---------- the footer as a panel ---------- */
+
+/* The footer is not built up from parts the way the menu bar is. It is one
+   photographed plate — Eric's, frame line, top-lit falloff and all four screws
+   already in it — so there is no grain tile, no wear layer, no gradient and
+   no drawn hardware over it. Nothing to tone-match, and nothing to blotch:
+   the splotching was always the menu bar's grain arriving here at four times
+   its size, and that file is no longer in the footer at all. (The bottom pair
+   of screws is cloned into the art by rebuild-assets.py; Eric shot the plate
+   with the top pair.)
+
+   The one thing a single image cannot do is fill a footer of any width and
+   height without distorting — stretched to a 1280 × 320 box the screws come
+   out as ovals and the frame's corners shear. So it is drawn as a nine-slice:
+   the four corners land at a fixed size, the edges run out along one axis
+   only, and the slack all goes into the flat middle. The plate is never
+   scaled UP, at any viewport.
+
+   It rides on ::before rather than the footer itself because a border-image
+   needs a border, and 46px of border on the footer would push the stamp off
+   the seam it straddles. Positioned inset:0, the pseudo-element's border box
+   is the footer's box exactly, and the layout never knows it is there. */
+.site-footer--plate {
+  --slice: 64;         /* corner size, in the source image's own pixels */
+  --plate-hw: 46px;    /* and on screen — which puts the screws at ~23px */
+  --gear-w: 30px;      /* the lamp and toggle; the screws are in the art now */
+  --gear-x: 84px;      /* the toggle, in from the right edge */
+  --gear-x2: 156px;    /* the lamp, on the same line beside it */
+  --gear-stack: 33px;  /* half the gap between the lamp and the switch under it */
+
+  position: relative;
+  background-color: #262626;   /* shows only before the plate loads */
+}
+.site-footer--plate::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border: var(--plate-hw) solid transparent;
+  border-image:
+    url('/brand/bottom-plate.webp') var(--slice) fill / var(--plate-hw) / 0 stretch;
+}
+/* Content clears the plate — the gear excepted, which is placed absolutely.
+   .footer-gear has to be named here as well as .rackhw. This selector is two
+   classes deep and beats a bare .footer-gear rule, so it was quietly forcing
+   position: relative back onto the cluster: the cluster then kept its place in
+   the flow, took a block's worth of height at the top of the panel, and only
+   LOOKED positioned because relative offsets move the paint and not the box.
+   The panel grew by the height of a switch and nothing said why. */
+.site-footer--plate > *:not(.rackhw):not(.footer-gear) { position: relative; z-index: 1; }
+
+/* Every word down here is live text, and it is silkscreened onto the panel
+   rather than lying on top of it: the same 1px of relief the nav gets on the
+   menu bar. Flat type with no relation to the surface under it is exactly what
+   reads as a pasted-in screenshot. */
+.site-footer--plate h4,
+.site-footer--plate li,
+.site-footer--plate .fineprint { text-shadow: 0 1px 1px rgba(0,0,0,.55); }
+
+/* Lamp above the switch at the right-hand end, on one vertical line. Side by
+   side they needed the plate to stop short of them; stacked they take a single
+   column at the end of the panel and the plate can run out to meet the
+   copyright line. The pair still rides the plate's own centre line, so that end
+   of the panel reads as one band. */
+.rackhw--lamp   { width: calc(var(--gear-w) * 1.06); }
+.rackhw--toggle { width: calc(var(--gear-w) * 1.18); }
+.rackhw--lamp,
+.rackhw--toggle {
+  right: var(--gear-x);
+  transform: translate(50%, -50%);
+}
+.rackhw--lamp   { top: calc(var(--pad-top) + var(--row-h) / 2 - var(--gear-stack)); }
+.rackhw--toggle { top: calc(var(--pad-top) + var(--row-h) / 2 + var(--gear-stack)); }
+
+/* The left-hand end, off Eric's reference: the legend over the switch, and the
+   dead lamp out to its right on the switch's own centre line.
+
+   It is the row's first column, not a margin element. Absolutely positioned in
+   the band beside the row it needed that band to exist, and below roughly
+   1340px of window there is none — so it vanished on any normal laptop while
+   looking correct on mine. Hardware in the margin only works when the margin
+   is guaranteed. */
+/* The panel's left end, mirroring its right: the switch stands the same
+   --gear-x in from this edge as the toggle does from that one, and sits on the
+   toggle's own centre line. It is panel furniture, so it is placed against the
+   PANEL and not against the row — which is what lets the lists start where they
+   like rather than queueing behind it.
+
+   Everything is sized from --gear-w, the variable the right-hand pair use, so
+   the two ends cannot drift apart. Hard-coded once, they came out half again
+   as large as their opposite numbers.
+
+   The legend is inside .gear-stack with the switch alone, so it centres over
+   the switch rather than over the switch and lamp together — and it is a good
+   deal smaller than it was, closer to what a real panel legend is beside the
+   hardware it names. */
+.footer-gear {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  display: flex;
+  /* centred, and now correct: the legend is out of the flow, so the stack's
+     height is the switch's and the lamp lines up with it */
+  align-items: center;
+  gap: calc(var(--gear-w) * .7);
+  /* The offset is the STACK's width, which the legend sets, not the switch's:
+     the switch is centred inside that column, so subtracting the switch's own
+     half-width left the switch 11px right of the point it mirrors. */
+  left: calc(var(--gear-x) - var(--gear-w) * 2.3 / 2);
+  /* The middle of the gap between the last list item and the copyright line.
+
+     Derived, not nudged. The gap's top is the lists' own bottom, which does
+     not move — four items and a heading at fixed sizes. Its bottom is the
+     copyright's type, which sits below the row, and the row is as tall as the
+     maker's plate, which grows with the window. So the midpoint is
+
+         pad-top + (lists' height + the fine print's top space) / 2 + row-h / 2
+
+     and the 89px is that bracket halved: 150 of list against 28 of margin and
+     padding. Only the row-h term moves.
+
+     A flat 6px offset from the seam was tried first. It was exact at the window
+     it was measured on and 61px out at a tall one, because the seam travels
+     with the plate and the lists do not. */
+  top: calc(var(--pad-top) + 89px + var(--row-h) / 2);
+  transform: translateY(-50%);
+}
+/* The legend is taken out of the stack's flow and hung above the switch. In
+   flow it added its own height to the cluster's box, and since the box is what
+   gets centred on the line, the switch itself ended up sitting below that line
+   by half a legend. Out of flow, the box is the switch's height and centring
+   the box centres the switch — no correction to carry, and none to get wrong
+   again when the legend's size changes. */
+.footer-gear .gear-stack { position: relative; display: block; }
+.footer-gear .gear-legend {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(var(--gear-w) * 2.3);
+}
+.footer-gear .gear-switch { display: block; width: calc(var(--gear-w) * 1.18); }  /* as the right-hand toggle */
+.footer-gear .gear-lamp   { width: calc(var(--gear-w) * 1.06); }  /* as the right-hand lamp */
+
+
+/* The plate no longer stops short of the gear. It used to sit beside a pair
+   laid out side by side, which reached far enough in to need the room; stacked,
+   they occupy one column at the panel's end and the plate clears them on its
+   own — and the plate's right edge has to reach the copyright line's, which a
+   margin here would prevent. */
+
+/* At this width the row breaks up: the lists spread across the whole panel and
+   run straight through the corner the gear was sitting in, so it comes off.
+   Above it the centred pair leaves that corner clear the whole way. */
+@media (max-width: 1080px) {
+  .rackhw--lamp, .rackhw--toggle { display: none; }
+  /* the left cluster goes with them, and the row takes its ordinary gutters
+     back now that there is no hardware to keep clear of */
+  .footer-gear { display: none; }
+  .site-footer .wrap {
+    max-width: 1160px;
+    padding-left: clamp(24px, 4vw, 56px);
+    padding-right: clamp(24px, 4vw, 56px);
+  }
+}
+@media (max-width: 900px) {
+  .rackpanel { --screw-w: 24px; --screw-x: 12px; --screw-y: 11px; }
+  /* the footer plate drops to --plate-hw 36px here, taking its screws to a
+     20px head 19px in; the band's follow it down by the same ratio so the two
+     stay matched at every width */
+  .section--silverface { --screw-w: 36px; --screw-x: 22px; --screw-y: 19px; }
+  .site-header--rack .masthead { padding-left: 34px; padding-right: 34px; }
+  /* the plate's own screws come down with it, so the corners stay in scale
+     with a narrow footer instead of eating a fifth of its width */
+  .site-footer--plate { --plate-hw: 36px; }
+}
+
+/* Under this width the row runs out of room beside the plate, so the four items
+   wrap individually against it rather than the row overflowing. */
+@media (max-width: 1080px) {
+  .site-footer .cols {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    row-gap: 32px;
+  }
+}
+
+/* ---------- prose (markdown content) ---------- */
+
+/* white "sheet of paper" under any run of text, on the cream desk */
+.sheet {
+  background: var(--page);
+  padding: clamp(28px, 5vw, 56px);
+}
+/* a blog post's sheet closes tighter than a page's */
+.sheet:has(.post-head) { padding-bottom: 20px; }
+/* reading measure: page prose holds ~72 characters per line, like the posts;
+   layout pieces outside .prose (book headers, cover rows) keep full width */
+
+/* reading measure: ~72 characters per line at the body size */
+.prose { max-width: 700px; margin: 0 auto; }
+.prose h1 {
+  font-family: var(--heading); text-transform: uppercase; letter-spacing: .05em;
+  line-height: 1.2; text-align: center; font-size: 2.1rem; margin-bottom: 1em;
+}
+.prose h2, .prose h3 {
+  font-family: var(--heading); text-transform: uppercase; letter-spacing: .05em;
+  line-height: 1.2; margin: 1.6em 0 .6em;
+}
+.prose h2 { font-size: 1.85rem; border-bottom: 3px solid var(--red); padding-bottom: .25em; }
+.prose h3 { font-size: 1.45rem; color: var(--red-deep); }
+/* a heading that is itself a link: its own rule is the underline, no second one */
+.prose h2 > a, .prose h3 > a { text-decoration: none; }
+.prose h2 > a:hover, .prose h3 > a:hover { color: var(--red-deep); }
+.prose p, .prose ul, .prose ol { margin-bottom: 1.1em; }
+.prose ul, .prose ol { padding-left: 1.4em; }
+/* WordPress "loose" lists wrap each item in a paragraph — keep items snug */
+.prose li > p { margin-bottom: 0; }
+.prose li { margin-bottom: .35em; }
+/* on the page sheets, lists read tighter than body prose */
+.prose.prose--bare li { line-height: 1.4; margin-bottom: .3em; }
+.prose img { margin: 1.5em auto; }
+/* a square image shown as a banner — the same 16:10 crop its card on the posts page uses */
+.prose img.banner { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+/* a picture opening the page hugs the top — no dead margin above it */
+.prose > :first-child img, .prose > img:first-child { margin-top: 0; }
+/* Section headings inside prose can wear the site's yellow plate on its
+   rule: the band clears any float, centres its plate, and takes back the
+   gutter the 700px reading measure leaves — running out to the same width
+   the homepage and Mixing page bands do, never wider than the viewport. */
+.prose .lineband {
+  clear: both;
+  margin: 2.2em 0 2.4em;
+  text-align: center;
+  margin-inline: min(0px, calc((700px - min(100vw - 48px, 1032px)) / 2));
+}
+.prose h2.plate {
+  border-bottom: none; margin: 0;
+  padding: .25em .8em .2em;
+  /* the same size the page titles and the Mixing page's section plates take:
+     a plate is a plate wherever it lands */
+  font-size: clamp(1.25rem, 2.6vw, 1.7rem);
+  line-height: 1.7;
+}
+/* A linked image in content is a card, and a card lifts under the pointer —
+   the book covers' own rise, which is also what tells the hand it is
+   clickable. A block, not inline-block: a bare <a> is inline, which ignores
+   transforms — and an inline-block shrink-wraps and then sits at the
+   paragraph's LEFT edge, stealing the centring the bare image's margin:auto
+   used to do. fit-content plus auto margins keeps the box no wider than the
+   picture and puts it back on the centre line. */
+.prose a:has(> img) {
+  display: block;
+  width: fit-content;
+  margin-inline: auto;
+  transition: transform .1s ease;
+}
+.prose a:has(> img):hover { transform: translateY(-4px); }
+/* a torn-paper quote pasted over the page: its left edge hangs into the
+   margin so it reads as a scrap laid onto the sheet, not a block in the
+   column. The hang collapses as the viewport closes on the column */
+.prose img.clipping {
+  width: calc(72% + clamp(0px, (100vw - 748px) / 2, 110px));
+  max-width: none;
+  margin-inline: auto;
+  margin-block: 0;
+}
+/* on a phone the column is the whole screen, and a scrap at 72% of it reads
+   as a postage stamp: the quote type drops under body size. So the scrap
+   takes the full column there — the hang is long gone at that width */
+@media (max-width: 700px) {
+  .prose img.clipping {
+    /* wider than the column: it spills into the 24px page gutters and
+       stops 6px short of the screen edge, so the torn edge still shows */
+    width: calc(100% + 36px);
+    margin-inline: -18px;
+  }
+}
+/* the clipping rides a chocolate band the width of the page — the scraps
+   are torn white paper, and they want the dark to tear out of.
+   Same painting trick as .quoteband: shadow + clip, no 100vw scrollbar */
+.prose .clipband {
+  background: var(--ink);
+  box-shadow: 0 0 0 100vmax var(--ink);
+  clip-path: inset(0 -100vmax);
+  margin: 2.8em 0;
+  padding: 1.4em 0 1.5em;
+}
+/* the band that opens the page copy sits tight under the book header,
+   and hands off to the first heading just as tightly */
+.prose > .clipband:first-child { margin-top: .25em; margin-bottom: 1.2em; }
+/* an opening band handing straight to a cream band butts against it: the
+   1.2em below would otherwise show as a white seam between the two */
+.prose > .clipband:first-child:has(+ .band-cream) { margin-bottom: 0; }
+/* the cream band already opens with 26px of its own, so the title plate it
+   leads with steps its margin back and keeps the same air on both sides */
+.prose .band-cream > .lineband:first-child { margin-top: 1em; }
+/* a page whose opening band carries the creamsheet class runs cream from
+   that band to the foot of the page: the prose block paints the sheet, the
+   band paints over its head, and the negative bottom inset lets the cream
+   flood the section padding below until the next painted section takes
+   over. Opt-in per page — an opening clipping alone does not trigger it */
+.prose--bare:has(> .creamsheet:first-child) {
+  background: var(--cream);
+  box-shadow: 0 0 0 100vmax var(--cream);
+  clip-path: inset(0 -100vmax -100vmax);
+}
+/* on the cream sheet the pull-quotes sit on white cards; framed, they
+   hold the copy closer than the bare quotes did */
+.prose--bare:has(> .creamsheet:first-child) > .testimonial {
+  background: var(--page);
+  padding: 26px 30px 22px;
+  border: 1px solid #cfc8bb;
+  box-shadow: 0 5px 14px rgba(25, 20, 16, .3);
+  margin-block: 2em;
+}
+/* a card handing off to a heading (Bob's, Ron's) takes extra clearance
+   below so the next section doesn't crowd its shadow */
+.prose--bare:has(> .creamsheet:first-child) > .testimonial:has(+ h3) {
+  margin-bottom: 3.2em;
+}
+/* the Mixerman page runs its copy over a cream band rather than a cream
+   sheet, so its pull-quotes ask for the same white card here — the sheet's
+   rule above only reaches quotes that are direct children of the prose */
+.prose .band-cream > .testimonial {
+  background: var(--page);
+  padding: 26px 30px 22px;
+  border: 1px solid #cfc8bb;
+  box-shadow: 0 5px 14px rgba(25, 20, 16, .3);
+  margin-block: 2em;
+  margin-inline: clamp(20px, 10%, 80px);
+}
+/* a long credit line drops a size rather than wrapping */
+.prose .testimonial--smallcredit .who em { font-size: .85rem; }
+/* …but the More Books tail steps back onto white: the h2 (the only direct
+   h2 — content headings are h3s) and the cover row flood white down over
+   the cream from the heading to the next section */
+.prose--bare:has(> .creamsheet:first-child) > h2,
+.prose--bare:has(> .creamsheet:first-child) > .bookrow {
+  background: var(--page);
+  box-shadow: 0 0 0 100vmax var(--page);
+  clip-path: inset(0 -100vmax -100vmax);
+}
+/* the white box opens well above the heading text — padding is white,
+   margin is the cream seam left between the copy and the shelf */
+.prose--bare:has(> .creamsheet:first-child) > h2 {
+  margin-top: 1.5em;
+  padding-top: 44px;
+}
+/* after the opening band the clippings ride cream, and the credit goes
+   back to ink */
+.prose .clipband--cream {
+  background: var(--cream);
+  box-shadow: 0 0 0 100vmax var(--cream);
+  /* on the cream sheet this band is invisible — its box is pure spacing,
+     so it carries none of the ink band's padding */
+  margin: .4em 0 1.4em;
+  padding: 0;
+}
+.prose .clipband--cream .who { color: var(--text); }
+.prose .clipband--cream .who em { color: var(--text); }
+/* a testimonial riding a band brings its own spacing home */
+.clipband .testimonial { margin: 0; }
+/* testimonial: the pull-quote treatment plus an attribution line, photo optional */
+.testimonial { margin: 1.6em 0; }
+/* a quote standing free in the copy (not riding a quoteband) steps in from
+   both margins and takes air above and below — the column's straight rules
+   break and the page gains motion */
+.prose > .testimonial { margin-block: 2.8em; margin-inline: clamp(20px, 10%, 80px); }
+/* pin line between testimonials */
+.testimonial + .testimonial { border-top: 1px solid #cfc8bb; padding-top: 1.6em; }
+.prose .testimonial blockquote { margin: 0 0 .5em; font-size: 1.3rem; }
+.testimonial .who, .clipband .who {
+  display: flex; align-items: center; justify-content: flex-end; gap: 14px;
+  margin: 0;
+  text-align: right;
+}
+.testimonial .who img { width: 56px; height: 56px; border-radius: 50%; margin: 0; object-fit: cover; }
+.testimonial .who strong, .clipband .who strong {
+  display: block;
+  font-family: var(--heading); text-transform: uppercase; letter-spacing: .05em;
+  font-size: 1.1rem;
+}
+.testimonial .who em, .clipband .who em {
+  font-style: normal;
+  font-family: var(--type); font-size: 1.05rem; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--text);
+}
+/* on the chocolate band the credit is set in cream, holding the column's
+   right edge below the scrap */
+.clipband .who { margin-top: .3em; color: var(--cream); }
+.clipband .who em { color: var(--cream); }
+/* A credit that is a name and a masthead — Larry Crane, Tape Op Magazine —
+   reads as one line with a comma. One that is a name and a list of records
+   does not: "Ken Scott, The Beatles · David Bowie · Supertramp" puts a comma
+   in front of a run of bullets. So this is asked for per credit rather than
+   applied to every band. */
+/* doubled class so this matches the weight of ".clipband .who strong", which
+   sets display:block and would otherwise win on specificity alone */
+.who.who--inline strong { display: inline; }
+.who.who--inline strong::after { content: ','; }
+.who.who--inline em { margin-left: .35em; }
+
+/* a credit that carries a book's title keeps the title whole when the line
+   wraps, and steps down a size on a phone rather than breaking mid-title */
+.clipband .who--title em .nb { white-space: nowrap; }
+@media (max-width: 700px) {
+  .clipband .who--title em { font-size: min(1.05rem, 3.6vw); }
+}
+
+/* the quotes ride a beige band the width of the page, to break up the white.
+   box-shadow + clip-path paints past the column without a 100vw scrollbar */
+.prose .quoteband {
+  background: var(--paper);
+  box-shadow: 0 0 0 100vmax var(--paper);
+  clip-path: inset(0 -100vmax);
+  margin: 2.8em 0;
+  padding: 2em 0 2.2em;
+}
+.prose .quoteband > :first-child { margin-top: 0; }
+.prose .quoteband > :last-child { margin-bottom: 0; }
+
+/* full-width tinted bands inside a prose page, to break up the sheet.
+   Same painting trick as .quoteband: shadow + clip, no 100vw scrollbar */
+.prose .band {
+  background: var(--band);
+  box-shadow: 0 0 0 100vmax var(--band);
+  clip-path: inset(0 -100vmax);
+  margin: 2.8em 0;
+  padding: 2.2em 0 2.5em;
+}
+.prose .band > :first-child { margin-top: 0; }
+.prose .band > :last-child { margin-bottom: 0; }
+.prose .band--paper { --band: var(--paper); }
+.prose .band--deep { --band: var(--paper-deep); }
+.prose .band--cream { --band: var(--cream); }
+/* the chocolate-black band: cream type, and a cream rule so the plate still reads */
+.prose .band--ink { --band: var(--ink); color: var(--cream); }
+.prose .band--ink .lineband::before { background: var(--cream); }
+/* a band opening the page meets the title band above it — no white sliver */
+.prose > .band:first-child { margin-top: -24px; }
+/* and a band closing the page runs down through the section's 72px of
+   bottom padding to meet whatever section follows — no white gap */
+.prose > .band:last-child { margin-bottom: -72px; }
+/* a stretch of copy that may break words at the line end — for justified
+   copy in a narrow column, where whole-word breaks open rivers */
+.prose .hyphens { -webkit-hyphens: auto; hyphens: auto; }
+/* copy that fills its measure, both edges flush — on the whole prose when
+   the page's frontmatter asks for it, or on one wrapped stretch of it */
+.prose.justify, .prose .justify { text-align: justify; }
+
+/* white cards carrying a band's lists: each title on its own chocolate-black
+   strip, and the card lifted off the band by a shadow, like the post cards */
+.prose .list-card {
+  background: var(--page);
+  color: var(--text);
+  padding: 0 1.6em 1.1em;
+  margin: 0 0 1.6em;
+  box-shadow: 0 6px 18px rgba(25, 20, 16, .28);
+}
+.prose .list-card > h3:first-child {
+  margin: 0 -1.6em 1em;
+  padding: .55em 1.6em .45em;
+  background: var(--ink);
+  color: var(--cream);
+}
+.prose .list-card li::marker, .prose .list-card li > strong { color: var(--red-deep); }
+.prose .list-card > :last-child { margin-bottom: 0; }
+.prose .band > .list-card:last-child { margin-bottom: 0; }
+
+/* a cover or photo floated beside prose/quotes, so the two balance as one unit */
+.prose .float-right { float: right; width: min(300px, 45%); margin: .4em 0 18px 30px; }
+.prose .float-left { float: left; width: min(300px, 45%); margin: .4em 30px 18px 0; }
+.prose .float-right img, .prose .float-left img { margin: 0; width: 100%; }
+
+/* a snapshot taped to the page beside the copy, as on the Mixing page:
+   thrown a little off square, nudged toward the gutter, its colour dialed
+   back toward the site's black-and-white, a strip of scotch tape at each
+   corner. Floats right; add .polaroid--left to hang it on the other side. */
+.prose .polaroid {
+  float: right; display: block; position: relative;
+  width: min(400px, 56%);
+  margin: .3em 0 12px 28px;
+  transform: rotate(4.5deg) translateX(36px);
+}
+/* a snapshot sized so the paragraph beside it finishes beside it — at 400px
+   the last line just clears, at 380px it clears by most of a line */
+.prose .polaroid--fit { width: min(380px, 56%); }
+/* an engraved arrow closing a section: the band splits into two columns, the
+   arrow down the left and the copy in a narrower column on the right, the
+   plate running across both. The arrow sits at the foot of its column, so its
+   tip lands level with the copy's last line, pointing down at what follows. */
+.prose .band:has(> .arrow-down) {
+  display: grid;
+  grid-template-columns: min(190px, 32%) 1fr;
+  column-gap: 36px;
+  align-items: end;
+}
+.prose .band:has(> .arrow-down) > .lineband { grid-column: 1 / -1; grid-row: 1; }
+.prose .band:has(> .arrow-down) > p { grid-column: 2; }
+/* the opening paragraph runs the full width above the arrow */
+.prose .band:has(> .arrow-down) > p:first-of-type { grid-column: 1 / -1; grid-row: 2; }
+.prose .band:has(> .arrow-down) > p:last-of-type { margin-bottom: 0; }
+.prose .arrow-down {
+  /* from row two down through every row the copy can fill: the spare implicit
+     rows are empty and zero-high, so ending there means ending at the copy's foot */
+  grid-column: 1; grid-row: 3 / span 30; align-self: end;
+  display: block; width: 100%; height: auto; margin: 0;
+}
+@media (max-width: 560px) {
+  /* one column on a phone: the copy, then the arrow under it, still pointing down */
+  .prose .band:has(> .arrow-down) { grid-template-columns: 1fr; }
+  .prose .band:has(> .arrow-down) > p { grid-column: 1; }
+  .prose .arrow-down { grid-column: 1; grid-row: auto; width: 40%; margin: 1.2em 0 0 8px; }
+}
+/* a snapshot that keeps its light: the same colour pull-back, no dimming */
+.prose .polaroid--bright img { filter: grayscale(.51) brightness(1.02); }
+/* a portrait snapshot: narrower, so its height stays in proportion to the copy */
+.prose .polaroid--tall { width: min(380px, 52%); }
+.prose .polaroid--left {
+  float: left;
+  margin: .3em 28px 12px 0;
+  transform: rotate(-4.5deg) translateX(-36px);
+}
+.prose .polaroid img {
+  display: block; width: 100%; height: auto; margin: 0;
+  border-radius: 12px;
+  filter: grayscale(.51) brightness(.89);
+  box-shadow:
+    0 2px 3px rgba(20, 16, 12, .45),
+    5px 12px 28px rgba(20, 16, 12, .38);
+}
+.prose .polaroid .tape {
+  position: absolute; display: block;
+  background: linear-gradient(rgba(255, 253, 244, .34), rgba(255, 253, 244, .22));
+  box-shadow: 0 1px 3px rgba(20, 16, 12, .22);
+}
+.prose .polaroid .tape--tl { width: 98px; height: 30px; top: 3px; left: -31px; transform: rotate(-43deg); }
+.prose .polaroid .tape--tr { width: 74px; height: 25px; top: 5px; right: -19px; transform: rotate(35deg); opacity: .85; }
+.prose .polaroid .tape--bl { width: 66px; height: 24px; bottom: 6px; left: -15px; transform: rotate(49deg); opacity: .9; }
+.prose .polaroid .tape--br { width: 108px; height: 31px; bottom: 2px; right: -36px; transform: rotate(-33deg); }
+@media (max-width: 560px) {
+  /* the throw stays, the nudge doesn't — no room to spare on a phone */
+  .prose .polaroid, .prose .polaroid--left { float: none; width: min(300px, 100%); margin: 0 auto 1.4em; transform: rotate(4.5deg); }
+}
+
+/* editorial pull quote: no box, bigger italic type, a hanging quotation mark */
+.prose blockquote {
+  position: relative;
+  margin: 2em 0 2em 1.2em;
+  padding: 0 0 0 1em;
+  font-style: italic;
+  font-size: 1.45rem;
+  line-height: 1.55;
+}
+.prose blockquote::before {
+  content: '\201C';
+  position: absolute;
+  left: -0.32em;
+  top: -0.12em;
+  font-family: var(--body);
+  font-style: normal;
+  font-size: 3.6em;
+  line-height: 1;
+  color: var(--red);
+}
+.prose blockquote p { margin-bottom: .6em; }
+.prose blockquote p:last-child { margin-bottom: 0; }
+/* on a post, a pull quote steps in from both edges and holds a narrower measure;
+   the percentages shrink with the column so phones keep their room. Book pages
+   keep the plain quote above */
+.sheet:has(.post-head) .prose > blockquote { margin-inline: clamp(1.2em, 12%, 4em) clamp(0em, 9%, 2.6em); }
+.prose iframe { max-width: 100%; margin: 1.5em 0; }
+.prose hr { border: none; border-top: 3px double var(--ink); margin: 2.5em 0; }
+
+/* blog post header: title and date on white, left justified — no plate banner */
+.post-head { margin-bottom: 1.8em; }
+.post-head h1 {
+  font-family: var(--heading); text-transform: uppercase;
+  font-size: clamp(1.7rem, 3.4vw, 2.3rem); line-height: 1.15; letter-spacing: .04em;
+  text-wrap: balance; /* even line lengths instead of a one-word last line */
+}
+/* long titles step down a size so they don't run to three lines */
+.post-head h1.long { font-size: clamp(1.45rem, 2.7vw, 1.8rem); letter-spacing: .03em; }
+.post-head .post-date {
+  font-family: var(--type); font-size: .85rem; letter-spacing: .18em;
+  text-transform: uppercase; color: #7a7062; margin-top: .6em;
+}
+/* a post that opens on the sampler form: the form's own top margin is for the
+   foot of the book page, so here it gives way to the post head's */
+.post-sampler .sampler-ask { margin: 0 0 2.2em; }
+/* a link to the form lands on it with the bar clear of it */
+.post-sampler #sampler { scroll-margin-top: 140px; }
+/* after the opening paragraph: clear of the floated cover, so the field and
+   button get the full column */
+/* the welcome stands as tall as the cover beside it; on a phone the cover is
+   narrower and the normal reading size already balances it */
+@media (min-width: 700px) {
+  /* cover and welcome as one row, the copy centred on the book's height */
+  .prose .sampler-open { display: flex; align-items: center; }
+  .prose .sampler-open > img { flex: 0 0 auto; margin-top: 0; margin-bottom: 0; }
+  .prose .sampler-open p { font-size: 1.4em; line-height: 1.5; margin: 0; }
+  .prose .sampler-open p + p { margin-top: .7em; }
+}
+.post-sampler--open { clear: both; }
+.post-sampler--open .sampler-ask { margin: 1.6em 0 2.2em; }
+/* the same form again at the foot, between the last paragraph and the sign-off */
+.post-sampler--foot .sampler-ask { margin: 1.4em 0 2.2em; }
+
+/* responsive video: the WordPress absolute-position iframe hack, replaced */
+.video-embed { aspect-ratio: 16 / 9; margin: 1.8em 0; background: var(--ink); }
+.video-embed iframe { width: 100%; height: 100%; display: block; border: 0; }
+
+/* the standing outro under a post: book + podcast promos as quiet media rows */
+.post-outro { margin: 3em 0 2.6em; }
+/* closing a post, the sheet and the section already leave room under it */
+.prose > .post-outro:last-child { margin-bottom: 0; }
+/* and the section gives up some of its own, so the last row sits 60px off
+   the rack below: about what stands over the post's title */
+.section:has(.prose > .post-outro:last-child) { padding-bottom: 40px; }
+.post-outro .promo { display: flex; gap: 20px; align-items: center; margin-bottom: 1.5em; }
+.post-outro .promo:last-child { margin-bottom: 0; }
+.post-outro .promo > img { width: 96px; height: auto; flex-shrink: 0; margin: 0; }
+/* the promo's title is a heading for the ear, not a section rule for the eye:
+   no red underline here */
+.prose .post-outro h2, .prose .post-outro h3 { margin: 0 0 .3em; font-size: .98rem; border-bottom: 0; padding-bottom: 0; }
+.prose .post-outro p { margin: 0 0 .4em; font-size: .95rem; line-height: 1.5; }
+/* what the rows are, said quietly: the sign-off ends the post, this starts
+   the shelf. Typewriter caps like the date line, never the red section rule */
+.prose .post-outro .outro-head {
+  font-family: var(--type); font-size: .85rem; font-weight: 400; letter-spacing: .18em;
+  color: #7a7062; margin: 0 0 1.4em;
+}
+.post-outro .promo-links {
+  font-family: var(--type); font-size: .82rem; letter-spacing: .05em;
+  text-transform: uppercase; margin: .4em 0 0;
+}
+@media (max-width: 560px) {
+  .post-outro .promo { flex-direction: column; align-items: flex-start; }
+}
+
+/* row of clickable book covers at the foot of each book page */
+/* ---------- book header: cover beside the retailer links ---------- */
+
+.bookhead {
+  display: grid;
+  grid-template-columns: auto auto; /* both columns hug their content */
+  justify-content: center;
+  /* the cover's shadow now falls 28px past its right edge, so the card stands
+     off a little further than it used to and keeps clear of it */
+  gap: clamp(24px, 4vw, 52px);
+  align-items: center; /* the column rides the cover's centre line */
+  margin: 0 0 2.4em;
+}
+/* Sized to the height actually left in the window: 333px covers the site header and
+   the title band above, plus a little breathing room below. */
+.bookhead-cover {
+  /* the renders come through with a clean silhouette and no shadow of their
+     own, so the page gives them one — drop-shadow follows the cut-out edge,
+     where a box-shadow would draw a rectangle around the transparency.
+     One shadow, not two: chained, the second shadows the FIRST one's blur as
+     well as the book. Offset well down and to the right with a tight blur, so
+     it reads as a shadow cast onto the page at the low corner rather than a
+     glow around the silhouette. The light in every one of these renders comes
+     from the upper left, so that is the corner it falls into. */
+  filter: drop-shadow(20px 24px 7px rgba(25, 20, 16, .24));
+  width: auto; height: auto;
+  max-width: 560px;
+  /* grows with the window, but never shorter than the button column beside it */
+  max-height: max(540px, calc(100vh - 350px));
+}
+@media (max-width: 700px) {
+  .bookhead { grid-template-columns: 1fr; justify-items: center; }
+  .bookhead-cover { max-width: 280px; }
+}
+
+/* ---------- where to buy: official store badges, grouped by format ---------- */
+
+/* two badges per row (each pill is 162px), so three formats still sit
+   beside the cover instead of running past it */
+.buybox { display: flex; flex-direction: column; gap: 36px;
+  width: min(344px, 100%); }
+.buycol h2 {
+  font-family: var(--heading);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--text);
+  padding-bottom: 6px;
+  margin-bottom: 9px;
+  border-bottom: 2px solid var(--ink);
+}
+/* one pill size for everything: the Apple Books badge at 52px tall is the reference */
+.buycol ul {
+  list-style: none;
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 10px 12px;
+}
+.buycol .store {
+  display: flex; align-items: center; justify-content: center;
+  text-decoration: none;
+  transition: transform .08s ease;
+}
+.buycol .store:hover { transform: translateY(-2px); }
+/* Safari offers the text I-beam over bare images — insist on the hand */
+.buycol .store, .buycol .store img { cursor: pointer; -webkit-user-select: none; user-select: none; }
+.buycol .store img { display: block; margin: 0; }
+
+/* Every button gets the same 162x46 footprint, so a row of them sits on one
+   grid whatever is printed inside. The badges themselves cannot all be the
+   same shape: nobody agrees on a ratio — Apple Books is 3.53:1, Google Play
+   3.36:1, Apple Podcasts 3.19:1 — and their guidelines forbid distorting them
+   to match. So each is scaled to a common pill HEIGHT of 46px and centred in
+   the box; what varies is the width of the ink, not the size of the button. */
+.buycol .store--badge {
+  box-sizing: border-box;
+  width: 162px; height: 46px;
+  /* the boxes are all one size but the pills inside them are not, so centring
+     left every narrower badge indented against the ones beside it. They hang
+     from the left edge instead, and the slack falls on the right where it
+     cannot be seen. */
+  justify-content: flex-start;
+}
+.buycol .store--badge img { height: 46px; width: auto; }
+/* a framed chip is a drawn box, so its logo does sit in the middle of it */
+.buycol .store--framed { justify-content: center; }
+/* Google's file is the exception: it bakes its required clear space into the
+   png as transparent padding, so only 67.2% of the file's height is pill. It
+   is drawn at 68.5px for a 46px pill, and the overflow — which is empty — is
+   pulled back so the box still measures 162x46 like the others. Sized by pill
+   height, not pill width: at equal width it stood taller than Apple's beside
+   it, which is what gave the row away. */
+.buycol .store--gplay img {
+  height: 68.5px; max-width: none;
+  /* its clear space is inside the file — 6.35% of the width before the pill
+     starts — so the whole image shifts left by that much to put the pill's
+     edge where every other badge's edge is */
+  margin: 0 -11.2px 0 -11.2px;
+}
+/* Side by side, badges match on HEIGHT. Stacked, they match on WIDTH. House
+   rule, and it is the only way to honour both stores at once: Google asks to
+   be "the same size or larger than the other badges", Apple and Google both
+   forbid stretching theirs, and their pills are different ratios (Apple Books
+   3.53:1, Google Play 3.36:1). Only one axis can ever agree, so it is the one
+   running ACROSS the stack — the axis a reader compares.
+   Stacked means a buyStack card, a column of listen rows, or a screen too
+   narrow to seat two badges in a row: measured, they break at 436px. Google's
+   pill drawn 162px wide stands 48.25px tall, so it is equal on one axis and
+   larger on the other, which satisfies the rule outright. */
+.bookhead[data-buystack] .buycol .store--badge,
+.buycol ul:has(.store--listen) .store--badge { height: 48.25px; }
+.bookhead[data-buystack] .buycol .store--gplay img,
+.buycol ul:has(.store--listen) .store--gplay img {
+  width: 185.55px; height: auto; margin: 0 -11.78px;
+}
+@media (max-width: 435px) {
+  .buycol .store--badge { height: 48.25px; }
+  .buycol .store--gplay img { width: 185.55px; height: auto; margin: 0 -11.78px; }
+}
+
+/* bare wordmarks get a frame matching that pill's size and corner radius */
+.buycol .store--framed,
+.buycol .store--text {
+  box-sizing: border-box;
+  width: 162px; height: 46px;
+  border: 2px solid #a6a6a6; /* the same grey Apple outlines its own badge with */
+  border-radius: 8px;
+  background: var(--page);
+}
+.buycol .store--framed { padding: 5px 14px; }
+/* trying the two wordmark chips dark, to sit with Apple's and Google's */
+.buycol .store--dark { background: var(--ink); border-color: #3a332b; }
+/* which storefront a button goes to, when the badge alone can't say */
+.buycol li.has-note { display: flex; flex-direction: column; gap: 4px; }
+/* a page that asks for a stacked card (buyStack) runs its buttons down the
+   column instead of across it — one format with two ways to buy makes a wide,
+   shallow box otherwise. flex-basis goes back to auto because down a column it
+   would set height, not width */
+.bookhead[data-buystack] .buycol ul { flex-direction: column; align-items: flex-start; }
+.bookhead[data-buystack] .buycol li { flex-basis: auto; }
+/* and the card comes in to meet them: at the shared 396px a stacked column
+   leaves the format's rule stranded across an empty half-card */
+.wrap > .bookhead[data-buystack] > .buybox,
+.buy-foot > .bookhead[data-buystack] > .buybox { width: min(276px, 100%); }
+@media (min-width: 701px) {
+  .wrap > .bookhead[data-buystack] { grid-template-columns: minmax(0, auto) 276px; }
+}
+/* the house button holds a whole row to itself, so the stores pair up beneath it
+   (the French edition's region-noted buttons still share rows) */
+.buycol li.has-note:has(.store--mmpub) { flex-basis: 100%; align-items: flex-start; }
+.buycol .store-note {
+  font-family: var(--heading);
+  font-weight: 600;
+  font-size: .875rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #6a6157;
+  padding-left: 2px;
+}
+/* A book page's buttons sit on a cream card, lifted off the page the way the
+   cover's own render is. The card is the button column's 344px plus its
+   padding: the width is fixed, so a tall window grows the cover instead of
+   squeezing the card until its button rows break apart. The buy box repeated
+   inside an article keeps that page's own background. */
+@media (min-width: 701px) {
+  .wrap > .bookhead { grid-template-columns: minmax(0, auto) 396px; }
+}
+/* the diary's cover is the squarest of them; at the shared height it loomed,
+   and its shorter card left the angle hanging. It stands a little lower and
+   the card drops to meet the angled bottom. */
+/* the same window-height rule the other covers follow, set smaller: a flat cap
+   here ignored the window and ran off the bottom of a short screen */
+.wrap > .bookhead[data-formats="2"] > .bookhead-cover { max-height: max(450px, calc(100vh - 480px)); }
+.wrap > .bookhead[data-formats="2"] > .buybox { margin-top: 0; }
+/* Producing is the model: every cover stands the same height beside the card.
+   A wider render — Zen's, the diary's — then reaches further right and would
+   crowd the card, so those two are pulled back to leave the same gap. */
+/* Never wider than its own column, though: the height rule above follows the
+   window, and on a tall narrow one (an iPad held upright) the cover grew to
+   510px and lay across the card. Where there is room this changes nothing. */
+.wrap > .bookhead > .bookhead-cover { max-width: 100%; }
+.wrap > .bookhead > .buybox {
+  background: var(--cream);
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(25, 20, 16, .18), 0 2px 5px rgba(25, 20, 16, .10);
+  padding: 24px 26px 26px;
+  width: min(396px, 100%);
+  align-self: center;
+}
+/* The buy box again at the foot of a book page, for the reader who has just
+   been convinced: a smaller cover leaning in toward the card, the card hanging
+   from the top of it, and free of the prose rules for lists and headings. */
+/* the foot's book header is the top one at about half size */
+.buy-foot { margin: 3em 0 .6em; }
+/* a foot with no band of its own has nothing but that margin between the
+   book and the shelf below, so it takes its clearance here — near the 3em it
+   gets above, so the book sits in the cream rather than on its bottom edge */
+.prose .buy-foot:not(.buy-foot--cream):not(.buy-foot--white) { margin-bottom: 64px; }
+/* the cover leans in toward the card, and the card rides higher against it */
+.buy-foot .bookhead-cover { transform: translateX(27px); }
+/* the foot's book is about two thirds the size, so its shadow comes down with it */
+.buy-foot .bookhead-cover { filter: drop-shadow(13px 16px 5px rgba(25, 20, 16, .24)); }
+.buy-foot > .bookhead > .buybox { align-self: start; margin-top: -8px; }
+.buy-foot .bookhead { margin: 0; }
+/* the foot's formats sit closer together than the header's 36px: beside
+   the smaller cover the wide gap read as a hole */
+.buy-foot .buybox { gap: 20px; }
+/* Centred, the shorter button column floated its first heading above the
+   book: the render's top edge slopes up to the right, so the eye takes the
+   front cover's near corner as "the top". Both now hang from the top, and
+   the column drops to where that corner sits. */
+@media (min-width: 701px) {
+  /* the card's column is pinned here too, so a taller cover cannot squeeze it
+     until its button rows break apart */
+  .buy-foot .bookhead { align-items: start; grid-template-columns: minmax(0, auto) 396px; }
+  .buy-foot .buybox { padding-top: 6px; }
+}
+.prose .buy-foot .bookhead-cover { max-height: 352px; max-width: 278px; margin: 0; }
+/* The cover stands a little taller than the card beside it — Producing's
+   330 against its 290. A taller card needs a taller cover to match: three
+   formats, or the podcast column that stacks one button per row. */
+/* the taller cover reaches further right, so it is pulled back to leave the
+   same gap Producing has — Zen's render is the widest of them, and a narrower
+   one (the Survival Guide's) needs less of a pull to sit the same distance out */
+.prose .buy-foot[data-formats="3"] .bookhead-cover { max-height: 454px; max-width: 360px; transform: translateX(-22px); }
+/* a narrower render needs less of a pull to sit the same distance out */
+.prose .buy-foot--cream[data-formats="3"] .bookhead-cover { transform: translateX(-9px); }
+.prose .buy-foot:has(.store--listen) .bookhead-cover { max-height: 372px; max-width: 330px; transform: translateX(-18px); }
+/* A card of one format is short, so its cover is the small one and fits its
+   track with room to spare — the lean-in that closes the gap on the taller
+   covers would shut it altogether. Straight up, it sits the same 36px out
+   from the card as Zen and the Survival Guide. */
+.prose .buy-foot[data-formats="1"] .bookhead-cover { transform: translateX(11px); }
+/* two formats — Producing's foot — leans in the furthest of them, so it comes
+   back the furthest to leave the same 40px */
+.prose .buy-foot[data-formats="2"] .bookhead-cover { transform: translateX(11px); }
+/* the box sits inside the prose block here, so it sheds the prose rules
+   for lists and headings and looks as it does at the top */
+.prose .buy-foot h2 { margin-top: 0; }
+.prose .buy-foot ul { padding-left: 0; margin: 0; }
+.prose .buy-foot li { margin-bottom: 0; }
+.prose .buy-foot .store { margin: 0; }
+@media (max-width: 700px) {
+  .prose .buy-foot .bookhead-cover { max-height: 220px; }
+}
+
+/* A pale cover vanishes on the cream sheet, so that page's foot band runs the
+   other way: white across the page, with the card in cream on it. The bleed is
+   the same trick the cream sheet uses — a shadow spread wide, clipped so it
+   only spills sideways. */
+/* whatever colour the foot band is, the books below it take the other one, so
+   the page keeps alternating to the footer */
+.prose .buy-foot ~ .more-books { background: var(--page); box-shadow: 0 0 0 100vmax var(--page); }
+.prose .buy-foot--white ~ .more-books { background: var(--cream); box-shadow: 0 0 0 100vmax var(--cream); }
+.prose .buy-foot ~ .more-books {
+  /* the negative margin eats the section's own bottom padding as well as the
+     band's, so the shelf hands off to the next band without a white hole */
+  clip-path: inset(0 -100vmax -100vmax); padding: 32px 0 32px; margin-bottom: -64px;
+}
+/* the band's padding is the whole of the space here, so the heading and the
+   shelf give up the margins they carry out in the flow of the copy */
+.prose .buy-foot ~ .more-books > h2 { margin-top: 0; }
+.prose .buy-foot ~ .more-books > .bookrow { margin-bottom: 0; }
+/* The Zen page has no foot buy box while the fourth edition is coming, so its
+   shelf takes the white band on its own; the other covers are on white and
+   would show as boxes on the cream. */
+.prose .more-books--band {
+  background: var(--page); box-shadow: 0 0 0 100vmax var(--page);
+  clip-path: inset(0 -100vmax -100vmax); padding: 32px 0 32px; margin: 2.4em 0 -64px;
+}
+.prose .more-books--band > h2 { margin-top: 0; }
+.prose .more-books--band > .bookrow { margin-bottom: 0; }
+/* a full-width band behind the foot buy box, either way round. The bleed is
+   the cream sheet's trick: a shadow spread wide, clipped to spill only sideways. */
+.buy-foot--white, .buy-foot--cream {
+  clip-path: inset(0 -100vmax);
+  padding: 30px 0 34px;
+}
+.buy-foot--white { background: var(--page); box-shadow: 0 0 0 100vmax var(--page); }
+.buy-foot--cream { background: var(--cream); box-shadow: 0 0 0 100vmax var(--cream); }
+/* on a page that already runs cream, the cream band paints nothing — so its
+   own breathing room, meant to separate two colours, reads as a hole between
+   the last line of copy and the book. It comes up tight instead. */
+.prose--bare:has(> .creamsheet:first-child) > .buy-foot--cream { margin-top: 2em; padding-top: 0; }
+/* the same band for a stretch of the page's copy */
+.prose .band-cream {
+  background: var(--cream);
+  box-shadow: 0 0 0 100vmax var(--cream);
+  clip-path: inset(0 -100vmax);
+  padding: 26px 0 30px;
+}
+
+/* the same card at the foot of the page, in white: there it sits on the
+   article's cream, so the contrast runs the other way */
+.buy-foot > .bookhead > .buybox {
+  background: var(--page);
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(25, 20, 16, .18), 0 2px 5px rgba(25, 20, 16, .10);
+  padding: 24px 26px 26px;
+  width: min(396px, 100%);
+  align-self: center;
+}
+/* on the inverted band the card takes the cream, so the pale cover has the
+   white to stand against (this follows the white-card rule, and beats it) */
+.buy-foot--white > .bookhead > .buybox { background: var(--cream); }
+/* a price sticker points at the house button from its right, on a row of their own.
+   It stands taller than the button, sitting on the button's baseline and
+   rising over the rule above; the negative margin keeps the row 46px so the
+   stores below don't move down. */
+.buycol li.has-sticker { flex-basis: 100%; display: flex; align-items: flex-end; gap: 10px; }
+/* the button keeps the width every other badge has — a wider sticker leans out
+   over the card's padding instead of squeezing the button it points at */
+.buycol li.has-sticker .store { flex: 0 0 auto; }
+.buycol .store-sticker { display: block; flex: 0 0 auto; margin: -34px 0 0; transition: transform .08s ease; }
+.buycol .store-sticker:hover { transform: translateY(-2px); }
+.buycol .store-sticker img { display: block; margin: 0; height: 80px; width: auto; transform: translateY(-4px) rotate(-6deg); } /* tip dips toward the button */
+/* on a phone the button takes most of the column, so the arrow comes down a
+   size to keep its own proportions — drawn short and whole rather than tall
+   and squeezed — and its tail hangs into the card's padding, the way a
+   sticker slapped on a box does */
+@media (max-width: 540px) {
+  .buycol .store-sticker { margin-right: -20px; }
+  .buycol .store-sticker img { height: 52px; }
+}
+/* the "Or" between the house button and the stores takes a row of its own */
+.buycol .store-or { flex-basis: 100%; line-height: 1; }
+.buycol .store--framed img { max-height: 100%; max-width: 100%; width: auto; height: auto; }
+/* the house button paints its own gold pill; it only needs the shared corner radius */
+.buycol .store--mmpub img { border-radius: 8px; }
+/* Listening is not buying, and a solid gold block carries more weight than a
+   mostly black pill at the same measurements — beside the podcast badges the
+   full-size button dominated a row it only belongs in. Drawn smaller here
+   than in the storefront rows: 144px is the width of the Apple Podcasts pill
+   below it, so the two stack flush down their left edge. */
+.buycol .store--listen { width: 144px; height: 41px; }
+.buycol .store--listen img { height: 41px; }
+/* Where a title is sold, the stores pair up across a row — there are often
+   four of them. Here there are three ways to hear one thing, so they read as
+   a list down the page instead. flex-basis goes back to auto because in a
+   column it would set height, not width. */
+.buycol ul:has(.store--listen) { flex-direction: column; align-items: flex-start; }
+.buycol ul:has(.store--listen) li.has-note { flex-basis: auto; }
+/* and the drawn frame narrows to the width of the pills above it, so the
+   three line up down both edges and not just the left */
+.buycol ul:has(.store--listen) .store--framed { width: 144px; }
+/* a wordmark, not a pill — sized like the one in the body podcast links */
+.buycol .store--spotify img { max-height: 22px; }
+.buycol .store--text {
+  font-family: var(--heading); text-transform: uppercase;
+  letter-spacing: .1em; font-weight: 600; font-size: .82rem;
+  color: var(--text); line-height: 1.15; text-align: center;
+}
+.buycol .store--text:hover { background: var(--ink); color: var(--cream); }
+/* a chip that stays on the site — the Faculty one — is solid ink with cream
+   type and a book beside the word, while the storefront chips keep their ink
+   on paper */
+.buycol .store--text[href^="/"] { background: var(--page); border-color: #a6a6a6; color: var(--text); font-size: .92rem; gap: 9px; }
+.buycol .store--text[href^="/"]:hover { background: var(--cream); border-color: #8c8c8c; color: var(--text); }
+.buycol .store--text .store-icon { width: auto; height: 24px; flex: 0 0 auto; }
+.prose .buybox a { text-decoration: none; }
+
+/* where to listen: Apple's own badge, Spotify's logo framed to match it */
+.prose .podcast-links { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 1.4em 0; clear: both; }
+/* margin: 0 beats the prose rule that centres any linked image with auto side
+   margins — these badges sit shoulder to shoulder at the left, not spread */
+.prose .podcast-links a { display: flex; align-items: center; justify-content: center; margin: 0; text-decoration: none; transition: transform .08s ease; }
+.prose .podcast-links a:hover { transform: translateY(-2px); }
+.prose .podcast-links img { display: block; margin: 0; height: 46px; width: auto; }
+.prose .podcast-links a.framed {
+  box-sizing: border-box;
+  width: 145px; height: 46px;
+  border: 2px solid #a6a6a6;
+  border-radius: 8px;
+  padding: 0 14px;
+}
+.prose .podcast-links a.framed img { height: auto; max-height: 22px; max-width: 100%; }
+/* the plate is a wider shape than Apple's badge, so matching their widths
+   left it shorter than everything beside it. It matches on height instead —
+   46px, the height the badges take here and in the buy box — and takes the
+   162px that its own proportions ask for. */
+.prose .podcast-links a.listen img { height: 46px; width: auto; border-radius: 8px; }
+
+/* square podcast art, with the copy running around it. Floated right: the
+   paperback cover already anchors the left side of the header above. */
+/* the podcast art heads its section, centred, with the prose's own spacing
+   above and below it */
+/* the poster sits in the copy's right margin and the story runs past it */
+.prose .podcast-art-link {
+  float: right;
+  width: min(300px, 42%);
+  margin: .35em 0 1.2em 1.9em;
+}
+/* on a phone there is no margin to sit in, so it goes back to its own line */
+@media (max-width: 700px) {
+  .prose .podcast-art-link { float: none; width: min(300px, 100%); margin: 1.8em auto; }
+}
+/* the buttons below the copy start a clean line under it */
+.prose .podcast-links { clear: both; }
+.prose .podcast-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  /* a flat poster, not a book standing on the page: it lifts off the sheet
+     rather than casting the covers' long shadow. The file is an opaque jpeg,
+     so a box-shadow draws what a drop-shadow would at no cost to the
+     compositor. */
+  box-shadow: 8px 12px 16px rgba(25, 20, 16, .28);
+}
+/* the artwork is the podcast's own poster, so it goes where the podcast is */
+.prose .podcast-art-link { display: block; transition: transform .1s ease; }
+.prose .podcast-art-link:hover .podcast-art { transform: translateY(-2px); }
+.prose .podcast-art-link .podcast-art { transition: transform .1s ease; }
+
+.bookrow { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 18px; margin: 1.5em 0; }
+.bookrow a { flex: 0 1 140px; transition: transform .1s ease; }
+/* the prose linked-image rule centres with margin-inline auto, but on flex
+   items auto margins swallow the row's free space and scatter the covers —
+   here the row ranks left and the gap sets the spacing */
+.prose .bookrow a { margin-inline: 0; }
+.bookrow a:hover { transform: translateY(-4px); }
+.bookrow img { width: 100%; height: auto; margin: 0; }
+/* three covers, one shelf: at 140px each they would break two-and-one, so on
+   a narrow screen they take a third of the row apiece */
+@media (max-width: 520px) {
+  .bookrow { gap: 12px; }
+  .bookrow a { flex: 0 1 calc((100% - 24px) / 3); }
+}
+
+/* ---------- cards ---------- */
+
+.cardgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 28px; }
+/* Four books never fill rows of three. The home page sets them in one row, a
+   shelf, since a card there is only cover, title and formats; tablets show it
+   two by two and phones stack it. (The Books page leads with one book and sets
+   the other three in the plain grid; see .card--feature.) */
+.cardgrid--shelf { grid-template-columns: 1fr; }
+/* the brown under each cover holds the book's short name, a line in Eric's
+   words and the formats, level across the row */
+.cardgrid--shelf .card--book .pad { padding: 22px 20px 26px; gap: 10px; }
+.card--book .card-line { font-size: 1.1rem; line-height: 1.4; text-wrap: balance; }
+/* each line holds to one line: in a narrow card the type steps down just enough
+   for the longest, "My most comprehensive." (about 12em), to fit inside the
+   card's 20px sides, and every card in the row takes the same size */
+.cardgrid--shelf .card--book { container-type: inline-size; }
+.cardgrid--shelf .card--book .card-line { font-size: min(1.1rem, calc((100cqi - 40px) / 12.3)); }
+/* and the name the same way, sized to fit the longest, "Explosively Hilarious" */
+.cardgrid--shelf .card--book h3 { font-size: min(1.16rem, calc((100cqi - 40px) / 10.8)); }
+@media (min-width: 640px) {
+  .cardgrid--shelf { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 960px) {
+  .cardgrid--shelf { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  /* at a quarter of the row a cover is as wide as its card; here it gets the
+     same room on both sides */
+  .cardgrid--shelf .card--book img { padding: 18px; }
+  /* a quarter of the row is narrower than "Paperback · eBook · Audiobook", so
+     here the formats stand one to a line rather than break mid-list */
+  .cardgrid--shelf .card--book .card-formats { display: flex; flex-direction: column; gap: 2px; }
+  .cardgrid--shelf .card-formats .sep { display: none; }
+}
+/* A card is a block with the link on its title alone, and that link's ::after
+   stretched over the whole card so every part of it still clicks through. A
+   screen reader then hears the date and excerpt as plain text and the link by
+   its title, rather than the whole card read out as one long link name. */
+.card {
+  position: relative;
+  background: var(--page);
+  border: 2px solid #c9c2b6; /* subtle grey frame */
+  box-shadow: 0 6px 18px rgba(25, 20, 16, .25);
+  display: flex; flex-direction: column; text-decoration: none; color: var(--text);
+  transition: transform .1s ease;
+  -webkit-user-drag: none; /* the whole card is a link; without this, dragging drags the link */
+}
+/* so the copy can still be selected and copied out of a card-wide link */
+.card .pad, .card .pad * { user-select: text; -webkit-user-select: text; }
+.card:hover { transform: translate(-2px, -2px); color: var(--text); }
+.card .card-link { color: inherit; text-decoration: none; }
+.card .card-link::after { content: ""; position: absolute; inset: 0; }
+/* the keyboard ring goes round the card, as it did when the card was the link */
+.card .card-link:focus-visible { outline: none; }
+.card:has(.card-link:focus-visible) { outline: auto; outline-offset: 3px; }
+.card img { width: 100%; aspect-ratio: 16/10; object-fit: cover; border-bottom: 2px solid #c9c2b6; }
+.card .pad { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.card .kicker {
+  font-family: var(--heading); font-weight: 500; font-size: 1rem;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--red-deep);
+}
+.card h2, .card h3 { font-family: var(--heading); text-transform: uppercase; font-size: 1.3rem; line-height: 1.25; letter-spacing: .03em; }
+/* card titles are kept short enough to sit on one line; two lines reserved as a safety net
+   so a wrap at a narrow width can't knock the copy out of alignment */
+/* book card footer: warm brown-grey plate — sepia-print grey, not ink — white type, compact title */
+.card--book { border-color: #1f1a15; }
+.card--book img { border-bottom-color: #1f1a15; }
+.card--book .pad { background: #1f1a15; color: #fff; padding: 26px 20px 34px; }
+.card--book h2, .card--book h3 { min-height: 0; font-size: 1.16rem; color: #fff; }
+.card--book p { color: #fff; }
+.card--book .card-formats {
+  font-family: var(--type);
+  font-size: .875rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  white-space: nowrap;
+}
+.card p { font-size: 1.02rem; line-height: 1.6; }
+
+/* The Books page's lead book runs the full width on its side: the cover in a
+   white panel cut to it with room all round, and beside it in the brown the
+   title, the description and a reader's word for the book. Under 720px it
+   stacks like any other card. */
+.card--book.card--feature h2 { font-size: 1.6rem; }
+.card--book.card--feature .card-formats { font-size: .95rem; }
+.card--book.card--feature .pad { padding: 30px 28px 36px; }
+@media (min-width: 720px) {
+  .card--book.card--feature { flex-direction: row; }
+  .card--book.card--feature img {
+    flex: none; width: 310px; height: auto; min-height: 420px;
+    padding: 38px 50px; border-bottom: 0;
+  }
+  .card--book.card--feature .pad { justify-content: center; padding: 36px 44px; }
+}
+/* on an upright tablet the brown is narrower, so the copy runs longer; the
+   cover's panel gives up some of its side room, and the quote stays on the
+   wider screens, so the lead card comes out the height of the three under it */
+@media (min-width: 720px) and (max-width: 959px) {
+  .card--book.card--feature img { width: 260px; padding: 38px 30px; }
+  .card--book.card--feature .pad { padding: 30px 32px; }
+  .card--feature .card-quote { display: none; }
+}
+/* a tablet on its side sets the copy 15% larger (see the body type), which
+   makes the lead card taller than its cover; a wider panel lets the cover
+   grow to fill it */
+@media (hover: none) and (pointer: coarse) and (min-width: 960px) {
+  .card--book.card--feature img { width: 360px; }
+}
+
+/* the other three follow in one row on a wide screen, never two and one. On a
+   tablet a third of the row is too narrow for a card's copy, so there each one
+   lies on its side like the lead card, cover panel the same size, one to a row */
+.cardgrid--trio { grid-template-columns: 1fr; }
+@media (min-width: 960px) {
+  .cardgrid--trio { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 720px) and (max-width: 959px) {
+  .cardgrid--trio .card--book { flex-direction: row; }
+  .cardgrid--trio .card--book img {
+    flex: none; width: 260px; height: auto; min-height: 420px;
+    padding: 38px 30px; border-bottom: 0;
+  }
+  .cardgrid--trio .card--book .pad { justify-content: center; padding: 30px 32px; }
+}
+/* on a wide screen the lead card's copy runs long enough to set fill-justified,
+   hyphenated so a long word can't open a gap; narrower, it stays ragged, as do
+   the cards under it */
+@media (min-width: 960px) {
+  .card--feature .pad > p:not(.card-formats),
+  .card-quote blockquote p { text-align: justify; -webkit-hyphens: auto; hyphens: auto; }
+}
+.card-quote { margin: 10px 0 0; }
+.card-quote blockquote p { font-style: italic; }
+.card-quote figcaption {
+  display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: baseline;
+  column-gap: 12px; margin-top: 6px; text-align: right;
+}
+.card-quote figcaption strong {
+  font-family: var(--heading); text-transform: uppercase; letter-spacing: .05em;
+  font-size: 1.05rem; font-weight: 600;
+}
+.card-quote figcaption em {
+  font-style: normal; font-family: var(--type); font-size: .875rem;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--yellow);
+}
+/* book covers keep their true aspect, sized down so they sit in the card rather than fill it */
+.card--book img {
+  aspect-ratio: auto;
+  object-fit: contain;
+  height: 380px;
+  padding: 18px 0; /* border-box, so this is real breathing room around the cover */
+  /* the renders are cropped tight to the book, page edge and all, so the
+     cover sits at the true centre of its panel */
+  /* the same shadow the book pages give their covers, scaled to a cover that
+     stands about two fifths the height */
+  filter: drop-shadow(8px 10px 4px rgba(25, 20, 16, .24));
+  /* and the shadow has to be given a layer of its own, or the browser paints
+     these covers flat and only works the filter out when something forces a
+     repaint — which on this page meant the shadow appearing under the pointer,
+     one book at a time, as the reader hovered. Not the lazy loading: dropping
+     that changes nothing. It is the filter never being re-run against the
+     decoded image, and promoting the layer is what makes it run. */
+  will-change: filter;
+}
+
+@media (max-width: 900px) {
+  .masthead { justify-content: space-between; padding: 12px 16px; }
+  .brand { gap: 12px; }
+  /* the desktop clamp bottoms out at 64px, which reads small on a phone —
+     the plate earns more of the bar here */
+  .brand-plate-wide { height: 80px; }
+  .brand-bubble { width: 56px; height: 56px; }
+  .brand-sticker { height: 34px; }
+  .nav-toggle { display: block; }
+  .site-nav { display: none; width: 100%; flex-basis: 100%; flex-direction: column; align-items: center; gap: 0; padding: 6px 0 18px; }
+  .site-nav.open { display: flex; }
+  .site-nav a { padding: 12px 16px; font-size: 1.3rem; }
+  .section { padding: 48px 0; }
+  .topbar { font-size: .72rem; letter-spacing: .16em; }
+  .site-footer .cols { flex-direction: column; align-items: center; text-align: center; }
+  .footer-stamp { margin: 0 auto; } /* stacked, so it centres with everything else */
+  .col-group > div { text-align: center; } /* stacked, so the lists centre with everything else */
+  /* the lists now set at their own rhythm everywhere, so there is nothing left
+     to tighten here — this used to pull 18px back to 10px, and against the 7px
+     the panel carries now it would only open the stacked list back up */
+  .site-footer { padding-bottom: 40px; }
+}

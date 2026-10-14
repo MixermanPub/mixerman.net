@@ -1,0 +1,427 @@
+---
+import Base from '../layouts/Base.astro';
+import show from '../data/radio-show.json';
+
+/* The Mixerman Radio Show, back at the address it always had.
+
+   The page was taken down some time before the 2026 migration — it is not in
+   the WordPress export, and Google was already getting a 404 from it on the
+   old site. The audio never went anywhere: it has always streamed from the
+   mixermanmedia S3 bucket, and all 49 files were confirmed alive and copied
+   locally on 2026-09-17.
+
+   Rebuilt here rather than redirected because the URL is what search engines
+   have, and because there was nowhere else to send anyone. Deliberately not in
+   the masthead (Eric, 2026-09-17): this is not forward-facing, it is for the
+   person who goes looking. So it stays indexed, stays in the sitemap, keeps
+   its old address, and is reachable from the footer.
+
+   Titles are the ones the original page carried, taken from its last archived
+   copy. Runtimes were measured from the files. Nothing here is invented: where
+   the original was ambiguous it has been left alone rather than tidied into a
+   guess. */
+
+const { sessions, interviews, theme, bestof } = show;
+
+/* Grouped, not flat: each show names itself once in white and its parts run
+   red beneath it. Eric's call, and the right one — the show is the thing you
+   sit down to, and the parts are only where the tape ran out. */
+
+const hours = Math.floor(show.seconds / 3600);
+const minutes = Math.round((show.seconds % 3600) / 60);
+
+/* h:mm:ss here, unlike the podcast page's m:ss — nothing on this page is
+   under fourteen minutes and most of it runs past the hour. */
+/* "Part 1" sets the word in white and the number in red, which needs them
+   apart. The same split takes the number off the end of an interview title,
+   so every row on the page reads the same way; a title with no number at the
+   end simply keeps all of itself. */
+/* Every interview title is "<someone> Interviews <someone else>", or Meets in
+   the one case where Pounce met Richard Shack rather than interviewed him.
+   The asking half stays white and the person asked goes red, so a list of six
+   reads as six names rather than six sentences. Anything that does not parse
+   keeps all of itself in white rather than being forced into the shape. */
+const splitInterview = (title) => {
+  const m = title.match(/^(.*?\b(?:Interviews|Meets))\s+(.+?)(,?\s*Part\s*\d+)?$/);
+  return m ? { asking: m[1], asked: m[2], tail: m[3] || '' } : null;
+};
+
+const splitNumber = (title) => {
+  const m = title.match(/^(.*?)(\d+)\s*$/);
+  return m ? { label: m[1], num: m[2] } : { label: title, num: '' };
+};
+
+const runtime = (s) => {
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  return h ? `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
+           : `${m}:${String(sec).padStart(2, '0')}`;
+};
+/* the same length in words, for anyone who hears "1:07:14" as nothing at all */
+const spoken = (s) => {
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
+  return [h && `${h} hour${h === 1 ? '' : 's'}`, m && `${m} minute${m === 1 ? '' : 's'}`]
+    .filter(Boolean).join(' ') || `${s} seconds`;
+};
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'The Mixerman Radio Show',
+  description: 'Every surviving episode of The Mixerman Radio Show, the annual recording roundtable with Slipperman, Weedywet, The Saint and Aardvark.',
+  url: 'https://mixerman.net/mixerman-radio-show/',
+  numberOfItems: show.count,
+  itemListElement: [
+    ...sessions.flatMap((s) => s.parts.map((p) => ({ name: `${s.title} — ${p.title}`, audio: p }))),
+    ...interviews.map((p) => ({ name: p.title, audio: p })),
+  ].map((it, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: {
+      '@type': 'AudioObject',
+      name: it.name,
+      contentUrl: it.audio.audio,
+      encodingFormat: 'audio/mpeg',
+      duration: `PT${Math.floor(it.audio.seconds / 3600)}H${Math.floor((it.audio.seconds % 3600) / 60)}M${it.audio.seconds % 60}S`,
+    },
+  })),
+};
+---
+<Base title="The Mixerman Radio Show — Every Episode"
+  image="/uploads/2026/09/mixerman-radio-show-share.jpg"
+  description={`The complete Mixerman Radio Show: ${hours} hours of Mixerman, Slipperman (Tim Gilles), Weedywet (William Wittman), The Saint (Ron Saint Germain) and Aardvark talking recording, mixing, and the state of the record business — plus the interviews. Free, in full.`}>
+
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+
+  <!-- TITLE -->
+  <section class="section rs-band" style="padding:40px 0 28px">
+    <div class="wrap" style="max-width:980px">
+      {/* Built the way the book pages build their title band: the full-weight
+          lineband rather than the thin one used for section headings, the
+          yellow plate on it, and the tape hung underneath at the house tilt.
+          The words on the tape are in the alt text, which is the only place a
+          reader who cannot see it will find them. */}
+      <div class="lineband" style="text-align:center">
+        <h1 class="plate" style="margin-bottom:0; font-size:clamp(1.5rem, 3.4vw, 2.2rem)">The Mixerman Radio Show</h1>
+      </div>
+      {/* The label is Eric's, untouched — only the empty transparent border is
+          off it. It is a deeper rectangle than the other tapes rather than a
+          strip, so it is matched on height instead of width: 72px, which is
+          what the antidote tape stands on the book pages. */}
+      <img src="/brand/archive-tape.webp" alt="The Archive" width="174" height="72"
+        style="display:block; margin:12px auto 0; max-width:88%; height:auto; transform:rotate(-1.2deg)" />
+    </div>
+  </section>
+
+  <!-- WHAT IT IS -->
+  <section class="section rs-band" style="padding:8px 0 40px">
+    <div class="wrap" style="max-width:820px">
+      <div class="prose">
+        {/* Eric's copy, written for this page rather than carried over from
+            the old one. Apostrophes are set as the site sets them; the only
+            other change is "They'er" → "They're". */}
+        {/* The show's own title card from 2014, full size — found in the bucket
+            on 2026-09-18 after years of only the 280px copy being linked. Eric
+            added Weedywet and The Saint to it by hand, which retired the red
+            subtitle that used to sit under the tape. */}
+        <img src="/uploads/2026/09/mixerman-radio-show-art.webp"
+          alt="The Mixerman Radio Show with Slipperman &amp; Aardvark. Weedywet &amp; The Saint too!"
+          width="1600" height="900" style="width:100%; height:auto; margin:0" />
+        <p class="rs-meta" style="margin:10px 0 1.6em">{sessions.length} shows &middot; {show.count} recordings &middot; {hours} hours {minutes} minutes &middot; free</p>
+        <h2>A Blast From the Past</h2>
+        <p>Every year from the mid aughts to the mid 10s I would get together with my friends, Slipperman (Tim Gilles), Weedywet (William Wittman), The Saint (Ron Saint Germain), and Aardvark (Aardvark) to record several hours of The Mixerman Radio Show.</p>
+        <p>As I was preparing the new site I found a treasure trove of the old shows deep in an assets folder. All of them as far as I can tell. Since I get asked about these old shows all the time, I decided to put them up for anyone who wants to listen to them. Slippy is no longer with us, of course. I miss him dearly as do many of you. At least now we can all go and listen to his hysterical rants and missives when we&rsquo;re thinking about him.</p>
+        <p>There&rsquo;s lots of relevant information in these shows for anyone who produces music, and there&rsquo;s a lot of history too. The shows are certainly entertaining. So, if you want to take a walk down memory lane, they&rsquo;re here for you to listen to any time you like.</p>
+        <p>Please note: One of the newly found shows came with no running order, so for now it plays alphabetically, which I can promise you is not how we recorded it. If you remember how any of these went, or you spot something mislabeled, <a href="/about-contact/">let me know</a>.</p>
+        <p>Enjoy,<br />Mixerman</p>
+      </div>
+    </div>
+  </section>
+
+  {/* THE LIST — one line per recording, and the player opens inside the row.
+
+      This page once carried 49 native players and stood eleven screens tall;
+      the titles and runtimes on it came to about a screen and a half of that.
+      So a recording is a line, and the single player moves into whichever row
+      you press. One player, always where you are looking, and no furniture
+      bolted to the bottom of the window. */}
+  <section class="section section--ink" style="padding:34px 0 64px">
+    <div class="wrap" style="max-width:900px">
+      {[...sessions.map((x) => ({ title: x.title, items: x.parts, kind: 'show' })),
+        { title: 'The Interviews', items: interviews, kind: 'interviews' },
+        { title: 'The Theme', items: [theme], kind: 'theme' },
+        { title: 'The Best Of', items: [bestof], kind: 'theme' }].map((group) => (
+        <section class={`rs-group rs-group--${group.kind}`}>
+          <h3 class="rs-session-title">{group.title}</h3>
+          <ol class="rs-list">
+            {group.items.map((p) => (
+              <li class="rs-ep">
+                <button class="rs-play" type="button"
+                  data-src={p.audio}
+                  data-title={group.kind === 'show' ? `${group.title}, ${p.title}` : p.title}>
+                  <span class="rs-icon" aria-hidden="true"></span>
+                  <span class="rs-ep-title">
+                    <span class="sr-only">Play </span>
+                    {group.kind === 'interviews' && splitInterview(p.title)
+                      ? <>{splitInterview(p.title).asking}{' '}<span class="rs-whom">{splitInterview(p.title).asked}</span>{splitInterview(p.title).tail}</>
+                      : <>{group.kind === 'show' && <span class="sr-only">{group.title}, </span>}{splitNumber(p.title).label}<span class="rs-num">{splitNumber(p.title).num}</span></>}
+                  </span>
+                  <span class="rs-time">
+                    <span aria-hidden="true">{runtime(p.seconds)}</span>
+                    <span class="sr-only">Runtime {spoken(p.seconds)}</span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
+
+      {/* The one player, parked here until a row asks for it. Written into the
+          page rather than made by the script so it carries the page's own
+          styles, which an element built later would not. */}
+      <audio class="rs-audio" controls preload="none" hidden></audio>
+    </div>
+  </section>
+
+  <style>
+    .rs-meta {
+      margin: 10px 0 0;
+      text-align: center;
+      font-family: var(--heading);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      font-size: .95rem;
+      opacity: .75;
+    }
+    .rs-band { background: var(--cream); color: var(--text); }
+
+    .rs-group { margin: 0 0 40px; }
+    .rs-group:last-of-type { margin-bottom: 0; }
+    .rs-session-title {
+      margin: 0 0 12px;
+      padding: 0 0 8px;
+      /* one rule under the heading and none on the rows — the list below needs
+         no box of its own to read as belonging to it */
+      border-bottom: 1px solid rgba(248, 241, 226, .22);
+      font-family: var(--heading);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      font-size: 1.28rem;
+      color: var(--yellow);
+    }
+    .rs-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      border-top: 2px solid rgba(248, 241, 226, .35);
+    }
+    .rs-ep { border-bottom: 1px solid rgba(248, 241, 226, .16); }
+
+    /* A row is a button the width of the list. The whole line is the target —
+       nobody should have to hit a 20px triangle. */
+    .rs-play {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      padding: 11px 0;
+      background: none;
+      border: 0;
+      text-align: left;
+      cursor: pointer;
+      color: inherit;
+      font: inherit;
+    }
+    .rs-icon {
+      flex: 0 0 auto;
+      width: 26px;
+      height: 26px;
+      border: 1px solid rgba(248, 241, 226, .35);
+      border-radius: 50%;
+      position: relative;
+    }
+    /* a triangle drawn in borders: nothing to load 49 times, and it takes the
+       colour of the row it sits in */
+    .rs-icon::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 54%;
+      transform: translate(-50%, -50%);
+      border-style: solid;
+      border-width: 5px 0 5px 8px;
+      border-color: transparent transparent transparent currentColor;
+      color: var(--cream);
+    }
+    .rs-play:hover .rs-icon { border-color: var(--yellow); }
+    .rs-play:hover .rs-icon::before { color: var(--yellow); }
+    .rs-play:hover .rs-ep-title { color: var(--yellow); }
+    .rs-play:focus-visible { outline: 2px solid var(--yellow); outline-offset: 3px; }
+
+    .rs-ep-title {
+      flex: 1 1 auto;
+      font-family: var(--heading);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+      font-size: 1.14rem;
+      line-height: 1.25;
+      color: #de5747;
+    }
+    .rs-num { color: var(--cream); }
+    .rs-whom { color: #de5747; }
+    .rs-group--interviews .rs-ep-title,
+    .rs-group--theme .rs-ep-title { color: var(--cream); }
+    .rs-time {
+      flex: 0 0 auto;
+      font-family: var(--heading);
+      font-size: .92rem;
+      color: rgba(248, 241, 226, .6);
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* the row holding the player keeps the mark, so a list this long still
+       says where you are */
+    .rs-ep.playing .rs-icon { border-color: var(--yellow); background: var(--yellow); }
+    .rs-ep.playing .rs-icon::before { color: var(--text); }
+    .rs-ep.playing .rs-ep-title { color: var(--yellow); }
+
+    .rs-audio {
+      /* native controls, told to dress for a black room. color-scheme is the
+         standards-based way: each browser draws its own dark player, where
+         inverting the colours would turn Firefox's dark one light. */
+      color-scheme: dark;
+      display: block;
+      width: 100%;
+      height: 40px;
+      margin: 0 0 14px;
+    }
+    .rs-audio[hidden] { display: none; }
+
+    @media (max-width: 620px) {
+      .rs-play { gap: 10px; }
+      .rs-ep-title { font-size: 1.02rem; }
+    }
+  </style>
+
+  <script is:inline>
+    /* One player for every recording, and it lives in whichever row asked for
+       it. Pressing a row moves the player into that row and starts it;
+       pressing the same row again stops it and puts the player away. Nothing
+       is pinned to the window, and the control is always exactly where the
+       reader just clicked.
+
+       The Media Session lines hand playback to the operating system — macOS
+       Now Playing, the lock screen, the play/pause key, the button on a set of
+       headphones — so a recording that is running can always be found and
+       stopped, including from a tab that has been buried. That is also what
+       makes an hour-long recording usable on a phone, which is where a thing
+       like this actually gets listened to. */
+    (() => {
+      const audio = document.querySelector('.rs-audio');
+      const buttons = [...document.querySelectorAll('.rs-play')];
+      const pageTitle = document.title;
+      /* Lock screens want a square. This is Eric's title card, whole, with its own
+         top and bottom edges carried out to fill the square (not cropped, not
+         redrawn); served from the site so the page no longer leans on the
+         bucket's 2015/ folder. */
+      const ARTWORK = '/uploads/2026/09/mixerman-radio-show-square.jpg';
+
+      let index = -1;
+
+      const mark = () => {
+        document.querySelectorAll('.rs-ep.playing').forEach((r) => r.classList.remove('playing'));
+        if (index > -1 && !audio.paused) buttons[index].closest('.rs-ep').classList.add('playing');
+        /* the tab strip shows a speaker on whichever tab is making sound but
+           never says what; this does */
+        document.title = index > -1 && !audio.paused
+          ? `\u25B6 ${buttons[index].dataset.title} — ${pageTitle}`
+          : pageTitle;
+        if ('mediaSession' in navigator) {
+          navigator.mediaSession.playbackState = index > -1 && !audio.paused ? 'playing' : 'paused';
+        }
+      };
+
+      const play = (i) => {
+        if (i < 0 || i >= buttons.length) return;
+        const row = buttons[i].closest('.rs-ep');
+        if (i !== index) {
+          index = i;
+          audio.src = buttons[i].dataset.src;
+          if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+              title: buttons[i].dataset.title,
+              artist: 'The Mixerman Radio Show',
+              album: 'Mixerman',
+              artwork: [{ src: ARTWORK, sizes: '1024x1024', type: 'image/jpeg' }],
+            });
+          }
+        }
+        row.append(audio);
+        audio.hidden = false;
+        audio.play().then(mark).catch(mark);
+      };
+
+      const stop = () => {
+        audio.pause();
+        audio.hidden = true;
+        index = -1;
+        mark();
+        if ('mediaSession' in navigator) navigator.mediaSession.metadata = null;
+      };
+
+      buttons.forEach((button, i) => {
+        button.addEventListener('click', () => {
+          if (i === index && !audio.paused) { stop(); return; }
+          play(i);
+        });
+      });
+
+      ['play', 'pause', 'ended'].forEach((event) => audio.addEventListener(event, mark));
+
+      /* What people actually play. Analytics sees YouTube embeds on its own
+         but not an audio element, so the player reports for itself: a start,
+         the quarter marks, and the finish, each named for the recording and
+         each sent once per recording per visit, however often it is paused.
+         Without gtag (development, a blocker) it says nothing. */
+      const sent = new Set();
+      const report = (event, extra = {}) => {
+        if (index < 0 || typeof window.gtag !== 'function') return;
+        const title = buttons[index].dataset.title;
+        const key = `${event}|${extra.audio_percent ?? ''}|${title}`;
+        if (sent.has(key)) return;
+        sent.add(key);
+        window.gtag('event', event, { audio_title: title, ...extra });
+      };
+      audio.addEventListener('playing', () => report('audio_start'));
+      audio.addEventListener('timeupdate', () => {
+        if (!audio.duration) return;
+        const heard = (audio.currentTime / audio.duration) * 100;
+        for (const quarter of [25, 50, 75]) {
+          if (heard >= quarter) report('audio_progress', { audio_percent: quarter });
+        }
+      });
+      audio.addEventListener('ended', () => report('audio_complete'));
+
+      if ('mediaSession' in navigator) {
+        const handlers = {
+          play: () => play(index > -1 ? index : 0),
+          pause: () => { audio.pause(); mark(); },
+          stop,
+          previoustrack: () => play(index - 1),
+          nexttrack: () => play(index + 1),
+          seekbackward: (d) => { audio.currentTime = Math.max(0, audio.currentTime - (d.seekOffset || 15)); },
+          seekforward: (d) => { audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + (d.seekOffset || 30)); },
+          seekto: (d) => { if (d.fastSeek && audio.fastSeek) audio.fastSeek(d.seekTime); else audio.currentTime = d.seekTime; },
+        };
+        for (const [action, handler] of Object.entries(handlers)) {
+          /* an action this browser has never heard of throws rather than being
+             ignored, and one unsupported handler must not cost the rest */
+          try { navigator.mediaSession.setActionHandler(action, handler); } catch {}
+        }
+      }
+    })();
+  </script>
+</Base>

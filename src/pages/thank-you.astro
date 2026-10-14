@@ -1,0 +1,153 @@
+---
+import Base from '../layouts/Base.astro';
+import { pageTitle } from '../data/site';
+import { getEntry, render } from 'astro:content';
+
+const entry = await getEntry('pages', 'thank-you');
+const { Content } = await render(entry);
+const d = entry.data;
+---
+<Base title={pageTitle(d.title)} description={d.excerpt} noindex={true}>
+  <section class="section section--deep" style="padding:40px 0 28px">
+    <div class="wrap" style="text-align:center">
+      <div class="lineband">
+        <h1 class="plate" style="font-size:clamp(1.4rem, 2.8vw, 2rem)">Thank You</h1>
+      </div>
+    </div>
+  </section>
+
+  {/* the sheet is white on the white page, so its padding was only air —
+      the message stands on the page itself, close under the plate */}
+  <section class="section" id="ty-body" style="padding:28px 0 56px">
+    <div class="wrap" style="max-width:920px">
+      <article style="text-align:center">
+        <div class="prose" id="ty-default">
+          <Content />
+        </div>
+        {/* the book stands beside the note, small, the way a copy sits on a desk */}
+        <div class="ty-deskcopy" id="ty-deskcopy" hidden>
+          <div class="ty-deskcopy-frame">
+            <img class="ty-deskcopy-cover" src="/uploads/2026/08/mug2prms-3d-transparent-480.webp"
+                 alt="MIXERMAN'S Ultimate Guide to PRODUCING Records, Music &amp; Songs — paperback" width="170" />
+          </div>
+          <div class="ty-deskcopy-plate prose">
+            <p id="ty-deskcopy-ebook">
+              Your desk copy request for <em>MIXERMAN'S Ultimate Guide to PRODUCING Records,
+              Music &amp; Songs</em> has been received. I will personally email you when your
+              copy is ready for download.
+            </p>
+            {/* the paperback path: they pay now, and get the eBook as well */}
+            <p id="ty-deskcopy-paper" hidden>
+              Your order has been received. Your paperback desk copy of <em>MIXERMAN'S Ultimate
+              Guide to PRODUCING Records, Music &amp; Songs</em> will be shipped soon.
+              Please <a href="/about-contact/#contact">contact me directly</a> if there are any issues.
+            </p>
+          </div>
+        </div>
+        <div class="prose" id="ty-retreat" hidden>
+          <p>
+            Got it — your interest in the retreat is noted. I'll reach out personally
+            to make sure it's the right fit for you.
+          </p>
+        </div>
+        <div class="prose" id="ty-subscribed" hidden>
+          <p>You're confirmed and on my list. Unsubscribe anytime. Until then, enjoy!</p>
+        </div>
+        <div class="prose" id="ty-contact" hidden>
+          <p>Your message has been sent and goes directly to my inbox. Thanks for reaching out.</p>
+        </div>
+        <div id="ty-pay" hidden>
+          <div class="prose">
+            <p>
+              <strong>One more step for your paperback:</strong> complete your payment below.
+            </p>
+          </div>
+          <a class="btn" id="ty-pay-btn" href="#" style="display:inline-block; margin-top:20px">Pay for your paperback</a>
+          <p class="ty-fine">Secure checkout by Stripe.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <style>
+    /* a desk-copy arrival gets the Books page treatment: cream ground, and a
+       card whose white frame holds the book and whose chocolate plate holds
+       the note — the same frame, rule and plate the book cards wear */
+    #ty-body.paper { background: var(--paper); padding-top: 44px !important; }  /* a touch more cream above the card than the inline padding gives */
+    .ty-fine { font-size: .95rem; color: #4a4038; margin-top: 12px; }
+    #ty-body.paper #ty-pay { margin-top: 36px; }
+    .ty-deskcopy:not([hidden]) {
+      display: flex; align-items: stretch; max-width: 590px; margin: 0 auto;
+      text-align: left; color: #fff;
+      background: #1f1a15; border: 2px solid #1f1a15;
+      box-shadow: 0 12px 30px rgba(25, 20, 16, .38);  /* deeper than the book cards, so it lifts off the cream */
+    }
+    .ty-deskcopy-frame {
+      flex: 0 0 236px; display: flex; align-items: center; justify-content: center;
+      background: var(--page); padding: 22px 24px; border-right: 2px solid #1f1a15;
+    }
+    .ty-deskcopy-cover { width: 170px; height: auto; }
+    .ty-deskcopy-plate { flex: 1; display: flex; align-items: center; padding: 30px 28px; }
+    /* the prose sets its own alignment and colour; here the plate decides */
+    .ty-deskcopy .prose, .ty-deskcopy .prose p { text-align: inherit; color: inherit; }
+    .ty-deskcopy .prose p { font-size: 1.2rem; line-height: 1.6; margin: 0; }
+    /* a link on the chocolate plate reads in the house gold */
+    .ty-deskcopy .prose a { color: var(--yellow); text-decoration: underline; text-underline-offset: 3px; }
+    .ty-deskcopy .prose a:hover { color: #fff; }
+    @media (max-width: 600px) {
+      .ty-deskcopy:not([hidden]) { flex-direction: column; }  /* the book centers; the note stays left-justified */
+      .ty-deskcopy-frame { flex-basis: auto; border-right: 0; border-bottom: 2px solid #1f1a15; padding: 20px; }
+      .ty-deskcopy-cover { width: 150px; }
+      .ty-deskcopy-plate { padding: 24px 22px 30px; }
+    }
+  </style>
+
+  <script>
+    const PAY = {
+      us: { url: 'https://buy.stripe.com/7sY9AUdXN6OU0nt38RfIs00', amount: '$15' },
+      intl: { url: 'https://buy.stripe.com/3cI9AU9Hx7SYb279xffIs01', amount: '$25' },
+    };
+    const params = new URLSearchParams(window.location.search);
+    for (const src of ['retreat', 'contact', 'subscribed']) {
+      if (params.get('src') === src) {
+        (document.getElementById('ty-default') as HTMLElement).hidden = true;
+        (document.getElementById(`ty-${src}`) as HTMLElement).hidden = false;
+      }
+    }
+    /* Where Kit's confirmation email lands people, in place of the page of
+       theirs it used to. They have just joined the list, so the one thing this
+       page must not do is ask them to join the list — and the band is in the
+       markup already, put there by Base for the other three arrivals. Removed
+       rather than hidden: #subscribe.section sets display, which outranks the
+       hidden attribute. */
+    if (params.get('src') === 'subscribed') {
+      document.getElementById('subscribe')?.remove();
+    }
+    if (params.get('src') === 'deskcopy') {
+      (document.getElementById('ty-default') as HTMLElement).hidden = true;
+      (document.getElementById('ty-deskcopy') as HTMLElement).hidden = false;
+      (document.getElementById('ty-body') as HTMLElement).classList.add('paper');
+      const pay = PAY[params.get('pb') as keyof typeof PAY];
+      const paid = params.get('paid') === '1';
+      if (pay || paid) {
+        (document.getElementById('ty-deskcopy-ebook') as HTMLElement).hidden = true;
+        (document.getElementById('ty-deskcopy-paper') as HTMLElement).hidden = false;
+      }
+      /* A paperback order goes straight to Stripe: Netlify has recorded the
+         submission by the time this page loads, so nothing is lost. Stripe's
+         payment link sends them back here with ?src=deskcopy&paid=1, which
+         shows the card and no button. The button below is only the fallback,
+         for a browser that will not follow the redirect. */
+      if (pay && !paid) {
+        (document.getElementById('ty-pay') as HTMLElement).hidden = false;
+        let email = '';
+        try { email = sessionStorage.getItem('deskcopy-email') || ''; sessionStorage.removeItem('deskcopy-email'); } catch {}
+        const url = email ? `${pay.url}?prefilled_email=${encodeURIComponent(email)}` : pay.url;
+        const btn = document.getElementById('ty-pay-btn') as HTMLAnchorElement;
+        btn.href = url;
+        btn.textContent = `Pay ${pay.amount} for your paperback`;
+        window.location.replace(url);
+      }
+    }
+  </script>
+</Base>
