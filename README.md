@@ -4,6 +4,8 @@ The site behind the Mixerman books, blog and podcast, by Eric Sarafin. Twenty ye
 
 Live at [mixerman.net](https://mixerman.net).
 
+Built with Claude Code. Every decision in it is mine.
+
 ## What it is
 
 - **[Astro](https://astro.build)**, no framework on top. Every page is rendered to plain HTML at build time. The client-side JavaScript is a few hand-written snippets where a form, a player or a sticker needs one; there is no bundle.
